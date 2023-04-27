@@ -23,6 +23,8 @@ class PolynomialSoftmax(nn.Module):
         order: int = 2,
         dim: int = -1,
         skip_normalization: bool = False,
+        init_alpha: float = 1e-3,
+        norm_loss_weight: float = 1.,
     ) -> None:
         """Initializes the PolynomialSoftmax.
 
@@ -42,12 +44,13 @@ class PolynomialSoftmax(nn.Module):
         self.dim = dim
 
         self.skip_normalization = skip_normalization
+        self.norm_loss_weight = norm_loss_weight
 
         if not skip_normalization:
             self._forward_function = self._sum_normalization_forward
         else:
             self._forward_function = self._skip_normalization_forward
-            self.alpha = nn.Parameter(torch.ones(1) * 1e-3, requires_grad=True)
+            self.alpha = nn.Parameter(torch.ones(1) * init_alpha, requires_grad=True)
             self.step_loss: Tensor = Tensor([0.0])
 
     def _skip_normalization_forward(self, input: Tensor) -> Tensor:
@@ -63,7 +66,7 @@ class PolynomialSoftmax(nn.Module):
         input = torch.pow(input, self.order)
         # computing the training step loss from the sum of the output values
         sum_of_input = input.sum(dim=self.dim)
-        self.step_loss = nn.MSELoss()(sum_of_input, torch.ones_like(sum_of_input))
+        self.step_loss = self.norm_loss_weight * nn.MSELoss()(sum_of_input, torch.ones_like(sum_of_input))
         return input
 
     def _sum_normalization_forward(self, input: Tensor) -> Tensor:
@@ -157,10 +160,13 @@ class PolynomialSoftmaxApproximator(ModuleApproximator):
 
         softmax: Union[nn.Softmax, PolynomialSoftmax] = kwargs["softmax"]  # type: ignore
 
-        new_approximation = PolynomialSoftmax(**self.parameters)
+        
         if isinstance(softmax, PolynomialSoftmax):
-            for name, param in softmax.named_parameters():
-                setattr(new_approximation, name, param)
+            # adding the module to the approximation list
+            self.approximations.append(softmax)
+            return softmax
+        
+        new_approximation = PolynomialSoftmax(**self.parameters)
         # adding the module to the approximation list
         self.approximations.append(new_approximation)
         return new_approximation
