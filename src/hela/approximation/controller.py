@@ -11,6 +11,7 @@ from torch import nn
 from .aliases import ALIASES_FILE, load_modules_aliases
 
 # all the approximator classes must be imported to let the controller know their existance
+from .approximators.activation.quadratic import QuadraticApproximator  # noqa
 from .approximators.activation.trainable_quadratic import (  # noqa
     TrainableQuadraticApproximator,
 )
@@ -24,10 +25,15 @@ from .approximators.core import ModuleApproximator
 from .approximators.layer_normalization.batch_normalization import (  # noqa
     LayerNormToBatchNormApproximator,
 )
+from .approximators.layer_normalization.distill_layernorm import (  # noqa
+    DistillLayerNormApproximator,
+)
 from .approximators.multihead.customizable_multihead import (  # noqa
     CustomizableMultiHeadApproximator,
 )
+from .approximators.softmax.mlp_softmax import MLPSoftmaxApproximator  # noqa
 from .approximators.softmax.polynomial import PolynomialSoftmaxApproximator  # noqa
+from .approximators.softmax.taylor import TaylorSoftmaxApproximator  # noqa
 from .module_to_approximate import ToApproximate
 
 logger = logging.getLogger(__name__)
