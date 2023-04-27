@@ -69,12 +69,10 @@ class TrainableQuadraticApproximator(ModuleApproximator):
         if not isinstance(module, PairedReLU):
             raise ValueError(f"{module.__class__} is not a {PairedReLU}")
 
-        # cloning the approximated module
-        approximated_relu = deepcopy(module.approximated_relu)
         # updating the approximation list
         if module in self.approximations:
-            self.approximations[self.approximations.index(module)] = approximated_relu
-        return approximated_relu
+            self.approximations[self.approximations.index(module)] = module.approximated_relu
+        return module.approximated_relu
 
     def on_train_epoch_start(self, epoch: int = 0) -> None:
         """Updates the parameter (lambda_smooth_transition) used for the smooth transition process.
