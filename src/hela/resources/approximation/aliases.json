@@ -1,0 +1,46 @@
+{
+    "aliases_list": [
+        {
+            "name": "relu",
+            "aliases": ["torch.nn.modules.activation.ReLU", "torch.nn.functional.relu"],
+            "default_approximation_type": "quadratic",
+            "dependencies": []
+        },
+        {
+            "name": "layernorm",
+            "aliases": ["torch.nn.modules.normalization.LayerNorm"],
+            "default_approximation_type": "batchnorm",
+            "dependencies": []
+        },
+        {
+            "name": "softmax",
+            "aliases": ["torch.nn.modules.activation.Softmax"],
+            "default_approximation_type": "polynomial",
+            "dependencies": []
+        },
+        {
+            "name": "polynomial_softmax",
+            "aliases": ["hela.approximation.approximators.softmax.polynomial.PolynomialSoftmax"],
+            "default_approximation_type": "polynomial",
+            "dependencies": []
+        },
+        {
+            "name": "multihead",
+            "aliases": ["torch.nn.modules.activation.MultiheadAttention"],
+            "default_approximation_type": "customizable_multihead",
+            "dependencies": []
+        },
+        {
+            "name": "attn_masking",
+            "aliases": ["hela.approximation.approximators.multihead.customizable_multihead._attn_masking"],
+            "default_approximation_type": "multiplicative",
+            "dependencies": []
+        },
+        {
+            "name": "query_key_product",
+            "aliases": ["hela.approximation.approximators.multihead.customizable_multihead._scaled_dot_product"],
+            "default_approximation_type": "not_scaled",
+            "dependencies": []
+        }
+    ]
+}

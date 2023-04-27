@@ -1,0 +1,71 @@
+{
+    "pipeline_steps": [
+        {
+            "index": 1,
+            "to_approximate": [
+                {
+                    "module": "softmax",
+                    "approximation_type": "polynomial",
+                    "parameters": {
+                        "order": 2,
+                        "skip_normalization": true
+                    }
+                },
+                {
+                    "module": "attn_masking",
+                    "approximation_type": "multiplicative",
+                    "parameters": {
+                        "attn_mask_value": 0
+                    }
+                },
+                {
+                    "module": "query_key_product",
+                    "approximation_type": "not_scaled",
+                    "parameters": {}
+                },
+                {
+                    "module": "multihead",
+                    "approximation_type": "customizable_multihead",
+                    "parameters": {}
+                }
+            ],
+            "training_args": {
+                "skip_validation": false,
+                "check_val_every_n_epoch": 5,
+                "early_stopping": true,
+                "early_stopping_monitor": "val_accuracy",
+                "early_stopping_mode": "max",
+                "early_stopping_patience": 5,
+                "early_stopping_patience_reached": true,
+                "ckpt_monitor": "val_accuracy",
+                "ckpt_mode": "max",
+                "max_epochs": 200
+            }
+        },
+        {
+            "index": 2,
+            "to_approximate": [
+                {
+                    "module": "softmax",
+                    "approximation_type": "polynomial",
+                    "parameters": {
+                        "order": 2,
+                        "skip_normalization": true
+                    }
+                }
+            ],
+            "training_args": {
+                "skip_validation": false,
+                "check_val_every_n_epoch": 5,
+                "early_stopping": true,
+                "early_stopping_monitor": "val_accuracy",
+                "early_stopping_mode": "max",
+                "early_stopping_patience": 5,
+                "early_stopping_patience_reached": true,
+                "ckpt_monitor": "val_accuracy",
+                "ckpt_mode": "max",
+                "max_epochs": 200
+            }
+        }
+    ]
+}
