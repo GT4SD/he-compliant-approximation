@@ -11,6 +11,7 @@ from torch.optim.optimizer import Optimizer
 
 from ..core import ModuleApproximator
 
+from ....models.vanilla_transformer.model import ExtendedLayerNorm
 
 class DistillLayerNormApproximator(ModuleApproximator):
     """Handles the approximation of ReLU and GeLU activation functions.
@@ -21,7 +22,7 @@ class DistillLayerNormApproximator(ModuleApproximator):
         is_approximation_trainable: establishes if the approximation contain some trainable parameters.
     """
 
-    supported_layer_types = {nn.LayerNorm}
+    supported_layer_types = {nn.LayerNorm, ExtendedLayerNorm}
     approximation_type = "distill_layernorm"
     is_approximation_trainable = True
 

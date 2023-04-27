@@ -8,6 +8,8 @@ from torch import Tensor, nn
 
 from ..core import ModuleApproximator
 
+from ....models.vanilla_transformer.model import ExtendedLayerNorm
+
 
 class LayerNormToBatchNormApproximator(ModuleApproximator):
     """Handles the approximation of layer normalization modules.
@@ -18,7 +20,7 @@ class LayerNormToBatchNormApproximator(ModuleApproximator):
         is_approximation_trainable: establishes if the approximation contain some trainable parameters.
     """
 
-    supported_layer_types = {nn.LayerNorm}
+    supported_layer_types = {nn.LayerNorm, ExtendedLayerNorm}
     approximation_type = "batchnorm"
     is_approximation_trainable = True
 

@@ -8,7 +8,7 @@
         },
         {
             "name": "layernorm",
-            "aliases": ["torch.nn.modules.normalization.LayerNorm"],
+            "aliases": ["torch.nn.modules.normalization.LayerNorm", "hela.models.vanilla_transformer.model.ExtendedLayerNorm"],
             "default_approximation_type": "batchnorm",
             "dependencies": []
         },
