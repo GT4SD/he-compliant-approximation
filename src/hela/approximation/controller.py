@@ -3,7 +3,6 @@
 import logging
 import os
 import re
-from copy import deepcopy
 from typing import Callable, Dict, Optional, Union
 
 from torch import nn
@@ -87,7 +86,6 @@ class ModelApproximationController:
             model: model whose modules must be approximated..
         """
         self.model = model
-        self.approximated_model = deepcopy(self.model)
         self.is_approximated = False
         self.is_pretrained = False
 
@@ -122,7 +120,6 @@ class ModelApproximationController:
         # RECALL: to be able to gather all ModuleApproximator subclasses they must be imported
         approximators_classes = ModuleApproximator.__subclasses__()
 
-        self.approximated_model = deepcopy(self.model)
         self.is_approximated = False
         self.is_pretrained = False
 
@@ -253,7 +250,7 @@ class ModelApproximationController:
                 "Run the 'get_approximated_model()' controller's method to approximate the model."
             )
         else:
-            print(f"{self.approximated_model}")
+            print(f"{self.model}")
 
     def print_available_approximators(self) -> None:
         """Prints the pairs of module type and its approximator for the module."""
@@ -282,7 +279,7 @@ class ModelApproximationController:
 
         # handling the model selection for the first call of the function
         if model is None:
-            model = self.approximated_model
+            model = self.model
 
         # iterating through the layers of the network
         for id, module in model.named_children():
@@ -389,12 +386,12 @@ class ModelApproximationController:
         if self.is_approximated and self.is_pretrained:
             if verbose:
                 print("Model was already approximated in its pretrained form.")
-            return self.approximated_model
+            return self.model
 
         elif self.is_approximated and not pretrained:
             if verbose:
                 print("Model was already approximated in its trainable form.")
-            return self.approximated_model
+            return self.model
 
         elif not self.is_approximated and pretrained:
             print(
@@ -429,4 +426,4 @@ class ModelApproximationController:
             for key, value in affected.items():
                 print(f" - For ({key}) a total of {value} approximated layers.")
 
-        return self.approximated_model
+        return self.model
