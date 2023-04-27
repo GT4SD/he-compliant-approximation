@@ -20,7 +20,7 @@
         },
         {
             "name": "polynomial_softmax",
-            "aliases": ["hela.approximation.approximators.softmax.polynomial.PolynomialSoftmax"],
+            "aliases": ["hela.approximation.approximators.softmax.polynomial.PolynomialSoftmax", "torch.nn.modules.activation.Softmax"],
             "default_approximation_type": "polynomial",
             "dependencies": []
         },
