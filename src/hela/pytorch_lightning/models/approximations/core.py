@@ -56,7 +56,7 @@ class LitApproximatedModel(pl.LightningModule):
 
         optimizer: Optional[Optimizer] = None
         if not self.controller.to_approximate.modules_set == set():
-            for module, approximator in self.controller.approximators.items():
+            for approximator in set(self.controller.approximators.values()):
                 if approximator.is_approximation_trainable:
                     optimizer = approximator.configure_optimizers(lightning_model=self)
 
@@ -85,7 +85,7 @@ class LitApproximatedModel(pl.LightningModule):
 
     def on_train_epoch_start(self) -> None:
         if not self.controller.to_approximate.modules_set == set():
-            for approximator in self.controller.approximators.values():
+            for approximator in set(self.controller.approximators.values()):
                 if approximator.is_approximation_trainable:
                     approximator.on_train_epoch_start(epoch=self.current_epoch)
 
@@ -103,7 +103,7 @@ class LitApproximatedModel(pl.LightningModule):
         loss = self.model(**batch).loss  # type:ignore
 
         if not self.controller.to_approximate.modules_set == set():
-            for approximator in self.controller.approximators.values():
+            for approximator in set(self.controller.approximators.values()):
                 if approximator.is_approximation_trainable:
                     loss = approximator.training_step_loss(
                         loss=loss, lightning_model=self
@@ -114,7 +114,7 @@ class LitApproximatedModel(pl.LightningModule):
 
     def on_train_epoch_end(self) -> None:
         if not self.controller.to_approximate.modules_set == set():
-            for approximator in self.controller.approximators.values():
+            for approximator in set(self.controller.approximators.values()):
                 if approximator.is_approximation_trainable:
                     approximator.on_train_epoch_end(
                         epoch=self.current_epoch, save_dir=self.logger.log_dir  # type: ignore
