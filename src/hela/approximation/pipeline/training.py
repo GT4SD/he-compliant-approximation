@@ -292,7 +292,13 @@ class TrainingPipeline(ApproximationPipeline):
         for key in list(model_weights):
             model_weights[key.replace("model.", "")] = model_weights.pop(key)
 
-        self.model.load_state_dict(model_weights)
+        # self.model.load_state_dict(model_weights)
+        for key in list(model_weights):
+            value = self.model
+            for attr in key.split(".")[:-1]:
+                value = getattr(value, attr)
+            value.data = model_weights.pop(key)
+
         print(
             f"Restoring weights states from the BEST model checkpoint at {self.model_ckpt}"
         )
@@ -330,7 +336,12 @@ class TrainingPipeline(ApproximationPipeline):
             for key in list(model_weights):
                 model_weights[key.replace("model.", "")] = model_weights.pop(key)
 
-            self.model.load_state_dict(model_weights)
+            # self.model.load_state_dict(model_weights)
+            for key in list(model_weights):
+                value = self.model
+                for attr in key.split(".")[:-1]:
+                    value = getattr(value, attr)
+                value.data = model_weights.pop(key)
             print(f"Restoring weights states from the checkpoint at {self.model_ckpt}")
 
     def get_default_model_checkpoint_callback(self) -> List[Callback]:
