@@ -7,11 +7,10 @@ from typing import Dict, Union
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-
 import torch.optim as optim
-from ....models.tokenizers.smiles import SmilesTokenizer
 from torch import Tensor
 
+from ....models.tokenizers.smiles import SmilesTokenizer
 from ....models.vanilla_transformer.configuration import VanillaTransformerConfig
 from ....models.vanilla_transformer.model import VanillaTransformer
 

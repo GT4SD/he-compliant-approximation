@@ -9,7 +9,6 @@ from ..models.tokenizers.smiles import SmilesTokenizer
 from ..pytorch_lightning.datasets.smiles import LitSmilesDataset
 from ..pytorch_lightning.models.vanilla_transformer.model import LitVanillaTransformer
 
-
 SMILES_VOCAB_FILE = str(
     importlib_resources.files("hela")
     / "resources"
@@ -20,7 +19,6 @@ SMILES_VOCAB_FILE = str(
 
 
 def main():
-
     pl.seed_everything(42)
 
     # adding to the parser the arguments needed from each component

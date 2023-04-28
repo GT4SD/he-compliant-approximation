@@ -6,9 +6,7 @@ from tempfile import TemporaryDirectory
 import torch
 import transformers
 
-from hela.models.vanilla_transformer.configuration import (
-    VanillaTransformerConfig,
-)
+from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 from hela.models.vanilla_transformer.model import (
     VanillaDecoderOutput,
     VanillaEncoderOutput,

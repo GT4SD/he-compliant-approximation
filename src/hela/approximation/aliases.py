@@ -12,10 +12,7 @@ from pydantic import BaseModel, conlist
 from .module_to_approximate import ModuleToApproximate
 
 ALIASES_FILE = str(
-    importlib_resources.files("hela")
-    / "resources"
-    / "approximation"
-    / "aliases.json"
+    importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
 
@@ -69,17 +66,42 @@ class Aliases(BaseModel):
     aliases_list: conlist(item_type=ModuleAliases, unique_items=True)  # type: ignore
 
     # declaring the attributes to be defined during initialization
-    __slots__ = ["_aliases_dict", "_dependencies_dict", "_default_approximation_type_dict",]
+    __slots__ = [
+        "_aliases_dict",
+        "_dependencies_dict",
+        "_default_approximation_type_dict",
+    ]
 
     def __init__(self, **data: Any) -> None:
         """Initializes the data structure."""
         super().__init__(**data)
         # defining the name to module mapping dictionary
-        object.__setattr__(self, "_aliases_dict", {module_alias.name: set(module_alias.aliases) for module_alias in self.aliases_list},)
+        object.__setattr__(
+            self,
+            "_aliases_dict",
+            {
+                module_alias.name: set(module_alias.aliases)
+                for module_alias in self.aliases_list
+            },
+        )
         # defining the dependencies dictionary
-        object.__setattr__(self, "_dependencies_dict", {module_alias.name: set(module_alias.dependencies) for module_alias in self.aliases_list},)
+        object.__setattr__(
+            self,
+            "_dependencies_dict",
+            {
+                module_alias.name: set(module_alias.dependencies)
+                for module_alias in self.aliases_list
+            },
+        )
         # defining the default approximation type dictionary
-        object.__setattr__(self, "_default_approximation_type_dict", {module_alias.name: module_alias.default_approximation_type for module_alias in self.aliases_list},)
+        object.__setattr__(
+            self,
+            "_default_approximation_type_dict",
+            {
+                module_alias.name: module_alias.default_approximation_type
+                for module_alias in self.aliases_list
+            },
+        )
 
     def get_aliases_list(self) -> List[ModuleAliases]:
         """Gets the list of all the modules' aliases.

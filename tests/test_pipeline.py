@@ -3,9 +3,7 @@
 import tempfile
 
 from hela.approximation.pipeline.core import ApproximationPipeline
-from hela.models.vanilla_transformer.configuration import (
-    VanillaTransformerConfig,
-)
+from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 from hela.models.vanilla_transformer.model import VanillaTransformer
 from hela.pytorch_lightning.models.approximations.vanilla_transformer import (
     LitApproximatedVanillaTransformer,

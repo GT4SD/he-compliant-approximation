@@ -12,9 +12,7 @@ from hela.approximation.aliases import (
     load_modules_aliases,
     save_modules_aliases,
 )
-from hela.approximation.module_to_approximate import (
-    ModuleToApproximate,
-)
+from hela.approximation.module_to_approximate import ModuleToApproximate
 from hela.approximation.pipeline_steps import (
     ApproximationStep,
     PipelineSteps,
@@ -24,10 +22,7 @@ from hela.approximation.pipeline_steps import (
 )
 
 ALIASES_FILE = str(
-    importlib_resources.files("hela")
-    / "resources"
-    / "approximation"
-    / "aliases.json"
+    importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
 # aliases.json

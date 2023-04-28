@@ -6,12 +6,10 @@ import collections
 import logging
 import os
 import re
-
-from typing import List, Tuple, Optional, Dict
-
-from transformers.models.bert import BertTokenizer
+from typing import Dict, List, Optional, Tuple
 
 from rxn.chemutils.tokenization import SMILES_TOKENIZER_PATTERN
+from transformers.models.bert import BertTokenizer
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -19,7 +17,7 @@ logger.addHandler(logging.NullHandler())
 
 class SmilesTokenizer(BertTokenizer):
     """Tokenizer for smiles.
-    Adapted from https://github.com/huggingface/transformers.    
+    Adapted from https://github.com/huggingface/transformers.
     """
 
     def __init__(
@@ -30,7 +28,7 @@ class SmilesTokenizer(BertTokenizer):
         pad_token: str = "[PAD]",
         cls_token: str = "[CLS]",
         mask_token: str = "[MASK]",
-        **kwargs
+        **kwargs,
     ) -> None:
         """Initializes a SmilesTokenizer.
 
@@ -49,7 +47,7 @@ class SmilesTokenizer(BertTokenizer):
             pad_token=pad_token,
             cls_token=cls_token,
             mask_token=mask_token,
-            **kwargs
+            **kwargs,
         )
 
         if not os.path.isfile(vocab_file):
@@ -152,7 +150,9 @@ class SmilesTokenizer(BertTokenizer):
         """
         return [self.cls_token] + tokens + [self.sep_token]
 
-    def add_special_tokens_sequence_pair(self, token_0: List[str], token_1: List[str]) -> List[str]:
+    def add_special_tokens_sequence_pair(
+        self, token_0: List[str], token_1: List[str]
+    ) -> List[str]:
         """Adds special tokens at the extremes and between two tokens lists.
         A BERT sequence pair has the following format: [CLS] token_0 [SEP] token_1 [SEP]
 
@@ -167,7 +167,9 @@ class SmilesTokenizer(BertTokenizer):
         cls = [self.cls_token]
         return cls + token_0 + sep + token_1 + sep
 
-    def add_special_tokens_ids_sequence_pair(self, token_ids_0: List[int], token_ids_1: List[int]) -> List[int]:
+    def add_special_tokens_ids_sequence_pair(
+        self, token_ids_0: List[int], token_ids_1: List[int]
+    ) -> List[int]:
         """Adds special tokens at the extremes and between two token ids lists.
         A BERT sequence pair has the following format: [CLS] A [SEP] B [SEP]
 
@@ -176,13 +178,15 @@ class SmilesTokenizer(BertTokenizer):
             token_ids_1: second token indexes sequence.
 
         Returns:
-            concatenated input tokens sequences with special tokens at the extremes and between them. 
+            concatenated input tokens sequences with special tokens at the extremes and between them.
         """
         sep = [self.sep_token_id]
         cls = [self.cls_token_id]
         return cls + token_ids_0 + sep + token_ids_1 + sep
 
-    def add_padding_tokens(self, token_ids: List[str], length: int, right: bool = True) -> List[int]:
+    def add_padding_tokens(
+        self, token_ids: List[str], length: int, right: bool = True
+    ) -> List[int]:
         """Adds padding tokens until the sequence reaches a length of max_length.
 
         By  default padding tokens are added to the right of the sequence.
@@ -201,7 +205,9 @@ class SmilesTokenizer(BertTokenizer):
         else:
             return padding + token_ids
 
-    def save_vocabulary(self, vocab_path: str, filename_prefix: Optional[str] = None) -> Tuple[str, ...]:
+    def save_vocabulary(
+        self, vocab_path: str, filename_prefix: Optional[str] = None
+    ) -> Tuple[str, ...]:
         """Saves the tokenizer's vocabulary to a file.
 
         Args:
@@ -268,4 +274,3 @@ def load_vocab(vocab_file: str) -> Dict[str, int]:
         token = token.rstrip("\n")
         vocab[token] = index
     return vocab
-

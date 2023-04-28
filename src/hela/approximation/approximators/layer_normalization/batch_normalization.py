@@ -6,9 +6,8 @@ import pytorch_lightning as pl
 import torch
 from torch import Tensor, nn
 
-from ..core import ModuleApproximator
-
 from ....models.vanilla_transformer.model import ExtendedLayerNorm
+from ..core import ModuleApproximator
 
 
 class LayerNormToBatchNormApproximator(ModuleApproximator):

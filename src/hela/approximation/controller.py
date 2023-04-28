@@ -284,9 +284,11 @@ class ModelApproximationController:
         # iterating through the layers of the network
         for id, module in model.named_children():
             # in case it is a simple module
-            if (
-                ModelApproximationController.get_object_module(module) in list(self.approximators.keys())
-                and ((not pretrained) or (pretrained and getattr(module, "is_trainable", False)))
+            if ModelApproximationController.get_object_module(module) in list(
+                self.approximators.keys()
+            ) and (
+                (not pretrained)
+                or (pretrained and getattr(module, "is_trainable", False))
             ):
                 # if we have to approximate the model ready for a possible training
                 if (

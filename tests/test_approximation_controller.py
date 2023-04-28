@@ -8,9 +8,7 @@ import pytest
 import torch
 from torch import nn
 
-from hela.approximation.approximators.activation.quadratic import (
-    QuadraticApproximation,
-)
+from hela.approximation.approximators.activation.quadratic import QuadraticApproximation
 from hela.approximation.approximators.activation.trainable_quadratic import (
     PairedReLU,
     TrainableQuadraticApproximation,
@@ -31,32 +29,18 @@ from hela.approximation.approximators.layer_normalization.distill_layernorm impo
 from hela.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHead,
 )
-from hela.approximation.approximators.softmax.mlp_softmax import (
-    MLPSoftmaxApproximation,
-)
-from hela.approximation.approximators.softmax.polynomial import (
-    PolynomialSoftmax,
-)
-from hela.approximation.approximators.softmax.taylor import (
-    TaylorSoftmax,
-)
-from hela.approximation.controller import (
-    ModelApproximationController,
-    ToApproximate,
-)
-from hela.models.vanilla_transformer.configuration import (
-    VanillaTransformerConfig,
-)
+from hela.approximation.approximators.softmax.mlp_softmax import MLPSoftmaxApproximation
+from hela.approximation.approximators.softmax.polynomial import PolynomialSoftmax
+from hela.approximation.approximators.softmax.taylor import TaylorSoftmax
+from hela.approximation.controller import ModelApproximationController, ToApproximate
+from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 from hela.models.vanilla_transformer.model import (
     VanillaTransformer,
     VanillaTransformerOutput,
 )
 
 ALIASES_FILE = str(
-    importlib_resources.files("hela")
-    / "resources"
-    / "approximation"
-    / "aliases.json"
+    importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
 

@@ -9,9 +9,9 @@ import torch.optim as optim
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
 
+from ....models.vanilla_transformer.model import ExtendedLayerNorm
 from ..core import ModuleApproximator
 
-from ....models.vanilla_transformer.model import ExtendedLayerNorm
 
 class DistillLayerNormApproximator(ModuleApproximator):
     """Handles the approximation of ReLU and GeLU activation functions.

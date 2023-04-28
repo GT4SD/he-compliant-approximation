@@ -19,7 +19,6 @@ SMILES_VOCAB_FILE = str(
 
 
 def main():
-
     pl.seed_everything(42)
 
     parser = ArgumentParser()

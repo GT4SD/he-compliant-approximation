@@ -6,13 +6,14 @@ import os
 from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import PosixPath
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import pytorch_lightning as pl
-from ...models.tokenizers.smiles import SmilesTokenizer
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
 from transformers import default_data_collator
 from transformers.tokenization_utils_base import BatchEncoding
+
+from ...models.tokenizers.smiles import SmilesTokenizer
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())

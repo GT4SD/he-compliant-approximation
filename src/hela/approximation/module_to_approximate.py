@@ -36,15 +36,29 @@ class ModuleToApproximate(BaseModel):
         Returns:
             values of the module to approximate.
         """
-        approximation_type, parameters = values.get("approximation_type"), values.get("parameters")
-        if (approximation_type == "batchnorm" and parameters.get("regularized_BN", None) is not None):
+        approximation_type, parameters = values.get("approximation_type"), values.get(
+            "parameters"
+        )
+        if (
+            approximation_type == "batchnorm"
+            and parameters.get("regularized_BN", None) is not None
+        ):
             # checking whether the batch normalization parameters are set correctly
-            if (parameters.get("RBN_alpha") is None and parameters.get("RBN_beta") is None):
-                raise ValueError("Regularized Batch Normalization should run setting 'RBN_alpha' and 'RBN_beta' values.")
+            if (
+                parameters.get("RBN_alpha") is None
+                and parameters.get("RBN_beta") is None
+            ):
+                raise ValueError(
+                    "Regularized Batch Normalization should run setting 'RBN_alpha' and 'RBN_beta' values."
+                )
             elif parameters.get("RBN_alpha") is None:
-                raise ValueError("Regularized Batch Normalization should run setting 'RBN_alpha' value.")
+                raise ValueError(
+                    "Regularized Batch Normalization should run setting 'RBN_alpha' value."
+                )
             elif parameters.get("RBN_beta") is None:
-                raise ValueError("Regularized Batch Normalization should run setting 'RBN_beta' value.")
+                raise ValueError(
+                    "Regularized Batch Normalization should run setting 'RBN_beta' value."
+                )
         return values
 
     def __hash__(self) -> int:
@@ -73,7 +87,11 @@ class ToApproximate(BaseModel):
         """Initializes the data structure."""
         super().__init__(**data)
         # defining the list of the modules' names
-        object.__setattr__(self, "_modules_name_list", [item.module for item in self.modules_set],)
+        object.__setattr__(
+            self,
+            "_modules_name_list",
+            [item.module for item in self.modules_set],
+        )
 
     def get_module_name_list(self) -> List[ModuleToApproximate]:
         """Gets the list of the modules' names
@@ -112,4 +130,8 @@ class ToApproximate(BaseModel):
             new_modules_set: new set of modules to approximate.
         """
         self.modules_set = new_modules_set
-        object.__setattr__(self, "_modules_name_list", [item.module for item in self.modules_set],)
+        object.__setattr__(
+            self,
+            "_modules_name_list",
+            [item.module for item in self.modules_set],
+        )

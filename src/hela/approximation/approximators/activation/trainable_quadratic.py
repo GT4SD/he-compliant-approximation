@@ -1,6 +1,5 @@
 """Module approximator for activation functions."""
 
-from copy import deepcopy
 from typing import Any, Dict, List, Union
 
 import torch
@@ -71,7 +70,9 @@ class TrainableQuadraticApproximator(ModuleApproximator):
 
         # updating the approximation list
         if module in self.approximations:
-            self.approximations[self.approximations.index(module)] = module.approximated_relu
+            self.approximations[
+                self.approximations.index(module)
+            ] = module.approximated_relu
         return module.approximated_relu
 
     def on_train_epoch_start(self, epoch: int = 0) -> None:

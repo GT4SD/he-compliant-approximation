@@ -25,7 +25,7 @@ class PolynomialSoftmax(nn.Module):
         dim: int = -1,
         skip_normalization: bool = False,
         init_alpha: float = 1e-3,
-        norm_loss_weight: float = 1.,
+        norm_loss_weight: float = 1.0,
     ) -> None:
         """Initializes the PolynomialSoftmax.
 
@@ -67,7 +67,9 @@ class PolynomialSoftmax(nn.Module):
         input = torch.pow(input, self.order)
         # computing the training step loss from the sum of the output values
         sum_of_input = input.sum(dim=self.dim)
-        self.step_loss = self.norm_loss_weight * nn.MSELoss()(sum_of_input, torch.ones_like(sum_of_input))
+        self.step_loss = self.norm_loss_weight * nn.MSELoss()(
+            sum_of_input, torch.ones_like(sum_of_input)
+        )
         return input
 
     def _sum_normalization_forward(self, input: Tensor) -> Tensor:
@@ -161,12 +163,11 @@ class PolynomialSoftmaxApproximator(ModuleApproximator):
 
         softmax: Union[nn.Softmax, PolynomialSoftmax] = kwargs["softmax"]  # type: ignore
 
-        
         if isinstance(softmax, PolynomialSoftmax):
             # adding the module to the approximation list
             self.approximations.append(softmax)
             return softmax
-        
+
         new_approximation = PolynomialSoftmax(**self.parameters)
         # adding the module to the approximation list
         self.approximations.append(new_approximation)
@@ -212,7 +213,9 @@ class PolynomialSoftmaxApproximator(ModuleApproximator):
                     add_loss = add_loss + module.step_loss
         if add_loss is not None:
             lightning_model.log("CE_loss", loss.clone().detach(), prog_bar=True)
-            lightning_model.log("SoftmaxNorm_loss", add_loss.clone().detach(), prog_bar=True)
+            lightning_model.log(
+                "SoftmaxNorm_loss", add_loss.clone().detach(), prog_bar=True
+            )
             loss = loss + add_loss
             # considering that the objective is the sum to 1: we would have additional loss of 120 (*1e-4= 0.012) and at the beginning 50000 (*1e-4= 6)
             # the weight of the loss is considered to obtain a loss that is equal in magnitude compared to the original loss that ranges roughly between 6.5 and 0.015

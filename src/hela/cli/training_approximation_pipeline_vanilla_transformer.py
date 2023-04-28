@@ -5,8 +5,8 @@ from argparse import ArgumentParser
 import importlib_resources
 import pytorch_lightning as pl
 
-from ..models.tokenizers.smiles import SmilesTokenizer
 from ..approximation.pipeline.training import TrainingPipeline
+from ..models.tokenizers.smiles import SmilesTokenizer
 from ..models.vanilla_transformer.configuration import VanillaTransformerConfig
 from ..models.vanilla_transformer.model import VanillaTransformer
 from ..pytorch_lightning.datasets.smiles import LitSmilesDataset
@@ -24,7 +24,6 @@ SMILES_VOCAB_FILE = str(
 
 
 def main():
-
     pl.seed_everything(42)
 
     parser = ArgumentParser()

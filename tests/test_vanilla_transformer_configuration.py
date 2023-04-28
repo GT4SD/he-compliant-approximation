@@ -4,9 +4,7 @@ import os
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from hela.models.vanilla_transformer.configuration import (
-    VanillaTransformerConfig,
-)
+from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 
 
 def test_configuration_init():
