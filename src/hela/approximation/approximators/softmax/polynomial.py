@@ -17,6 +17,7 @@ class PolynomialSoftmax(nn.Module):
     """
 
     is_approximation_of = nn.Softmax
+    allow_recursive_search = False
 
     def __init__(
         self,
