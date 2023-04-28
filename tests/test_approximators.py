@@ -158,25 +158,21 @@ testing_informations = {
             {
                 "order": 2,
                 "dim": -1,
-                "min_max_normalization": False,
                 "skip_normalization": False,
             },
             {
                 "order": 2,
                 "dim": -1,
-                "min_max_normalization": False,
                 "skip_normalization": True,
             },
             {
                 "order": 4,
                 "dim": -1,
-                "min_max_normalization": False,
                 "skip_normalization": True,
             },
             {
                 "order": 2,
                 "dim": -1,
-                "min_max_normalization": False,
                 "skip_normalization": True,
             },
         ],
