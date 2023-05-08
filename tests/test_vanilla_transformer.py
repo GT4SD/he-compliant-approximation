@@ -16,6 +16,9 @@ from hela.models.vanilla_transformer.model import (
     VanillaTransformerOutput,
 )
 
+# default device to run tests
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def test_huggingface_installation():
     """Tests the installation of the hugging face transformers package."""
@@ -90,11 +93,13 @@ def test_model_forward_pass_with_not_batched_input():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and output of size (sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((sequence_length,)).long()
-    output_ids = torch.ones((sequence_length,)).long()
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long()
+    output_ids = torch.ones((sequence_length,), device=DEVICE).long()
 
     # forwarding through the model
     output = model(encoder_input_ids=input_ids, decoder_input_ids=output_ids)
@@ -111,11 +116,13 @@ def test_model_forward_pass_with_not_batched_input_and_padding_masks():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and output of size (sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((sequence_length,)).long() * 2
-    output_ids = torch.ones((sequence_length,)).long() * 2
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long() * 2
+    output_ids = torch.ones((sequence_length,), device=DEVICE).long() * 2
     encoder_padding_mask = input_ids.eq(model.config.pad_token_id)
     decoder_padding_mask = output_ids.eq(model.config.pad_token_id)
 
@@ -139,12 +146,14 @@ def test_model_forward_pass_with_batched_input():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and output of size (batch_size, sequence_length)
     sequence_length = 10
     batch_size = 2
-    input_ids = torch.ones((batch_size, sequence_length)).long()
-    output_ids = torch.ones((batch_size, sequence_length)).long()
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long()
+    output_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long()
 
     # forwarding through the model
     output = model(encoder_input_ids=input_ids, decoder_input_ids=output_ids)
@@ -161,12 +170,14 @@ def test_model_forward_pass_with_batched_input_and_padding_masks():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and output of size (batch_size, sequence_length)
     sequence_length = 10
     batch_size = 2
-    input_ids = torch.ones((batch_size, sequence_length)).long() * 2
-    output_ids = torch.ones((batch_size, sequence_length)).long() * 2
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long() * 2
+    output_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long() * 2
     encoder_padding_mask = input_ids.eq(model.config.pad_token_id)
     decoder_padding_mask = output_ids.eq(model.config.pad_token_id)
 
@@ -190,10 +201,12 @@ def test_model_encoder_forward_pass_with_not_batched_input():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input of size (sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((sequence_length,)).long()
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long()
 
     # forwarding through the encoder
     output = model.encode(input_ids=input_ids)
@@ -210,10 +223,12 @@ def test_model_encoder_forward_pass_with_not_batched_input_and_padding_mask():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input of size (sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((sequence_length,)).long() * 2
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long() * 2
     encoder_padding_mask = input_ids.eq(model.config.pad_token_id)
 
     # forwarding through the encoder
@@ -231,11 +246,13 @@ def test_encoder_forward_pass_with_batched_input():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input of size (batch_size, sequence_length)
     sequence_length = 10
     batch_size = 2
-    input_ids = torch.ones((batch_size, sequence_length)).long()
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long()
 
     # forwarding through the encoder
     output = model.encode(input_ids=input_ids)
@@ -252,11 +269,13 @@ def test_model_encoder_forward_pass_with_batched_input_and_padding_mask():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input of size (batch_size, sequence_length)
     sequence_length = 10
     batch_size = 2
-    input_ids = torch.ones((batch_size, sequence_length)).long() * 2
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long() * 2
     encoder_padding_mask = input_ids.eq(model.config.pad_token_id)
 
     # forwarding through the encoder
@@ -274,12 +293,14 @@ def test_decoder_forward_pass_with_not_batched_input():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and encoder output of size (sequence_length) and (1, sequence_length, embedding_dim)
     sequence_length = 10
     embedding_dimension = model.config.embedding_dim
-    input_ids = torch.ones((sequence_length,)).long()
-    encoder_output = torch.ones((1, sequence_length, embedding_dimension)).float()
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long()
+    encoder_output = torch.ones((1, sequence_length, embedding_dimension), device=DEVICE).float()
 
     # forwarding through the decoder
     output = model.decode(input_ids=input_ids, encoder_output=encoder_output)
@@ -296,12 +317,14 @@ def test_decoder_forward_pass_with_not_batched_input_and_padding_mask():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and encoder output of size (sequence_length) and (1, sequence_length, embedding_dim)
     sequence_length = 10
     embedding_dimension = model.config.embedding_dim
-    input_ids = torch.ones((sequence_length,)).long() * 2
-    encoder_output = torch.ones((1, sequence_length, embedding_dimension)).float()
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long() * 2
+    encoder_output = torch.ones((1, sequence_length, embedding_dimension), device=DEVICE).float()
     decoder_padding_mask = input_ids.eq(model.config.pad_token_id)
 
     # forwarding through the decoder
@@ -323,14 +346,16 @@ def test_decoder_forward_pass_with_batched_input():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and encoder output of size (batch_size, sequence_length) and (batch_size, sequence_length, embedding_dim)
     sequence_length = 10
     batch_size = 2
     embedding_dimension = model.config.embedding_dim
-    input_ids = torch.ones((batch_size, sequence_length)).long()
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long()
     encoder_output = torch.ones(
-        (batch_size, sequence_length, embedding_dimension)
+        (batch_size, sequence_length, embedding_dimension), device=DEVICE
     ).float()
 
     # forwarding through the decoder
@@ -348,14 +373,16 @@ def test_decoder_forward_pass_with_batched_input_and_padding_mask():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input and encoder output of size (batch_size, sequence_length) and (batch_size, sequence_length, embedding_dim)
     sequence_length = 10
     batch_size = 2
     embedding_dimension = model.config.embedding_dim
-    input_ids = torch.ones((batch_size, sequence_length)).long() * 2
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long() * 2
     encoder_output = torch.ones(
-        (batch_size, sequence_length, embedding_dimension)
+        (batch_size, sequence_length, embedding_dimension), device=DEVICE
     ).float()
     decoder_padding_mask = input_ids.eq(model.config.pad_token_id)
 
@@ -404,10 +431,12 @@ def test_generate_greedy_search():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input of size (1, sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((1, sequence_length)).long()
+    input_ids = torch.ones((1, sequence_length), device=DEVICE).long()
 
     # generating the sequence
     max_length = 30
@@ -415,7 +444,7 @@ def test_generate_greedy_search():
 
     # ASSERTS
 
-    assert isinstance(output, torch.LongTensor)
+    assert isinstance(output, torch.Tensor)
     assert output.size()[1] > 1
     assert output.size()[1] <= max_length
 
@@ -425,10 +454,12 @@ def test_generate_beam_search():
 
     # initializing a vanilla transformer model from the (default) configuration
     model = VanillaTransformer(VanillaTransformerConfig())
+    # moving the model to the default DEVICE
+    model.to(DEVICE)
 
     # creating a dummy input of size (1, sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((1, sequence_length)).long()
+    input_ids = torch.ones((1, sequence_length), device=DEVICE).long()
 
     # generating the sequence
     max_length = 30
@@ -439,6 +470,6 @@ def test_generate_beam_search():
 
     # ASSERTS
 
-    assert isinstance(output, torch.LongTensor)
+    assert isinstance(output, torch.Tensor)
     assert output.size()[1] > 1
     assert output.size()[1] <= max_length

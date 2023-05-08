@@ -51,6 +51,9 @@ from hela.approximation.approximators.softmax.taylor import (
     TaylorSoftmaxApproximator,
 )
 
+# default device to run tests
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # defining some testing parameters
 batch_size = 10
 sequence_length = embedding_dim = 256
@@ -66,11 +69,15 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": QuadraticApproximation,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, sequence_length)) * 2
+            "input": torch.ones(
+                (batch_size, sequence_length, sequence_length), device=DEVICE
+            )
+            * 2
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length)) * 4,
+            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
+            * 4,
         ],
     },
     "TrainableQuadraticApproximator": {
@@ -80,11 +87,15 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": TrainableQuadraticApproximation,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, sequence_length)) * 2
+            "input": torch.ones(
+                (batch_size, sequence_length, sequence_length), device=DEVICE
+            )
+            * 2
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length)) * 2,
+            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
+            * 2,
         ],
     },
     "LayerNormToBatchNormApproximator": {
@@ -94,7 +105,10 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": BatchNorm1dForTransformers,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, embedding_dim)) * 2
+            "input": torch.ones(
+                (batch_size, sequence_length, embedding_dim), device=DEVICE
+            )
+            * 2
         },
         "output_type": Tensor,
         "expected_output": [
@@ -110,7 +124,10 @@ testing_informations = {
         ],
         "pretrained_approximation_class": DistillLayerNormApproximation,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, embedding_dim)) * 2
+            "input": torch.ones(
+                (batch_size, sequence_length, embedding_dim), device=DEVICE
+            )
+            * 2
         },
         "output_type": Tensor,
         "expected_output": [
@@ -142,9 +159,9 @@ testing_informations = {
         ],
         "pretrained_approximation_class": CustomizableMultiHead,
         "forward_kwargs": {
-            "query": torch.ones((batch_size, embedding_dim)),
-            "key": torch.ones((batch_size, embedding_dim)),
-            "value": torch.ones((batch_size, embedding_dim)),
+            "query": torch.ones((batch_size, embedding_dim), device=DEVICE),
+            "key": torch.ones((batch_size, embedding_dim), device=DEVICE),
+            "value": torch.ones((batch_size, embedding_dim), device=DEVICE),
         },
         "output_type": Tuple,
         "expected_output": [
@@ -159,21 +176,25 @@ testing_informations = {
                 "order": 2,
                 "dim": -1,
                 "skip_normalization": False,
+                "init_alpha": 1,
             },
             {
                 "order": 2,
                 "dim": -1,
                 "skip_normalization": True,
+                "init_alpha": 1,
             },
             {
                 "order": 4,
                 "dim": -1,
                 "skip_normalization": True,
+                "init_alpha": 1,
             },
             {
                 "order": 2,
                 "dim": -1,
                 "skip_normalization": True,
+                "init_alpha": 1,
             },
         ],
         "trainable_approximation_class": PolynomialSoftmax,
@@ -188,25 +209,45 @@ testing_informations = {
                 "softmax": nn.Softmax(dim=-1),
             },
             {
-                "softmax": PolynomialSoftmax(),
+                "softmax": PolynomialSoftmax(
+                    order=2,
+                    dim=-1,
+                    skip_normalization=True,
+                    init_alpha=1,
+                ),
             },
         ],
         "pretrained_approximation_class": PolynomialSoftmax,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, sequence_length)) * 2,
+            "input": torch.ones(
+                (batch_size, sequence_length, sequence_length), device=DEVICE
+            )
+            * 2,
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length))
+            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
             / sequence_length,
             torch.pow(
-                torch.ones((batch_size, sequence_length, sequence_length)) * 2 * 1e-3, 2
+                torch.ones(
+                    (batch_size, sequence_length, sequence_length), device=DEVICE
+                )
+                * 2,
+                2,
             ),
             torch.pow(
-                torch.ones((batch_size, sequence_length, sequence_length)) * 2 * 1e-3, 4
+                torch.ones(
+                    (batch_size, sequence_length, sequence_length), device=DEVICE
+                )
+                * 2,
+                4,
             ),
             torch.pow(
-                torch.ones((batch_size, sequence_length, sequence_length)) * 2 * 1e-3, 2
+                torch.ones(
+                    (batch_size, sequence_length, sequence_length), device=DEVICE
+                )
+                * 2,
+                2,
             ),
         ],
     },
@@ -217,11 +258,13 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": TaylorSoftmax,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, sequence_length)),
+            "input": torch.ones(
+                (batch_size, sequence_length, sequence_length), device=DEVICE
+            ),
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length))
+            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
             / sequence_length,
         ],
     },
@@ -232,7 +275,9 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": MLPSoftmaxApproximation,
         "forward_kwargs": {
-            "input": torch.ones((batch_size, sequence_length, sequence_length)),
+            "input": torch.ones(
+                (batch_size, sequence_length, sequence_length), device=DEVICE
+            ),
         },
         "output_type": Tensor,
         "expected_output": [
@@ -249,19 +294,20 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}, {}],
         "pretrained_approximation_class": MultiplicativeAttentionMasking,
         "forward_kwargs": {
-            "attn": torch.ones(sequence_length, sequence_length),
+            "attn": torch.ones((sequence_length, sequence_length), device=DEVICE),
             "attn_mask": torch.triu(
-                torch.ones(sequence_length, sequence_length) * float("-inf"),
+                torch.ones((sequence_length, sequence_length), device=DEVICE)
+                * float("-inf"),
                 diagonal=1,
             ),
         },
         "output_type": Tensor,
         "expected_output": [
             torch.tril(
-                torch.ones(sequence_length, sequence_length),
+                torch.ones((sequence_length, sequence_length), device=DEVICE),
                 diagonal=0,
             ),
-            torch.ones(sequence_length, sequence_length),
+            torch.ones((sequence_length, sequence_length), device=DEVICE),
         ],
     },
     "NotScaledQueryKeyProductApproximator": {
@@ -271,12 +317,17 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": NotScaledQueryKeyDotProduct,
         "forward_kwargs": {
-            "query": torch.ones((batch_size, sequence_length, embedding_dim)),
-            "key": torch.ones((batch_size, sequence_length, embedding_dim)) * 2,
+            "query": torch.ones(
+                (batch_size, sequence_length, embedding_dim), device=DEVICE
+            ),
+            "key": torch.ones(
+                (batch_size, sequence_length, embedding_dim), device=DEVICE
+            )
+            * 2,
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length))
+            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
             * 2
             * embedding_dim,
         ],
@@ -373,6 +424,8 @@ def test_trainable_approximation_forward(
         trainable_approx_module = approximator.get_trainable_approximation(
             **approximator_dictionary["get_trainable_approximation_kwargs"][index]
         )
+        # moving the approximated module to the default DEVICE
+        trainable_approx_module.to(DEVICE)
         # forward pass through the trainable approximation
         output = trainable_approx_module(
             **deepcopy(approximator_dictionary["forward_kwargs"])
@@ -463,6 +516,8 @@ def test_pretrained_approximation_forward(approximator_identifier: str):
         pretrained_approx_module = approximator.get_pretrained_approximation(
             trainable_approx_module
         )
+        # moving the approximated module to the default DEVICE
+        pretrained_approx_module.to(DEVICE)
         # forward pass through the pretrained approximation
         output = pretrained_approx_module(
             **deepcopy(approximator_dictionary["forward_kwargs"])

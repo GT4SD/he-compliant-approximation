@@ -11,6 +11,9 @@ from hela.models.vanilla_transformer.model import (
     VanillaTransformerEncoder,
 )
 
+# default device to run tests
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def test_encoder_init():
     """Tests the initialization of a vanilla transformer encoder."""
@@ -77,10 +80,12 @@ def test_encoder_forward_pass_with_no_batched_input():
 
     # initializing a vanilla transformer encoder from the (default) configuration
     encoder = VanillaTransformerEncoder(VanillaTransformerConfig())
+    # moving the encoder to the default DEVICE
+    encoder.to(DEVICE)
 
     # creating a dummy input of size (sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((sequence_length,)).long()
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long()
 
     # forwarding through the encoder
     output = encoder(input_ids=input_ids)
@@ -97,10 +102,12 @@ def test_encoder_forward_pass_with_no_batched_input_and_padding_mask():
 
     # initializing a vanilla transformer encoder from the (default) configuration
     encoder = VanillaTransformerEncoder(VanillaTransformerConfig())
+    # moving the encoder to the default DEVICE
+    encoder.to(DEVICE)
 
     # creating a dummy input of size (sequence_length)
     sequence_length = 10
-    input_ids = torch.ones((sequence_length,)).long() * 2
+    input_ids = torch.ones((sequence_length,), device=DEVICE).long() * 2
     encoder_padding_mask = input_ids.eq(encoder.config.pad_token_id)
 
     # forwarding through the encoder
@@ -118,11 +125,13 @@ def test_encoder_forward_pass_with_batched_input():
 
     # initializing a vanilla transformer encoder from the (default) configuration
     encoder = VanillaTransformerEncoder(VanillaTransformerConfig())
+    # moving the encoder to the default DEVICE
+    encoder.to(DEVICE)
 
     # creating a dummy input of size (batch_size, sequence_length)
     sequence_length = 10
     batch_size = 2
-    input_ids = torch.ones((batch_size, sequence_length)).long()
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long()
 
     # forwarding through the encoder
     output = encoder(input_ids=input_ids)
@@ -139,11 +148,13 @@ def test_encoder_forward_pass_with_batched_input_and_padding_mask():
 
     # initializing a vanilla transformer encoder from the (default) configuration
     encoder = VanillaTransformerEncoder(VanillaTransformerConfig())
+    # moving the encoder to the default DEVICE
+    encoder.to(DEVICE)
 
     # creating a dummy input of size (batch_size, sequence_length)
     sequence_length = 10
     batch_size = 2
-    input_ids = torch.ones((batch_size, sequence_length)).long() * 2
+    input_ids = torch.ones((batch_size, sequence_length), device=DEVICE).long() * 2
     encoder_padding_mask = input_ids.eq(encoder.config.pad_token_id)
 
     # forwarding through the encoder
