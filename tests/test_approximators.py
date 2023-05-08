@@ -51,7 +51,7 @@ from hela.approximation.approximators.softmax.taylor import (
     TaylorSoftmaxApproximator,
 )
 
-# default device to run tests
+# default device to run the tests
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # defining some testing parameters

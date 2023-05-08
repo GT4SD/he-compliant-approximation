@@ -16,7 +16,7 @@ from hela.models.vanilla_transformer.model import (
     VanillaTransformerOutput,
 )
 
-# default device to run tests
+# default device to run the tests
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -300,7 +300,9 @@ def test_decoder_forward_pass_with_not_batched_input():
     sequence_length = 10
     embedding_dimension = model.config.embedding_dim
     input_ids = torch.ones((sequence_length,), device=DEVICE).long()
-    encoder_output = torch.ones((1, sequence_length, embedding_dimension), device=DEVICE).float()
+    encoder_output = torch.ones(
+        (1, sequence_length, embedding_dimension), device=DEVICE
+    ).float()
 
     # forwarding through the decoder
     output = model.decode(input_ids=input_ids, encoder_output=encoder_output)
@@ -324,7 +326,9 @@ def test_decoder_forward_pass_with_not_batched_input_and_padding_mask():
     sequence_length = 10
     embedding_dimension = model.config.embedding_dim
     input_ids = torch.ones((sequence_length,), device=DEVICE).long() * 2
-    encoder_output = torch.ones((1, sequence_length, embedding_dimension), device=DEVICE).float()
+    encoder_output = torch.ones(
+        (1, sequence_length, embedding_dimension), device=DEVICE
+    ).float()
     decoder_padding_mask = input_ids.eq(model.config.pad_token_id)
 
     # forwarding through the decoder

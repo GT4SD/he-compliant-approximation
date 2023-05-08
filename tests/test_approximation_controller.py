@@ -43,7 +43,7 @@ ALIASES_FILE = str(
     importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
-# default device to run tests
+# default device to run the tests
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
