@@ -81,7 +81,6 @@ class PolynomialSoftmax(nn.Module):
         Returns:
             normalized output.
         """
-        input.sum()
         input = torch.pow(input, self.order)
         return input * torch.reciprocal((input.sum(dim=self.dim, keepdim=True) + 1e-5))
 
