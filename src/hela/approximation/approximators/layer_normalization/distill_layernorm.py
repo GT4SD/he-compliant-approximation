@@ -67,22 +67,12 @@ class DistillLayerNormApproximator(ModuleApproximator):
             approximated module.
         """
         # retrieving the layernorm module that is going to be approximated
-        original_layernorm = {"layernorm": getattr(model, id)}
+        kwargs = {"layernorm": getattr(model, id)}
         if pretrained:
-            setattr(
-                model,
-                id,
-                self.get_pretrained_approximation(
-                    module=original_layernorm["layernorm"]
-                ),
-            )
+            return self.get_pretrained_approximation(module=getattr(model, id))
+            
         else:
-            setattr(
-                model,
-                id,
-                self.get_trainable_approximation(**original_layernorm),
-            )
-        return getattr(model, id)
+            return self.get_trainable_approximation(**kwargs)
 
     def get_pretrained_approximation(
         self, module: nn.Module, **kwargs: Dict[str, Any]

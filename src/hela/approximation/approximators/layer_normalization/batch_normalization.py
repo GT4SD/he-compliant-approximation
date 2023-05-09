@@ -52,18 +52,10 @@ class LayerNormToBatchNormApproximator(ModuleApproximator):
         # retrieving the num_features parameters from the layer normalization module that is going to be approximated
         kwargs = {"num_features": getattr(model, id).normalized_shape[0]}
         if pretrained:
-            setattr(
-                model,
-                id,
-                self.get_pretrained_approximation(module=getattr(model, id)),
-            )
+            return self.get_pretrained_approximation(module=getattr(model, id))
+            
         else:
-            setattr(
-                model,
-                id,
-                self.get_trainable_approximation(**kwargs),
-            )
-        return getattr(model, id)
+            return self.get_trainable_approximation(**kwargs)
 
     def get_trainable_approximation(self, **kwargs: Dict[str, Any]) -> nn.Module:
         """Approximates the module for the training phase.
