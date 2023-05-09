@@ -269,7 +269,7 @@ class VanillaTransformerEncoder(VanillaTransformerPretrainedModel):
             if TORCH_LT_1_9
             else {
                 "batch_first": True,
-                "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+                "device": config.device,
             }
         )
 
@@ -336,7 +336,7 @@ class VanillaTransformerEncoder(VanillaTransformerPretrainedModel):
 
         mask = torch.zeros(
             (mask_size, mask_size),
-            device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+            device=self.config.device,
         ).type(torch.bool)
 
         if padding_mask is None:
@@ -428,7 +428,7 @@ class VanillaTransformerDecoder(VanillaTransformerPretrainedModel):
             if TORCH_LT_1_9
             else {
                 "batch_first": True,
-                "device": torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+                "device": config.device,
             }
         )
 
@@ -514,7 +514,7 @@ class VanillaTransformerDecoder(VanillaTransformerPretrainedModel):
 
         # creating the look-ahead mask
         mask = self._make_square_subsequent_mask(
-            mask_size, torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            mask_size, self.config.device
         )
 
         if padding_mask is None:

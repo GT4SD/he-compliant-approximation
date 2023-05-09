@@ -17,7 +17,7 @@ from hela.models.vanilla_transformer.model import (
 )
 
 # default device to run the tests
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def test_huggingface_installation():
@@ -32,7 +32,7 @@ def test_model_init():
     """Tests the initialization of a vanilla transformer model."""
 
     # initializing the (default) vanilla transformer configuration
-    configuration = VanillaTransformerConfig()
+    configuration = VanillaTransformerConfig(device=DEVICE)
 
     # initializing a vanilla transformer model from the configuration
     model = VanillaTransformer(configuration)
@@ -47,7 +47,7 @@ def test_model_save_pretrained():
 
     with TemporaryDirectory() as temp_dir:
         # initializing a vanilla transformer model from the (default) configuration
-        model = VanillaTransformer(VanillaTransformerConfig())
+        model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
 
         # saving the randomly initialized model and the (default) configuration
         model.save_pretrained(save_directory=temp_dir)
@@ -66,7 +66,7 @@ def test_model_load_pretrained():
 
     with TemporaryDirectory() as temp_dir:
         # initializing a vanilla transformer model from the (default) configuration
-        model = VanillaTransformer(VanillaTransformerConfig())
+        model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
 
         # saving the randomly initialized model and the (default) configuration
         model.save_pretrained(save_directory=temp_dir)
@@ -92,7 +92,7 @@ def test_model_forward_pass_with_not_batched_input():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -115,7 +115,7 @@ def test_model_forward_pass_with_not_batched_input_and_padding_masks():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -145,7 +145,7 @@ def test_model_forward_pass_with_batched_input():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -169,7 +169,7 @@ def test_model_forward_pass_with_batched_input_and_padding_masks():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -200,7 +200,7 @@ def test_model_encoder_forward_pass_with_not_batched_input():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -222,7 +222,7 @@ def test_model_encoder_forward_pass_with_not_batched_input_and_padding_mask():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -245,7 +245,7 @@ def test_encoder_forward_pass_with_batched_input():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -268,7 +268,7 @@ def test_model_encoder_forward_pass_with_batched_input_and_padding_mask():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -292,7 +292,7 @@ def test_decoder_forward_pass_with_not_batched_input():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -318,7 +318,7 @@ def test_decoder_forward_pass_with_not_batched_input_and_padding_mask():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -349,7 +349,7 @@ def test_decoder_forward_pass_with_batched_input():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -376,7 +376,7 @@ def test_decoder_forward_pass_with_batched_input_and_padding_mask():
     """
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -406,7 +406,7 @@ def test_get_encoder():
     """Tests the ability to return the encoder module of the vanilla transformer model."""
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
 
     # getting the encoder module
     encoder = model.get_encoder()
@@ -420,7 +420,7 @@ def test_get_decoder():
     """Tests the ability to return the decoder module of the vanilla transformer model."""
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
 
     # getting the decoder module
     encoder = model.get_decoder()
@@ -434,7 +434,7 @@ def test_generate_greedy_search():
     """Tests the ability to generate of a vanilla transformer model, using greedy search."""
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 
@@ -457,7 +457,7 @@ def test_generate_beam_search():
     """Tests the ability to generate of a vanilla transformer model, using beam search."""
 
     # initializing a vanilla transformer model from the (default) configuration
-    model = VanillaTransformer(VanillaTransformerConfig())
+    model = VanillaTransformer(VanillaTransformerConfig(device=DEVICE))
     # moving the model to the default DEVICE
     model.to(DEVICE)
 

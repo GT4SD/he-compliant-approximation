@@ -12,14 +12,14 @@ from hela.models.vanilla_transformer.model import (
 )
 
 # default device to run the tests
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def test_decoder_init():
     """Tests the initialization of a vanilla transformer decoder."""
 
     # initializing the (default) vanilla transformer configuration
-    configuration = VanillaTransformerConfig()
+    configuration = VanillaTransformerConfig(device=DEVICE)
 
     # initializing a vanilla transformer decoder model from the configuration
     model = VanillaTransformerDecoder(configuration)
@@ -34,7 +34,7 @@ def test_decoder_save_pretrained():
 
     with TemporaryDirectory() as temp_dir:
         # initializing a vanilla transformer decoder from the (default) configuration
-        model = VanillaTransformerDecoder(VanillaTransformerConfig())
+        model = VanillaTransformerDecoder(VanillaTransformerConfig(device=DEVICE))
 
         # saving the randomly initialized model and the (default) configuration
         model.save_pretrained(save_directory=temp_dir)
@@ -53,7 +53,7 @@ def test_decoder_load_pretrained():
 
     with TemporaryDirectory() as temp_dir:
         # initializing a vanilla transformer decoder from the configuration
-        decoder = VanillaTransformerDecoder(VanillaTransformerConfig())
+        decoder = VanillaTransformerDecoder(VanillaTransformerConfig(device=DEVICE))
 
         # saving the randomly initialized model and the (default) configuration
         decoder.save_pretrained(save_directory=temp_dir)
@@ -79,7 +79,7 @@ def test_decoder_forward_pass_with_no_batched_input():
     """
 
     # initializing a vanilla transformer decoder from the (default) configuration
-    decoder = VanillaTransformerDecoder(VanillaTransformerConfig())
+    decoder = VanillaTransformerDecoder(VanillaTransformerConfig(device=DEVICE))
     # moving the decoder to the default DEVICE
     decoder.to(DEVICE)
 
@@ -105,7 +105,7 @@ def test_decoder_forward_pass_with_no_batched_input_and_padding_mask():
     """
 
     # initializing a vanilla transformer decoder from the (default) configuration
-    decoder = VanillaTransformerDecoder(VanillaTransformerConfig())
+    decoder = VanillaTransformerDecoder(VanillaTransformerConfig(device=DEVICE))
     # moving the decoder to the default DEVICE
     decoder.to(DEVICE)
 
@@ -136,7 +136,7 @@ def test_decoder_forward_pass_with_batched_input():
     """
 
     # initializing a vanilla transformer decoder from the (default) configuration
-    decoder = VanillaTransformerDecoder(VanillaTransformerConfig())
+    decoder = VanillaTransformerDecoder(VanillaTransformerConfig(device=DEVICE))
     # moving the decoder to the default DEVICE
     decoder.to(DEVICE)
 
@@ -163,7 +163,7 @@ def test_decoder_forward_pass_with_batched_input_and_padding_mask():
     """
 
     # initializing a vanilla transformer decoder from the (default) configuration
-    decoder = VanillaTransformerDecoder(VanillaTransformerConfig())
+    decoder = VanillaTransformerDecoder(VanillaTransformerConfig(device=DEVICE))
     # moving the decoder to the default DEVICE
     decoder.to(DEVICE)
 

@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 
 import importlib_resources
+import torch
 import pytorch_lightning as pl
 
 from ..approximation.pipeline.testing import TestingPipeline
@@ -51,6 +52,7 @@ def main():
         "num_encoder_layers": vars(args)["num_encoder_layers"],
         "num_decoder_layers": vars(args)["num_decoder_layers"],
         "attention_mask_value": vars(args)["attention_mask_value"],
+        "device": "cpu" if vars(args)["accelerator"] == "cpu" else ("cuda" if torch.cuda.is_available() else "cpu"),
     }
 
     # building the pytorch model
