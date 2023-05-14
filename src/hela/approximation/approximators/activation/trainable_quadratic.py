@@ -193,10 +193,8 @@ class PairedReLU(nn.Module):
             self.lambda_smooth_transition = 0
         elif (
             epoch_number > self.warmup_epochs
-            and epoch_number < self.smooth_factor + self.warmup_epochs
-        ):
-            self.lambda_smooth_transition = (
-                epoch_number - self.warmup_epochs
-            ) / self.smooth_factor
-        elif epoch_number > self.smooth_factor:
-            self.lambda_smooth_transition = 1
+        ):    
+            if epoch_number < self.smooth_factor + self.warmup_epochs:
+                self.lambda_smooth_transition = (epoch_number - self.warmup_epochs) / self.smooth_factor
+            elif epoch_number >= self.smooth_factor + self.warmup_epochs:
+                self.lambda_smooth_transition = 1
