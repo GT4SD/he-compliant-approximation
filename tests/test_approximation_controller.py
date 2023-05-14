@@ -236,7 +236,7 @@ model_testing_informations = {
             "num_attention_heads": num_attention_heads,
             "ffn_hidden_dim": ffnn_hidden_dim,
             "embedding_dim": embedding_dim,
-            "device": DEVICE
+            "device": DEVICE,
         },
         "forward_input": {
             "encoder_input_ids": torch.ones(
@@ -542,11 +542,11 @@ def test_controller_default_approximation_type_recover(approximation_identifier:
                 modules_aliases_file=ALIASES_FILE,
             )
             # getting the trainable approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=False)
-
-            num_subs_model = controller.recursive_search_with_approximation(model)
+            approx_model, num_subs_model = controller.get_approximated_model(
+                pretrained=False, return_num_substitutions=True
+            )
             num_subs_approx_model = controller.recursive_search_with_approximation(
-                approx_model
+                approx_model, pretrained=False
             )
 
             # ASSERTS
@@ -556,7 +556,7 @@ def test_controller_default_approximation_type_recover(approximation_identifier:
             assert isinstance(approx_model, model_class)
 
             # checking the number of substitution made to the model
-            # assert sum(num_subs_model.values()) > 0
+            assert sum(num_subs_model.values()) > 0
             # checking the number of substitution made to the approximated model
             assert sum(num_subs_approx_model.values()) == 0
 
@@ -606,13 +606,12 @@ def test_controller_trainable_approximation(approximation_identifier: str):
                 modules_aliases_file=ALIASES_FILE,
             )
             # getting the trainable approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=False)
-
-            # getting the number of substitution made to the model
-            num_subs_model = controller.recursive_search_with_approximation(model)
+            approx_model, num_subs_model = controller.get_approximated_model(
+                pretrained=False, return_num_substitutions=True
+            )
             # getting the number of substitution made to the approximated trainable model
             num_subs_approx_model = controller.recursive_search_with_approximation(
-                approx_model
+                approx_model, pretrained=False
             )
 
             # ASSERTS
@@ -621,7 +620,7 @@ def test_controller_trainable_approximation(approximation_identifier: str):
             assert isinstance(approx_model, nn.Module)
             assert isinstance(approx_model, model_class)
             # checking the number of substitution made to the model
-            # assert sum(num_subs_model.values()) > 0
+            assert sum(num_subs_model.values()) > 0
             # checking the number of substitution made to the approximated trainable model
             assert sum(num_subs_approx_model.values()) == 0
 
@@ -732,7 +731,7 @@ def test_controller_pretrained_approximation(approximation_identifier: str):
 
         # getting the number of substitution made to the approximated pretrained model
         num_subs_approx_model = controller.recursive_search_with_approximation(
-            approx_model
+            approx_model, pretrained=False
         )
 
         # ASSERTS
@@ -741,7 +740,7 @@ def test_controller_pretrained_approximation(approximation_identifier: str):
         assert isinstance(approx_model, nn.Module)
         assert isinstance(approx_model, model_class)
         # checking the number of substitution made to the model
-        # assert sum(num_subs_model.values()) > 0
+        assert sum(num_subs_model.values()) > 0
         # checking the number of substitution made to the approximated pretrained model
         assert sum(num_subs_approx_model.values()) == 0
 
