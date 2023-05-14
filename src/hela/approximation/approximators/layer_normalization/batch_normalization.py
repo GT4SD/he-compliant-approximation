@@ -53,7 +53,6 @@ class LayerNormToBatchNormApproximator(ModuleApproximator):
         kwargs = {"num_features": getattr(model, id).normalized_shape[0]}
         if pretrained:
             return self.get_pretrained_approximation(module=getattr(model, id))
-            
         else:
             return self.get_trainable_approximation(**kwargs)
 

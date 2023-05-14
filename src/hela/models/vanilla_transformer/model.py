@@ -1,4 +1,4 @@
-"""PyTorch VanillaTransformer model."""
+"""Vanilla transformer model."""
 
 import math
 from dataclasses import dataclass
@@ -513,9 +513,7 @@ class VanillaTransformerDecoder(VanillaTransformerPretrainedModel):
         """
 
         # creating the look-ahead mask
-        mask = self._make_square_subsequent_mask(
-            mask_size, self.config.device
-        )
+        mask = self._make_square_subsequent_mask(mask_size, self.config.device)
 
         if padding_mask is None:
             # creating the padding mask if is not available

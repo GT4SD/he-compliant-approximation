@@ -57,7 +57,6 @@ class CustomizableMultiHeadApproximator(ModuleApproximator):
         kwargs = {"multihead": getattr(model, id)}
         if pretrained:
             return self.get_pretrained_approximation(module=getattr(model, id))
-            
         else:
             return self.get_trainable_approximation(**kwargs)
 

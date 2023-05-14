@@ -376,10 +376,14 @@ class ModelApproximationController:
         """Replaces the model modules with the approximated version.
 
         Args:
+            pretrained: wheter to return the pretrained approximation. Defaults to False.
             verbose: whether to log the informations about the subsitution. Defaults to False.
+            return_num_substitutions: wheter to return the number of substitution performed. Defaults to False.
 
         Returns:
-            approximated model.
+            Depending on the value of return_num_substitutions:
+                - approximated model and number of substitution performed. If return_num_substitutions is True.
+                - approximated model. If return_num_substitutions is False.
         """
 
         if self.to_approximate.get_modules_set() == set():

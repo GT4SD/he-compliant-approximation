@@ -1,6 +1,5 @@
-"""MolecularTransformer configuration."""
+"""Vanilla transformer configuration."""
 
-import torch
 from transformers.configuration_utils import PretrainedConfig
 
 
