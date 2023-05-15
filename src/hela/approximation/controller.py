@@ -3,7 +3,7 @@
 import logging
 import os
 import re
-from typing import Callable, Dict, Optional, Union
+from typing import Callable, Dict, Optional, Tuple, Union
 
 from torch import nn
 
@@ -372,7 +372,7 @@ class ModelApproximationController:
         pretrained: bool = False,
         verbose: bool = False,
         return_num_substitutions: bool = False,
-    ) -> nn.Module:
+    ) -> Union[nn.Module, Tuple[nn.Module, Dict[str, int]]]:
         """Replaces the model modules with the approximated version.
 
         Args:
@@ -437,5 +437,8 @@ class ModelApproximationController:
                 print(f" - For ({key}) a total of {value} approximated layers.")
 
         if return_num_substitutions:
-            return self.model, num_substitutions
+            return self.model, dict(
+                (list(self.approximators.keys())[index], value)
+                for index, value in enumerate(num_substitutions.values())
+            )
         return self.model

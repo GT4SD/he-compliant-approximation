@@ -155,14 +155,14 @@ class LitSmilesDataset(pl.LightningDataModule):
         path = str(path)
         if path.endswith(".jsonl") or path.endswith(".json"):
             return SmilesDataset(
-                path, self.tokenize_function, padding_idx=self.tokenizer.pad_token_id
+                path, self.tokenize_function, padding_idx=self.tokenizer.pad_token_id  # type: ignore
             )
         elif os.path.isdir(path):
             return ConcatDataset(
                 datasets=[
                     SmilesDataset(
                         os.path.join(path, filename),
-                        self.tokenize_function,
+                        self.tokenize_function,  # type: ignore
                         padding_idx=self.tokenizer.pad_token_id,
                     )
                     for filename in os.listdir(path)

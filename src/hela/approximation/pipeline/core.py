@@ -155,7 +155,9 @@ class ApproximationPipeline:
         parser.add_argument(
             "--pipeline_steps_path",
             type=str,
-            default=os.path.join(os.getcwd(), "./pipeline_steps/without_approximations.json"),
+            default=os.path.join(
+                os.getcwd(), "./pipeline_steps/without_approximations.json"
+            ),
         )
         parser.add_argument("--modules_aliases_file", type=str, default=ALIASES_FILE)
         parser.add_argument(

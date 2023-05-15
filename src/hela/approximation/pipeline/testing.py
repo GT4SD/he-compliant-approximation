@@ -81,7 +81,7 @@ class TestingPipeline(ApproximationPipeline):
                     )
                 )
                 # approximating the model contained in the controller
-                self.model = self.controller.get_approximated_model(pretrained=False)
+                self.model = self.controller.get_approximated_model(pretrained=False)  # type: ignore
                 # updating the model used by the lightning module, specifing the approximation controller
                 self.lightning_model.update_model(  # type: ignore
                     new_model=self.model,
@@ -92,7 +92,7 @@ class TestingPipeline(ApproximationPipeline):
                 self.load_model_checkpoint()
 
                 # converting the approximated layer to their pretrained form
-                self.model = self.controller.get_approximated_model(pretrained=True)
+                self.model = self.controller.get_approximated_model(pretrained=True)  # type: ignore
                 # updating the model used by the lightning module, specifing the approximation controller
                 self.lightning_model.update_model(  # type: ignore
                     new_model=self.model,

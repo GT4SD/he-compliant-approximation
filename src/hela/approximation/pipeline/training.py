@@ -102,7 +102,7 @@ class TrainingPipeline(ApproximationPipeline):
                 )
                 self.controller.update_save_path(save_path=self.save_path)
                 # approximating the model contained in the controller
-                self.model = self.controller.get_approximated_model(pretrained=False)
+                self.model = self.controller.get_approximated_model(pretrained=False)  # type: ignore
                 # updating the model used by the lightning module, specifing the approximation controller
                 self.lightning_model.update_model(  # type: ignore
                     new_model=self.model,
@@ -223,7 +223,7 @@ class TrainingPipeline(ApproximationPipeline):
 
             # converting the approximated layer to their pretrained form
             if not self.current_to_approximate == set():
-                self.model = self.controller.get_approximated_model(pretrained=True)
+                self.model = self.controller.get_approximated_model(pretrained=True)  # type: ignore
                 # updating the model used by the lightning module, specifing the approximation controller
                 self.lightning_model.update_model(  # type: ignore
                     new_model=self.model,
