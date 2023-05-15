@@ -1,11 +1,16 @@
 # HELA: Homomorphic Encryption Learnable Approximations
 
-
-|  |  |
-|------------| ----- |
-| License    | [![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](https://opensource.org/licenses/MIT)|
-| Repository | ![Maintenance](https://img.shields.io/badge/maintained-yes-brightgreen) |
-| Code       | [![Style: black](https://img.shields.io/badge/style-black-blue)](https://github.com/psf/black) [![Linter: flake8](https://img.shields.io/badge/linter-flake8-blue)](https://github.com/pycqa/flake8) [![Imports: isort](https://img.shields.io/badge/imports-isort-blue)](https://pycqa.github.io/isort/) |
+<p align="center">
+<a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-yellow"></a>
+<a href="https://opensource.org/licenses/MIT"><img alt="Maintained: yes" src="https://img.shields.io/badge/maintained-yes-brightgreen"></a>
+</p>
+<p align="center">
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+<a href="https://github.com/pycqa/flake8"><img alt="Code linter: flake8" src="https://img.shields.io/badge/code%20linter-flake8-blue"></a>
+<a href="https://pycqa.github.io/isort/"><img alt="Imports: isort" src="https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336"></a>
+<a href="https://mypy-lang.org/"><img alt="Typing: mypy" src="https://img.shields.io/badge/typing-mypy-blue"></a>
+<a href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings"><img alt="Doctrings: google" src="https://img.shields.io/badge/doctrings-google-blue"></a>
+</p>
 
 The **HELA** (Homomorphic Encryption Learnable Approximations) is an open-source library to **accelerate the design of homomorphic encryption compliant neural networks**. This is possible by:
 
