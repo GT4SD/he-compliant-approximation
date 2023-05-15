@@ -174,7 +174,7 @@ def test_pipeline_steps_init():
 
 def test_load_pipeline_steps():
     """Tests the loading of the pipeline steps data structure from a file."""
-    pipeline_steps = load_pipeline_steps("./pipeline_steps.json")
+    pipeline_steps = load_pipeline_steps("./pipeline_steps/without_approximations.json")
 
     # ASSERTS
 
@@ -189,7 +189,7 @@ def test_load_pipeline_steps():
 def test_save_pipeline_steps():
     """Tests the saving of the pipeline steps data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        pipeline_steps = load_pipeline_steps("./pipeline_steps.json")
+        pipeline_steps = load_pipeline_steps("./pipeline_steps/without_approximations.json")
         save_pipeline_steps(pipeline_steps, tmpdirname)
 
         # ASSERTS
@@ -201,12 +201,12 @@ def test_save_pipeline_steps():
 def test_load_saved_pipeline_steps():
     """Tests the loading of the saved pipeline steps data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        pipeline_steps = load_pipeline_steps("./pipeline_steps.json")
+        pipeline_steps = load_pipeline_steps("./pipeline_steps/without_approximations.json")
         save_pipeline_steps(pipeline_steps, tmpdirname)
         saved_pipeline_steps = PipelineSteps.parse_file(
             os.path.join(tmpdirname, "pipeline_steps.json")
         )
-        resource_pipeline_steps = PipelineSteps.parse_file("./pipeline_steps.json")
+        resource_pipeline_steps = PipelineSteps.parse_file("./pipeline_steps/without_approximations.json")
 
         # ASSERTS
 

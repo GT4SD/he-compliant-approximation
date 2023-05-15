@@ -1,0 +1,58 @@
+{
+    "pipeline_steps": [
+        {
+            "index": 1,
+            "to_approximate": [],
+            "training_args": {
+                "skip_validation": true,
+                "max_epochs": 50
+            }
+        },
+        {
+            "index": 2,
+            "to_approximate": [],
+            "training_args": {
+                "skip_validation": false,
+                "check_val_every_n_epoch": 5,
+                "early_stopping": true,
+                "early_stopping_monitor": "val_accuracy",
+                "early_stopping_mode": "max",
+                "early_stopping_patience": 5,
+                "early_stopping_patience_reached": false,
+                "max_epochs": 150
+            }
+        },
+        {
+            "index": 3,
+            "to_approximate": [
+                {
+                    "module": "relu",
+                    "approximation_type": "trainable_quadratic",
+                    "parameters": {
+                        "input_dimension": 1,
+                        "smooth_factor": 50,
+                        "warmup_epochs": 0
+                    }
+                }
+            ],
+            "training_args": {
+                "skip_validation": true,
+                "max_epochs": 50
+            }
+        },
+        {
+            "index": 4,
+            "to_approximate": [],
+            "training_args": {
+                "skip_validation": false,
+                "check_val_every_n_epoch": 5,
+                "early_stopping": true,
+                "early_stopping_monitor": "val_accuracy",
+                "early_stopping_mode": "max",
+                "early_stopping_patience": 5,
+                "early_stopping_patience_reached": false,
+                "max_epochs": 150
+            }
+        }
+    ]
+}

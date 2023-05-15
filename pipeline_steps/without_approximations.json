@@ -1,0 +1,12 @@
+{
+    "pipeline_steps": [
+        {
+            "index": 1,
+            "to_approximate": [],
+            "training_args": {
+                "skip_validation": true,
+                "max_epochs": 50
+            }
+        }
+    ]
+}
