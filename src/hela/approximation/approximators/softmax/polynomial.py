@@ -81,7 +81,6 @@ class PolynomialSoftmax(nn.Module):
         Returns:
             normalized output.
         """
-        input.sum()
         input = torch.pow(input, self.order)
         return input * torch.reciprocal((input.sum(dim=self.dim, keepdim=True) + 1e-5))
 
@@ -141,18 +140,9 @@ class PolynomialSoftmaxApproximator(ModuleApproximator):
         # retrieving the softmax module that is going to be approximated
         kwargs = {"softmax": getattr(model, id)}
         if pretrained:
-            setattr(
-                model,
-                id,
-                self.get_pretrained_approximation(module=getattr(model, id)),
-            )
+            return self.get_pretrained_approximation(module=getattr(model, id))
         else:
-            setattr(
-                model,
-                id,
-                self.get_trainable_approximation(**kwargs),
-            )
-        return getattr(model, id)
+            return self.get_trainable_approximation(**kwargs)
 
     def get_trainable_approximation(self, **kwargs: Dict[str, Any]) -> nn.Module:
         """Approximates the module for the training phase.

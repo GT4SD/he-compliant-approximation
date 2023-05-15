@@ -1,4 +1,4 @@
-"""MolecularTransformer configuration."""
+"""Vanilla transformer configuration."""
 
 from transformers.configuration_utils import PretrainedConfig
 
@@ -28,6 +28,7 @@ class VanillaTransformerConfig(PretrainedConfig):
         is_encoder_decoder: bool = True,
         return_dict_in_generate: bool = False,
         num_beams: int = 1,
+        device: str = "cpu",
         **kwargs
     ) -> None:
         """Initialization of the configuation.
@@ -51,6 +52,7 @@ class VanillaTransformerConfig(PretrainedConfig):
             is_encoder_decoder: defines the structure of the model for the generation routine. Defaults to True.
             return_dict_in_generate: whether or not to return a [`ModelOutput`] instead of a plain tuple during generation. Defaults to False.
             num_beams: number of beams for beam search that will be used by default in the `generate` method of the model (1 means no beam search). Default to 1.
+            device: device on which the model will be allocated. Defaults to "cpu".
         """
 
         # model hyperparameters configuration
@@ -65,6 +67,7 @@ class VanillaTransformerConfig(PretrainedConfig):
         self.attention_mask_value = attention_mask_value
         self.init_std = init_std
         self.max_position_embeddings = max_position_embeddings
+        self.device = device
 
         super().__init__(
             pad_token_id=pad_token_id,

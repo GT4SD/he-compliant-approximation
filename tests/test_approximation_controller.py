@@ -43,6 +43,9 @@ ALIASES_FILE = str(
     importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
+# default device to run the tests
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 
 def check_relu_approximation_vanilla_transformer(
     approx_model: nn.Module,
@@ -233,10 +236,15 @@ model_testing_informations = {
             "num_attention_heads": num_attention_heads,
             "ffn_hidden_dim": ffnn_hidden_dim,
             "embedding_dim": embedding_dim,
+            "device": DEVICE,
         },
         "forward_input": {
-            "encoder_input_ids": torch.ones((batch_size, sequence_length)).long(),
-            "decoder_input_ids": torch.ones((batch_size, sequence_length)).long(),
+            "encoder_input_ids": torch.ones(
+                (batch_size, sequence_length), device=DEVICE
+            ).long(),
+            "decoder_input_ids": torch.ones(
+                (batch_size, sequence_length), device=DEVICE
+            ).long(),
         },
         "output_class": VanillaTransformerOutput,
     },
@@ -534,11 +542,11 @@ def test_controller_default_approximation_type_recover(approximation_identifier:
                 modules_aliases_file=ALIASES_FILE,
             )
             # getting the trainable approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=False)
-
-            num_subs_model = controller.recursive_search_with_approximation(model)
+            approx_model, num_subs_model = controller.get_approximated_model(
+                pretrained=False, return_num_substitutions=True
+            )
             num_subs_approx_model = controller.recursive_search_with_approximation(
-                approx_model
+                approx_model, pretrained=False
             )
 
             # ASSERTS
@@ -598,12 +606,12 @@ def test_controller_trainable_approximation(approximation_identifier: str):
                 modules_aliases_file=ALIASES_FILE,
             )
             # getting the trainable approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=False)
-            # getting the number of substitution made to the model
-            num_subs_model = controller.recursive_search_with_approximation(model)
+            approx_model, num_subs_model = controller.get_approximated_model(
+                pretrained=False, return_num_substitutions=True
+            )
             # getting the number of substitution made to the approximated trainable model
             num_subs_approx_model = controller.recursive_search_with_approximation(
-                approx_model
+                approx_model, pretrained=False
             )
 
             # ASSERTS
@@ -661,6 +669,8 @@ def test_controller_trainable_approximation_forward(approximation_identifier: st
             )
             # getting the trainable approximation of the model
             approx_model = controller.get_approximated_model(pretrained=False)
+            # moving the approximated model to the default DEVICE
+            approx_model.to(DEVICE)
 
             # forward pass
             output = approx_model(**model_dictionary["forward_input"])
@@ -713,15 +723,15 @@ def test_controller_pretrained_approximation(approximation_identifier: str):
             modules_aliases_file=ALIASES_FILE,
         )
         # getting the trainable approximation of the model
-        approx_model = controller.get_approximated_model(pretrained=False)
+        approx_model, num_subs_model = controller.get_approximated_model(
+            pretrained=False, return_num_substitutions=True
+        )
         # getting the pretrained approximation of the model
         approx_model = controller.get_approximated_model(pretrained=True)
 
-        # getting the number of substitution made to the model
-        num_subs_model = controller.recursive_search_with_approximation(model)
         # getting the number of substitution made to the approximated pretrained model
         num_subs_approx_model = controller.recursive_search_with_approximation(
-            approx_model
+            approx_model, pretrained=False
         )
 
         # ASSERTS
@@ -781,6 +791,8 @@ def test_controller_pretrained_approximation_forward(approximation_identifier: s
             approx_model = controller.get_approximated_model(pretrained=False)
             # getting the pretrained approximation of the model
             approx_model = controller.get_approximated_model(pretrained=True)
+            # moving the approximated model to the default DEVICE
+            approx_model.to(DEVICE)
 
             # forward pass
             output = approx_model(**model_dictionary["forward_input"])

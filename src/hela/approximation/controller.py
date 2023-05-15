@@ -284,12 +284,11 @@ class ModelApproximationController:
         # iterating through the layers of the network
         for id, module in model.named_children():
             # in case it is a simple module
-            if ModelApproximationController.get_object_module(module) in list(
-                self.approximators.keys()
-            ) and (
-                (not pretrained)
-                or (pretrained and getattr(module, "is_trainable", False))
-            ):
+            if (
+                ModelApproximationController.get_object_module(module)
+                in list(self.approximators.keys())
+                and (not pretrained)
+            ) or (pretrained and getattr(module, "is_trainable", False)):
                 # if we have to approximate the model ready for a possible training
                 if (
                     ModelApproximationController.get_object_module(module)
@@ -369,15 +368,22 @@ class ModelApproximationController:
         return num_affected
 
     def get_approximated_model(
-        self, pretrained: bool = False, verbose: bool = False
+        self,
+        pretrained: bool = False,
+        verbose: bool = False,
+        return_num_substitutions: bool = False,
     ) -> nn.Module:
         """Replaces the model modules with the approximated version.
 
         Args:
+            pretrained: wheter to return the pretrained approximation. Defaults to False.
             verbose: whether to log the informations about the subsitution. Defaults to False.
+            return_num_substitutions: wheter to return the number of substitution performed. Defaults to False.
 
         Returns:
-            approximated model.
+            Depending on the value of return_num_substitutions:
+                - approximated model and number of substitution performed. If return_num_substitutions is True.
+                - approximated model. If return_num_substitutions is False.
         """
 
         if self.to_approximate.get_modules_set() == set():
@@ -416,16 +422,20 @@ class ModelApproximationController:
             self.print_available_approximators()
 
         # approximate the model
-        affected = self.recursive_search_with_approximation(pretrained=pretrained)
+        num_substitutions = self.recursive_search_with_approximation(
+            pretrained=pretrained
+        )
         self.is_approximated = True
         self.is_pretrained = pretrained
 
         if verbose:
-            # logging how many layers were affected by the approximation
+            # logging how many layers were subtituted by the approximation
             print(
-                f"A total of {sum(affected.values())} of layers were substituted with an approximation approximated. In particular:"
+                f"A total of {sum(num_substitutions.values())} of layers were substituted with an approximation approximated. In particular:"
             )
-            for key, value in affected.items():
+            for key, value in num_substitutions.items():
                 print(f" - For ({key}) a total of {value} approximated layers.")
 
+        if return_num_substitutions:
+            return self.model, num_substitutions
         return self.model

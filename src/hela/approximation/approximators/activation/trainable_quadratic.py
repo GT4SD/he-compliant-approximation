@@ -139,6 +139,9 @@ class PairedReLU(nn.Module):
     """
 
     is_approximation_of = nn.ReLU
+    is_trainable = True
+    # containing another ReLU module inside we want to stop the substitution
+    allow_recursive_search = False
 
     def __init__(
         self,
@@ -156,10 +159,6 @@ class PairedReLU(nn.Module):
             warmup_epochs: number of epochs of training without smooth transition. Defaults to 0.
         """
         super().__init__()
-
-        # containing another ReLU module inside we want to stop the substitution
-        self.allow_recursive_search = False
-        self.is_trainable = True
 
         self.relu = nn.ReLU()
         self.approximated_relu = TrainableQuadraticApproximation(
@@ -192,12 +191,10 @@ class PairedReLU(nn.Module):
         """
         if epoch_number <= self.warmup_epochs:
             self.lambda_smooth_transition = 0
-        elif (
-            epoch_number > self.warmup_epochs
-            and epoch_number < self.smooth_factor + self.warmup_epochs
-        ):
-            self.lambda_smooth_transition = (
-                epoch_number - self.warmup_epochs
-            ) / self.smooth_factor
-        elif epoch_number > self.smooth_factor:
-            self.lambda_smooth_transition = 1
+        elif epoch_number > self.warmup_epochs:
+            if epoch_number < self.smooth_factor + self.warmup_epochs:
+                self.lambda_smooth_transition = (
+                    epoch_number - self.warmup_epochs
+                ) / self.smooth_factor
+            elif epoch_number >= self.smooth_factor + self.warmup_epochs:
+                self.lambda_smooth_transition = 1
