@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, List, Set
+from typing import Any, Set
 
 import importlib_resources
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel
 
 from .module_to_approximate import ModuleToApproximate
 
@@ -29,7 +29,7 @@ class ModuleAliases(BaseModel):
     name: str
     aliases: Set[str]
     default_approximation_type: str
-    dependencies: conlist(item_type=ModuleToApproximate, unique_items=True)  # type: ignore
+    dependencies: Set[ModuleToApproximate]
 
     def __hash__(self) -> int:
         """Fetches the hash value of the module aliases object.
@@ -52,18 +52,21 @@ class ModuleAliases(BaseModel):
             return NotImplemented
         return self.name == other.name
 
+    def __lt__(self, other):
+        return (self.name) < (other.name)
+
 
 class Aliases(BaseModel):
     """Contains the list of all the modules' aliases.
 
     Attributes:
-        aliases_list: list of all the modules' aliases.
+        aliases_set: list of all the modules' aliases.
         _aliases_dict: dictionary mapping the module name with its aliases.
         _dependencies_dict: dictionary mapping the module name with its dependencies.
         _default_approximation_type_dict: dictionary mapping the module name with its default approximation type.
     """
 
-    aliases_list: conlist(item_type=ModuleAliases, unique_items=True)  # type: ignore
+    aliases_set: Set[ModuleAliases]
 
     # declaring the attributes to be defined during initialization
     __slots__ = [
@@ -81,7 +84,7 @@ class Aliases(BaseModel):
             "_aliases_dict",
             {
                 module_alias.name: set(module_alias.aliases)
-                for module_alias in self.aliases_list
+                for module_alias in self.aliases_set
             },
         )
         # defining the dependencies dictionary
@@ -90,7 +93,7 @@ class Aliases(BaseModel):
             "_dependencies_dict",
             {
                 module_alias.name: set(module_alias.dependencies)
-                for module_alias in self.aliases_list
+                for module_alias in self.aliases_set
             },
         )
         # defining the default approximation type dictionary
@@ -99,17 +102,17 @@ class Aliases(BaseModel):
             "_default_approximation_type_dict",
             {
                 module_alias.name: module_alias.default_approximation_type
-                for module_alias in self.aliases_list
+                for module_alias in self.aliases_set
             },
         )
 
-    def get_aliases_list(self) -> List[ModuleAliases]:
+    def get_aliases_set(self) -> Set[ModuleAliases]:
         """Gets the list of all the modules' aliases.
 
         Returns:
             list of all the modules' aliases.
         """
-        return self.aliases_list
+        return self.aliases_set
 
     def get_module_aliases(self, module_name: str) -> Set[str]:
         """Gets the set of aliases associated to a module.

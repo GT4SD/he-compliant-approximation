@@ -5,14 +5,14 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Set, Type
 
 if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
 
-from pydantic import BaseModel, conlist, root_validator
+from pydantic import BaseModel, model_validator
 
 from .module_to_approximate import ModuleToApproximate
 
@@ -49,9 +49,10 @@ class TrainingStepTrainerArgs(BaseModel):
     early_stopping_patience: int = 3
     early_stopping_patience_reached: bool = False
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def check_early_stopping_monitor_omitted(
-        cls: TrainingStepTrainerArgs, values: Any
+        cls: Type[TrainingStepTrainerArgs], values: Any
     ) -> Any:
         """Validates the values related to early stopping.
 
@@ -85,12 +86,13 @@ class ApproximationStep(BaseModel):
     """
 
     index: int
-    to_approximate: conlist(item_type=ModuleToApproximate, unique_items=True)  # type: ignore
+    to_approximate: Set[ModuleToApproximate]
     training_args: TrainingStepTrainerArgs
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def check_batch_normalization_with_TID_parameters(
-        cls: ApproximationStep, values: Any
+        cls: Type[ApproximationStep], values: Any
     ) -> Any:
         """Validates the training arguments for the approximation of LayerNorm with Regularized BatchNorm.
 
@@ -109,9 +111,9 @@ class ApproximationStep(BaseModel):
         )
         for item in to_approximate:
             # checking whether the batch normalization parameters are in conflict with the training arguments
-            if item.approximation_type == "batchnorm":
+            if item["approximation_type"] == "batchnorm":
                 if (
-                    item.parameters.get("regularized_BN", None) is not None
+                    item["parameters"].get("regularized_BN", None) is not None
                     and training_args.skip_validation
                 ):
                     raise ValueError(

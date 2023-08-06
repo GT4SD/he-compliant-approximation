@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Type
 
-from pydantic import BaseModel, conlist, root_validator
+from pydantic import BaseModel, model_validator
 
 
 class ModuleToApproximate(BaseModel):
@@ -20,9 +20,10 @@ class ModuleToApproximate(BaseModel):
     approximation_type: str
     parameters: Dict[str, Any]
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def check_batch_normalization_with_TID_parameters(
-        cls: ModuleToApproximate, values: Any
+        cls: Type[ModuleToApproximate], values: Any
     ) -> Any:
         """Validates the parameters related to the Regularized BatchNorm approximation.
 
@@ -78,7 +79,7 @@ class ToApproximate(BaseModel):
         _modules_name_list: list of the modules' names
     """
 
-    modules_set: conlist(item_type=ModuleToApproximate, unique_items=True)  # type: ignore
+    modules_set: Set[ModuleToApproximate]
 
     # declaring the attributes to be defined during initialization
     __slots__ = ["_modules_name_list"]

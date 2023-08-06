@@ -1,5 +1,5 @@
 {
-    "aliases_list": [
+    "aliases_set": [
         {
             "name": "relu",
             "aliases": ["torch.nn.modules.activation.ReLU", "torch.nn.functional.relu"],

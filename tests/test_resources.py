@@ -2,7 +2,7 @@
 
 import os
 import tempfile
-from typing import List, Set
+from typing import Set
 
 import importlib_resources
 
@@ -51,7 +51,7 @@ def test_alias_mapping_init():
     assert isinstance(module_aliases.name, str)
     assert isinstance(module_aliases.aliases, Set)
     assert isinstance(module_aliases.default_approximation_type, str)
-    assert isinstance(module_aliases.dependencies, List)
+    assert isinstance(module_aliases.dependencies, Set)
     for dependency in module_aliases.dependencies:
         assert isinstance(dependency, ModuleToApproximate)
 
@@ -71,7 +71,7 @@ def test_load_modules_aliases():
     # ASSERTS
 
     assert isinstance(aliases, Aliases)
-    for item in aliases.aliases_list:
+    for item in aliases.aliases_set:
         assert isinstance(item, ModuleAliases)
         assert isinstance(item.name, str)
         assert isinstance(item.aliases, Set)
@@ -97,18 +97,14 @@ def test_load_saved_aliases():
         # ASSERTS
 
         assert os.path.exists(os.path.join(tmpdirname, "aliases.json"))
-        for idx in range(len(resource_aliases.aliases_list)):
+        resource_aliases_list = sorted(list(resource_aliases.aliases_set))
+        saved_aliases_list = sorted(list(saved_aliases.aliases_set))
+        for idx in range(len(resource_aliases_list)):
+            assert saved_aliases_list[idx].name == resource_aliases_list[idx].name
+            assert saved_aliases_list[idx].aliases == resource_aliases_list[idx].aliases
             assert (
-                saved_aliases.aliases_list[idx].name
-                == resource_aliases.aliases_list[idx].name
-            )
-            assert (
-                saved_aliases.aliases_list[idx].aliases
-                == resource_aliases.aliases_list[idx].aliases
-            )
-            assert (
-                saved_aliases.aliases_list[idx].default_approximation_type
-                == resource_aliases.aliases_list[idx].default_approximation_type
+                saved_aliases_list[idx].default_approximation_type
+                == resource_aliases_list[idx].default_approximation_type
             )
 
 
@@ -135,7 +131,7 @@ def test_approximation_step_init():
 
     assert isinstance(pipeline_step, ApproximationStep)
     assert isinstance(pipeline_step.index, int)
-    assert isinstance(pipeline_step.to_approximate, List)
+    assert isinstance(pipeline_step.to_approximate, Set)
     for item in pipeline_step.to_approximate:
         assert isinstance(item, ModuleToApproximate)
     assert isinstance(pipeline_step.training_args, TrainingStepTrainerArgs)
@@ -166,7 +162,7 @@ def test_pipeline_steps_init():
     assert isinstance(pipeline_steps, PipelineSteps)
     for pipeline_step in pipeline_steps.get_pipeline_step_list():
         assert isinstance(pipeline_step.index, int)
-        assert isinstance(pipeline_step.to_approximate, List)
+        assert isinstance(pipeline_step.to_approximate, Set)
         for item in pipeline_step.to_approximate:
             assert isinstance(item, ModuleToApproximate)
         assert isinstance(pipeline_step.training_args, TrainingStepTrainerArgs)
@@ -182,7 +178,7 @@ def test_load_pipeline_steps():
     for step in pipeline_steps.get_pipeline_step_list():
         assert isinstance(step, ApproximationStep)
         assert isinstance(step.index, int)
-        assert isinstance(step.to_approximate, List)
+        assert isinstance(step.to_approximate, Set)
         assert isinstance(step.training_args, TrainingStepTrainerArgs)
 
 
