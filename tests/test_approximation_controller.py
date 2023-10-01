@@ -1,7 +1,7 @@
 """Testing the approximation controller."""
 
 from copy import deepcopy
-from typing import Type
+from typing import Dict, Type, Union
 
 import importlib_resources
 import pytest
@@ -459,54 +459,77 @@ approximation_testing_informations = {
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier",
-    list(approximation_testing_informations.keys()),
-    ids=list(approximation_testing_informations.keys()),
+    "approximation_identifier,to_approx_dict",
+    [
+        (approx, init_params)
+        for approx in list(approximation_testing_informations.keys())
+        for init_params in approximation_testing_informations[approx]["to_approx_dict"]
+    ],
+    ids=[
+        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        for approx in list(approximation_testing_informations.keys())
+        for to_approx_dict_index, _ in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
 )
-def test_controller_init(approximation_identifier: str):
+def test_controller_init(
+    approximation_identifier: str, to_approx_dict: Dict[str, Union[str, Dict]]
+):
     """Tests the controller initialization.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
+        to_approx_dict: specification of the approximations to be performed.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
         approximation_identifier
     ]
 
-    for model_index, model_class in enumerate(
-        approximation_dictionary["model_classes"]
-    ):
+    for model_class in approximation_dictionary["model_classes"]:
         model_dictionary = model_testing_informations[model_class]
         # initializing the model to approximate
         model = model_class(
             model_dictionary["config_class"](**model_dictionary["config_parameters"])
         )
 
-        for approx_dict in approximation_dictionary["to_approx_dict"]:
-            to_approximate = ToApproximate(**approx_dict)
+        to_approximate = ToApproximate(**to_approx_dict)
 
-            controller = ModelApproximationController(
-                model=model,
-                to_approximate=to_approximate,
-                modules_aliases_file=ALIASES_FILE,
-            )
+        controller = ModelApproximationController(
+            model=model,
+            to_approximate=to_approximate,
+            modules_aliases_file=ALIASES_FILE,
+        )
 
-            # ASSERTS
+        # ASSERTS
 
-            assert isinstance(controller, ModelApproximationController)
+        assert isinstance(controller, ModelApproximationController)
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier",
-    list(approximation_testing_informations.keys()),
-    ids=list(approximation_testing_informations.keys()),
+    "approximation_identifier,to_approx_dict",
+    [
+        (approx, init_params)
+        for approx in list(approximation_testing_informations.keys())
+        for init_params in approximation_testing_informations[approx]["to_approx_dict"]
+    ],
+    ids=[
+        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        for approx in list(approximation_testing_informations.keys())
+        for to_approx_dict_index, _ in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
 )
-def test_controller_default_approximation_type_recover(approximation_identifier: str):
+def test_controller_default_approximation_type_recover(
+    approximation_identifier: str, to_approx_dict: Dict[str, Union[str, Dict]]
+):
     """Tests the ability of the controller to use a default approximation if its type is not specified.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
+        to_approx_dict: specification of the approximations to be performed.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
@@ -518,65 +541,80 @@ def test_controller_default_approximation_type_recover(approximation_identifier:
     ):
         model_dictionary = model_testing_informations[model_class]
 
-        for approx_dict in approximation_dictionary["to_approx_dict"]:
-            # initializing the model to approximate
-            model = model_class(
-                model_dictionary["config_class"](
-                    **model_dictionary["config_parameters"]
-                )
-            )
+        # initializing the model to approximate
+        model = model_class(
+            model_dictionary["config_class"](**model_dictionary["config_parameters"])
+        )
 
-            # copying the testing data to avoid its modification
-            approx_dict = deepcopy(approx_dict)
-            for elem in approx_dict["modules_set"]:
-                # the approximation_type is set to empty string (i.e. not specified), requiring the controller to set the default one
-                elem["approximation_type"] = ""
-                elem["parameters"] = {}
+        # copying the testing data to avoid its modification
+        approx_dict = deepcopy(to_approx_dict)
+        for elem in approx_dict["modules_set"]:
+            # the approximation_type is set to empty string (i.e. not specified), requiring the controller to set the default one
+            elem["approximation_type"] = ""
+            elem["parameters"] = {}
 
-            # initializing the object containing the approximation to be handled by the controller
-            to_approximate = ToApproximate(**approx_dict)
-            # initializing the approximation controller
-            controller = ModelApproximationController(
-                model=model,
-                to_approximate=to_approximate,
-                modules_aliases_file=ALIASES_FILE,
-            )
-            # getting the trainable approximation of the model
-            approx_model, num_subs_model = controller.get_approximated_model(
-                pretrained=False, return_num_substitutions=True
-            )
-            num_subs_approx_model = controller.recursive_search_with_approximation(
-                approx_model, pretrained=False
-            )
+        # initializing the object containing the approximation to be handled by the controller
+        to_approximate = ToApproximate(**approx_dict)
+        # initializing the approximation controller
+        controller = ModelApproximationController(
+            model=model,
+            to_approximate=to_approximate,
+            modules_aliases_file=ALIASES_FILE,
+        )
+        # getting the trainable approximation of the model
+        approx_model, num_subs_model = controller.get_approximated_model(
+            pretrained=False, return_num_substitutions=True
+        )
+        num_subs_approx_model = controller.recursive_search_with_approximation(
+            approx_model, pretrained=False
+        )
 
-            # ASSERTS
+        # ASSERTS
 
-            # checking the model class
-            assert isinstance(approx_model, nn.Module)
-            assert isinstance(approx_model, model_class)
+        # checking the model class
+        assert isinstance(approx_model, nn.Module)
+        assert isinstance(approx_model, model_class)
 
-            # checking the number of substitution made to the model
-            assert sum(num_subs_model.values()) > 0
-            # checking the number of substitution made to the approximated model
-            assert sum(num_subs_approx_model.values()) == 0
+        # checking the number of substitution made to the model
+        assert sum(num_subs_model.values()) > 0
+        # checking the number of substitution made to the approximated model
+        assert sum(num_subs_approx_model.values()) == 0
 
-            # checking the class of the substituted modules inside the model
-            approximation_dictionary["check_substitution"][model_index](
-                approx_model,
-                approximation_dictionary["default_approximation_class"],
-            )
+        # checking the class of the substituted modules inside the model
+        approximation_dictionary["check_substitution"][model_index](
+            approx_model,
+            approximation_dictionary["default_approximation_class"],
+        )
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier",
-    list(approximation_testing_informations.keys()),
-    ids=list(approximation_testing_informations.keys()),
+    "approximation_identifier,to_approx_dict,to_approx_dict_index",
+    [
+        (approx, init_params, init_params_index)
+        for approx in list(approximation_testing_informations.keys())
+        for init_params_index, init_params in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
+    ids=[
+        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        for approx in list(approximation_testing_informations.keys())
+        for to_approx_dict_index, _ in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
 )
-def test_controller_trainable_approximation(approximation_identifier: str):
+def test_controller_trainable_approximation(
+    approximation_identifier: str,
+    to_approx_dict: Dict[str, Union[str, Dict]],
+    to_approx_dict_index: int,
+):
     """Tests the trainable approximation of the model.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
+        to_approx_dict: specification of the approximations to be performed.
+        to_approx_dict_index: index to select the testing information corresponding to the approximations to be performed.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
@@ -588,59 +626,70 @@ def test_controller_trainable_approximation(approximation_identifier: str):
     ):
         model_dictionary = model_testing_informations[model_class]
 
-        for approx_index, approx_dict in enumerate(
-            approximation_dictionary["to_approx_dict"]
-        ):
-            # initializing the model to approximate
-            model = model_class(
-                model_dictionary["config_class"](
-                    **model_dictionary["config_parameters"]
-                )
-            )
-            # initializing the object containing the approximation to be handled by the controller
-            to_approximate = ToApproximate(**approx_dict)
-            # initializing the approximation controller
-            controller = ModelApproximationController(
-                model=model,
-                to_approximate=to_approximate,
-                modules_aliases_file=ALIASES_FILE,
-            )
-            # getting the trainable approximation of the model
-            approx_model, num_subs_model = controller.get_approximated_model(
-                pretrained=False, return_num_substitutions=True
-            )
-            # getting the number of substitution made to the approximated trainable model
-            num_subs_approx_model = controller.recursive_search_with_approximation(
-                approx_model, pretrained=False
-            )
+        # initializing the model to approximate
+        model = model_class(
+            model_dictionary["config_class"](**model_dictionary["config_parameters"])
+        )
+        # initializing the object containing the approximation to be handled by the controller
+        to_approximate = ToApproximate(**to_approx_dict)
+        # initializing the approximation controller
+        controller = ModelApproximationController(
+            model=model,
+            to_approximate=to_approximate,
+            modules_aliases_file=ALIASES_FILE,
+        )
+        # getting the trainable approximation of the model
+        approx_model, num_subs_model = controller.get_approximated_model(
+            pretrained=False, return_num_substitutions=True
+        )
+        # getting the number of substitution made to the approximated trainable model
+        num_subs_approx_model = controller.recursive_search_with_approximation(
+            approx_model, pretrained=False
+        )
 
-            # ASSERTS
+        # ASSERTS
 
-            # checking the model class
-            assert isinstance(approx_model, nn.Module)
-            assert isinstance(approx_model, model_class)
-            # checking the number of substitution made to the model
-            assert sum(num_subs_model.values()) > 0
-            # checking the number of substitution made to the approximated trainable model
-            assert sum(num_subs_approx_model.values()) == 0
+        # checking the model class
+        assert isinstance(approx_model, nn.Module)
+        assert isinstance(approx_model, model_class)
+        # checking the number of substitution made to the model
+        assert sum(num_subs_model.values()) > 0
+        # checking the number of substitution made to the approximated trainable model
+        assert sum(num_subs_approx_model.values()) == 0
 
-            # checking the class of the substituted modules inside the model
-            approximation_dictionary["check_substitution"][model_index](
-                approx_model,
-                approximation_dictionary["trainable_approximation_class"][approx_index],
-            )
+        # checking the class of the substituted modules inside the model
+        approximation_dictionary["check_substitution"][model_index](
+            approx_model,
+            approximation_dictionary["trainable_approximation_class"][
+                to_approx_dict_index
+            ],
+        )
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier",
-    list(approximation_testing_informations.keys()),
-    ids=list(approximation_testing_informations.keys()),
+    "approximation_identifier,to_approx_dict",
+    [
+        (approx, init_params)
+        for approx in list(approximation_testing_informations.keys())
+        for init_params in approximation_testing_informations[approx]["to_approx_dict"]
+    ],
+    ids=[
+        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        for approx in list(approximation_testing_informations.keys())
+        for to_approx_dict_index, _ in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
 )
-def test_controller_trainable_approximation_forward(approximation_identifier: str):
+def test_controller_trainable_approximation_forward(
+    approximation_identifier: str,
+    to_approx_dict: Dict[str, Union[str, Dict]],
+):
     """Tests the forward pass of the trainable approximation of the model.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
+        to_approx_dict: specification of the approximations to be performed.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
@@ -652,48 +701,63 @@ def test_controller_trainable_approximation_forward(approximation_identifier: st
     ):
         model_dictionary = model_testing_informations[model_class]
 
-        for approx_dict in approximation_dictionary["to_approx_dict"]:
-            # initializing the model to approximate
-            model = model_class(
-                model_dictionary["config_class"](
-                    **model_dictionary["config_parameters"]
-                )
-            )
-            # initializing the object containing the approximation to be handled by the controller
-            to_approximate = ToApproximate(**approx_dict)
-            # initializing the approximation controller
-            controller = ModelApproximationController(
-                model=model,
-                to_approximate=to_approximate,
-                modules_aliases_file=ALIASES_FILE,
-            )
-            # getting the trainable approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=False)
-            # moving the approximated model to the default DEVICE
-            approx_model.to(DEVICE)
+        # initializing the model to approximate
+        model = model_class(
+            model_dictionary["config_class"](**model_dictionary["config_parameters"])
+        )
+        # initializing the object containing the approximation to be handled by the controller
+        to_approximate = ToApproximate(**to_approx_dict)
+        # initializing the approximation controller
+        controller = ModelApproximationController(
+            model=model,
+            to_approximate=to_approximate,
+            modules_aliases_file=ALIASES_FILE,
+        )
+        # getting the trainable approximation of the model
+        approx_model = controller.get_approximated_model(pretrained=False)
+        # moving the approximated model to the default DEVICE
+        approx_model.to(DEVICE)
 
-            # forward pass
-            output = approx_model(**model_dictionary["forward_input"])
+        # forward pass
+        output = approx_model(**model_dictionary["forward_input"])
 
-            # ASSERTS
+        # ASSERTS
 
-            # checking the model class
-            assert isinstance(approx_model, nn.Module)
-            assert isinstance(approx_model, model_class)
-            # checking the output class
-            assert isinstance(output, model_dictionary["output_class"])
+        # checking the model class
+        assert isinstance(approx_model, nn.Module)
+        assert isinstance(approx_model, model_class)
+        # checking the output class
+        assert isinstance(output, model_dictionary["output_class"])
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier",
-    list(approximation_testing_informations.keys()),
-    ids=list(approximation_testing_informations.keys()),
+    "approximation_identifier,to_approx_dict,to_approx_dict_index",
+    [
+        (approx, init_params, init_params_index)
+        for approx in list(approximation_testing_informations.keys())
+        for init_params_index, init_params in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
+    ids=[
+        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        for approx in list(approximation_testing_informations.keys())
+        for to_approx_dict_index, _ in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
 )
-def test_controller_pretrained_approximation(approximation_identifier: str):
+def test_controller_pretrained_approximation(
+    approximation_identifier: str,
+    to_approx_dict: Dict[str, Union[str, Dict]],
+    to_approx_dict_index: int,
+):
     """Tests the pretrained approximation of the model.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
+        to_approx_dict: specification of the approximations to be performed.
+        to_approx_dict_index: index to select the testing information corresponding to the approximations to be performed.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
@@ -705,17 +769,13 @@ def test_controller_pretrained_approximation(approximation_identifier: str):
     ):
         model_dictionary = model_testing_informations[model_class]
 
-        for approx_index, approx_dict in enumerate(
-            approximation_dictionary["to_approx_dict"]
-        ):
-            # initializing the model to approximate
-            model = model_class(
-                model_dictionary["config_class"](
-                    **model_dictionary["config_parameters"]
-                )
-            )
+        # initializing the model to approximate
+        model = model_class(
+            model_dictionary["config_class"](**model_dictionary["config_parameters"])
+        )
+
         # initializing the object containing the approximation to be handled by the controller
-        to_approximate = ToApproximate(**approx_dict)
+        to_approximate = ToApproximate(**to_approx_dict)
         # initializing the approximation controller
         controller = ModelApproximationController(
             model=model,
@@ -747,20 +807,35 @@ def test_controller_pretrained_approximation(approximation_identifier: str):
         # checking the class of the substituted modules inside the model
         approximation_dictionary["check_substitution"][model_index](
             approx_model,
-            approximation_dictionary["pretrained_approximation_class"][approx_index],
+            approximation_dictionary["pretrained_approximation_class"][
+                to_approx_dict_index
+            ],
         )
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier",
-    list(approximation_testing_informations.keys()),
-    ids=list(approximation_testing_informations.keys()),
+    "approximation_identifier,to_approx_dict",
+    [
+        (approx, init_params)
+        for approx in list(approximation_testing_informations.keys())
+        for init_params in approximation_testing_informations[approx]["to_approx_dict"]
+    ],
+    ids=[
+        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        for approx in list(approximation_testing_informations.keys())
+        for to_approx_dict_index, _ in enumerate(
+            approximation_testing_informations[approx]["to_approx_dict"]
+        )
+    ],
 )
-def test_controller_pretrained_approximation_forward(approximation_identifier: str):
+def test_controller_pretrained_approximation_forward(
+    approximation_identifier: str, to_approx_dict: Dict[str, Union[str, Dict]]
+):
     """Tests the forward pass of the pretrained approximation of the model.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
+        to_approx_dict: specification of the approximations to be performed.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
@@ -772,35 +847,32 @@ def test_controller_pretrained_approximation_forward(approximation_identifier: s
     ):
         model_dictionary = model_testing_informations[model_class]
 
-        for approx_dict in approximation_dictionary["to_approx_dict"]:
-            # initializing the model to approximate
-            model = model_class(
-                model_dictionary["config_class"](
-                    **model_dictionary["config_parameters"]
-                )
-            )
-            # initializing the object containing the approximation to be handled by the controller
-            to_approximate = ToApproximate(**approx_dict)
-            # initializing the approximation controller
-            controller = ModelApproximationController(
-                model=model,
-                to_approximate=to_approximate,
-                modules_aliases_file=ALIASES_FILE,
-            )
-            # getting the trainable approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=False)
-            # getting the pretrained approximation of the model
-            approx_model = controller.get_approximated_model(pretrained=True)
-            # moving the approximated model to the default DEVICE
-            approx_model.to(DEVICE)
+        # initializing the model to approximate
+        model = model_class(
+            model_dictionary["config_class"](**model_dictionary["config_parameters"])
+        )
+        # initializing the object containing the approximation to be handled by the controller
+        to_approximate = ToApproximate(**to_approx_dict)
+        # initializing the approximation controller
+        controller = ModelApproximationController(
+            model=model,
+            to_approximate=to_approximate,
+            modules_aliases_file=ALIASES_FILE,
+        )
+        # getting the trainable approximation of the model
+        approx_model = controller.get_approximated_model(pretrained=False)
+        # getting the pretrained approximation of the model
+        approx_model = controller.get_approximated_model(pretrained=True)
+        # moving the approximated model to the default DEVICE
+        approx_model.to(DEVICE)
 
-            # forward pass
-            output = approx_model(**model_dictionary["forward_input"])
+        # forward pass
+        output = approx_model(**model_dictionary["forward_input"])
 
-            # ASSERTS
+        # ASSERTS
 
-            # checking the model class
-            assert isinstance(approx_model, nn.Module)
-            assert isinstance(approx_model, model_class)
-            # checking the output class
-            assert isinstance(output, model_dictionary["output_class"])
+        # checking the model class
+        assert isinstance(approx_model, nn.Module)
+        assert isinstance(approx_model, model_class)
+        # checking the output class
+        assert isinstance(output, model_dictionary["output_class"])
