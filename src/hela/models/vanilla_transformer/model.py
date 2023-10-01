@@ -344,15 +344,16 @@ class VanillaTransformerEncoder(VanillaTransformerPretrainedModel):
             padding_mask = input.eq(self.config.pad_token_id)
             # the padding mask is always taken with batch_first
             padding_mask = (
-                padding_mask if self.batch_first else padding_mask.transpose(1, 0) # type: ignore
+                padding_mask if self.batch_first else padding_mask.transpose(1, 0)  # type: ignore
             )
         else:
             # adjusting the dimensions of the padding mask, in case it is available
             # the padding mask is always taken with batch_first
             padding_mask = padding_mask.view(-1, padding_mask.shape[-1])
-        
-        padding_mask = padding_mask.to(self.config.device) 
-            
+
+        mask = mask.to(self.config.device)
+        padding_mask = padding_mask.to(self.config.device)
+
         return mask, padding_mask
 
     def forward(
@@ -528,8 +529,9 @@ class VanillaTransformerDecoder(VanillaTransformerPretrainedModel):
             # adjusting the dimensions padding mask, in case it is available
             # the padding mask is always taken with batch_first
             padding_mask = padding_mask.view(-1, padding_mask.shape[-1])
-        
-        padding_mask = padding_mask.to(self.config.device) 
+
+        mask = mask.to(self.config.device)
+        padding_mask = padding_mask.to(self.config.device)
 
         return mask, padding_mask
 
