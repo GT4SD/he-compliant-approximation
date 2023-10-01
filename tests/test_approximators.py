@@ -1,7 +1,7 @@
 """Testing the modules' approximators."""
 
 from copy import deepcopy
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import pytest
 import torch
@@ -336,202 +336,282 @@ testing_informations = {
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier",
-    list(testing_informations.keys()),
-    ids=list(testing_informations.keys()),
+    "approximator_identifier,init_parameters",
+    [
+        (approx, init_params)
+        for approx in list(testing_informations.keys())
+        for init_params in testing_informations[approx]["init_parameters"]
+    ],
+    ids=[
+        f"{approx} - init_params {init_params_index} "
+        for approx in list(testing_informations.keys())
+        for init_params_index, _ in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
 )
 def test_approximator_init(
-    approximator_identifier: str,
+    approximator_identifier: str, init_parameters: Dict[str, Any]
 ):
     """Tests the initialization of the approximator.
 
     Args:
         approximator_identifier: identifier of the approximator to be tested.
+        init_parameters: initialization parameters of the approximation.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
 
-    for init_parameters in approximator_dictionary["init_parameters"]:
-        # initializing the approximator object
-        approximator = approximator_dictionary["approximator_class"](
-            parameters=init_parameters
-        )
+    # initializing the approximator object
+    approximator = approximator_dictionary["approximator_class"](
+        parameters=init_parameters
+    )
 
-        # ASSERTS
+    # ASSERTS
 
-        # checking the approximator class
-        assert isinstance(approximator, ModuleApproximator)
-        assert isinstance(approximator, approximator_dictionary["approximator_class"])
+    # checking the approximator class
+    assert isinstance(approximator, ModuleApproximator)
+    assert isinstance(approximator, approximator_dictionary["approximator_class"])
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier",
-    list(testing_informations.keys()),
-    ids=list(testing_informations.keys()),
+    "approximator_identifier,init_parameters,init_parameters_index",
+    [
+        (approx, init_params, init_params_index)
+        for approx in list(testing_informations.keys())
+        for init_params_index, init_params in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
+    ids=[
+        f"{approx} - init_params {init_params_index} "
+        for approx in list(testing_informations.keys())
+        for init_params_index, _ in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
 )
 def test_get_trainable_approximation(
     approximator_identifier: str,
+    init_parameters: Dict[str, Any],
+    init_parameters_index: int,
 ):
     """Tests the approximator trainable approximation.
 
     Args:
         approximator_identifier: identifier of the approximator to be tested.
+        init_parameters: initialization parameters of the approximation.
+        init_parameters_index: index to select the testing information corresponding to the initialization parameters.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
 
-    for index, init_parameters in enumerate(approximator_dictionary["init_parameters"]):
-        # initializing the approximator object
-        approximator = approximator_dictionary["approximator_class"](
-            parameters=init_parameters
-        )
-        # getting the trainable approximation
-        trainable_approx_module = approximator.get_trainable_approximation(
-            **approximator_dictionary["get_trainable_approximation_kwargs"][index]
-        )
+    # initializing the approximator object
+    approximator = approximator_dictionary["approximator_class"](
+        parameters=init_parameters
+    )
+    # getting the trainable approximation
+    trainable_approx_module = approximator.get_trainable_approximation(
+        **approximator_dictionary["get_trainable_approximation_kwargs"][
+            init_parameters_index
+        ]
+    )
 
-        # ASSERTS
+    # ASSERTS
 
-        # checking the trainable approximation class
-        assert isinstance(
-            trainable_approx_module,
-            approximator_dictionary["trainable_approximation_class"],
-        )
+    # checking the trainable approximation class
+    assert isinstance(
+        trainable_approx_module,
+        approximator_dictionary["trainable_approximation_class"],
+    )
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier",
-    list(testing_informations.keys()),
-    ids=list(testing_informations.keys()),
+    "approximator_identifier,init_parameters,init_parameters_index",
+    [
+        (approx, init_params, init_params_index)
+        for approx in list(testing_informations.keys())
+        for init_params_index, init_params in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
+    ids=[
+        f"{approx} - init_params {init_params_index} "
+        for approx in list(testing_informations.keys())
+        for init_params_index, _ in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
 )
 def test_trainable_approximation_forward(
     approximator_identifier: str,
+    init_parameters: Dict[str, Any],
+    init_parameters_index: int,
 ):
     """Tests the forward pass of the approximator trainable approximation.
 
     Args:
         approximator_identifier: identifier of the approximator to be tested.
+        init_parameters: initialization parameters of the approximation.
+        init_parameters_index: index to select the testing information corresponding to the initialization parameters.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
 
-    for index, init_parameters in enumerate(approximator_dictionary["init_parameters"]):
-        # initializing the approximator object
-        approximator = approximator_dictionary["approximator_class"](
-            parameters=init_parameters
-        )
-        # getting the trainable approximation
-        trainable_approx_module = approximator.get_trainable_approximation(
-            **approximator_dictionary["get_trainable_approximation_kwargs"][index]
-        )
-        # moving the approximated module to the default DEVICE
-        trainable_approx_module.to(DEVICE)
-        # forward pass through the trainable approximation
-        output = trainable_approx_module(
-            **deepcopy(approximator_dictionary["forward_kwargs"])
-        )
+    # initializing the approximator object
+    approximator = approximator_dictionary["approximator_class"](
+        parameters=init_parameters
+    )
+    # getting the trainable approximation
+    trainable_approx_module = approximator.get_trainable_approximation(
+        **approximator_dictionary["get_trainable_approximation_kwargs"][
+            init_parameters_index
+        ]
+    )
+    # moving the approximated module to the default DEVICE
+    trainable_approx_module.to(DEVICE)
+    # forward pass through the trainable approximation
+    output = trainable_approx_module(
+        **deepcopy(approximator_dictionary["forward_kwargs"])
+    )
 
-        # ASSERTS
+    # ASSERTS
 
-        # checking the output type
-        assert isinstance(output, approximator_dictionary["output_type"])
-        # checking the output values if they are specified
-        if approximator_dictionary["expected_output"][index] is not None:
-            assert torch.all(
-                torch.eq(
-                    output,
-                    approximator_dictionary["expected_output"][index],
-                )
+    # checking the output type
+    assert isinstance(output, approximator_dictionary["output_type"])
+    # checking the output values if they are specified
+    if approximator_dictionary["expected_output"][init_parameters_index] is not None:
+        assert torch.all(
+            torch.eq(
+                output,
+                approximator_dictionary["expected_output"][init_parameters_index],
             )
+        )
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier",
-    list(testing_informations.keys()),
-    ids=list(testing_informations.keys()),
+    "approximator_identifier,init_parameters,init_parameters_index",
+    [
+        (approx, init_params, init_params_index)
+        for approx in list(testing_informations.keys())
+        for init_params_index, init_params in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
+    ids=[
+        f"{approx} - init_params {init_params_index} "
+        for approx in list(testing_informations.keys())
+        for init_params_index, _ in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
 )
 def test_get_pretrained_approximation(
     approximator_identifier: str,
+    init_parameters: Dict[str, Any],
+    init_parameters_index: int,
 ):
     """Tests the approximator pretrained approximation.
 
     Args:
         approximator_identifier: identifier of the approximator to be tested.
+        init_parameters: initialization parameters of the approximation.
+        init_parameters_index: index to select the testing information corresponding to the initialization parameters.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
 
-    for index, init_parameters in enumerate(approximator_dictionary["init_parameters"]):
-        # initializing the approximator object
-        approximator = approximator_dictionary["approximator_class"](
-            parameters=init_parameters
-        )
-        # getting the trainable approximation
-        trainable_approx_module = approximator.get_trainable_approximation(
-            **approximator_dictionary["get_trainable_approximation_kwargs"][index]
-        )
-        # getting the pretrained approximation
-        pretrained_approx_module = approximator.get_pretrained_approximation(
-            trainable_approx_module
-        )
+    # initializing the approximator object
+    approximator = approximator_dictionary["approximator_class"](
+        parameters=init_parameters
+    )
+    # getting the trainable approximation
+    trainable_approx_module = approximator.get_trainable_approximation(
+        **approximator_dictionary["get_trainable_approximation_kwargs"][
+            init_parameters_index
+        ]
+    )
+    # getting the pretrained approximation
+    pretrained_approx_module = approximator.get_pretrained_approximation(
+        trainable_approx_module
+    )
 
-        # ASSERTS
+    # ASSERTS
 
-        # checking the trainable approximation class
-        assert isinstance(
-            trainable_approx_module,
-            approximator_dictionary["trainable_approximation_class"],
-        )
-        # checking the pretrained approximation class
-        assert isinstance(
-            pretrained_approx_module,
-            approximator_dictionary["pretrained_approximation_class"],
-        )
+    # checking the trainable approximation class
+    assert isinstance(
+        trainable_approx_module,
+        approximator_dictionary["trainable_approximation_class"],
+    )
+    # checking the pretrained approximation class
+    assert isinstance(
+        pretrained_approx_module,
+        approximator_dictionary["pretrained_approximation_class"],
+    )
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier",
-    list(testing_informations.keys()),
-    ids=list(testing_informations.keys()),
+    "approximator_identifier,init_parameters,init_parameters_index",
+    [
+        (approx, init_params, init_params_index)
+        for approx in list(testing_informations.keys())
+        for init_params_index, init_params in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
+    ids=[
+        f"{approx} - init_params {init_params_index} "
+        for approx in list(testing_informations.keys())
+        for init_params_index, _ in enumerate(
+            testing_informations[approx]["init_parameters"]
+        )
+    ],
 )
-def test_pretrained_approximation_forward(approximator_identifier: str):
+def test_pretrained_approximation_forward(
+    approximator_identifier: str,
+    init_parameters: Dict[str, Any],
+    init_parameters_index: int,
+):
     """Tests the forward pass of the approximator pretrained approximation.
 
     Args:
         approximator_identifier: identifier of the approximator to be tested.
+        init_parameters: initialization parameters of the approximation.
+        init_parameters_index: index to select the testing information corresponding to the initialization parameters.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
 
-    for index, init_parameters in enumerate(approximator_dictionary["init_parameters"]):
-        # initializing the approximator object
-        approximator = approximator_dictionary["approximator_class"](
-            parameters=init_parameters
-        )
-        # getting the trainable approximation
-        trainable_approx_module = approximator.get_trainable_approximation(
-            **approximator_dictionary["get_trainable_approximation_kwargs"][index]
-        )
-        # getting the pretrained approximation
-        pretrained_approx_module = approximator.get_pretrained_approximation(
-            trainable_approx_module
-        )
-        # moving the approximated module to the default DEVICE
-        pretrained_approx_module.to(DEVICE)
-        # forward pass through the pretrained approximation
-        output = pretrained_approx_module(
-            **deepcopy(approximator_dictionary["forward_kwargs"])
-        )
+    # initializing the approximator object
+    approximator = approximator_dictionary["approximator_class"](
+        parameters=init_parameters
+    )
+    # getting the trainable approximation
+    trainable_approx_module = approximator.get_trainable_approximation(
+        **approximator_dictionary["get_trainable_approximation_kwargs"][
+            init_parameters_index
+        ]
+    )
+    # getting the pretrained approximation
+    pretrained_approx_module = approximator.get_pretrained_approximation(
+        trainable_approx_module
+    )
+    # moving the approximated module to the default DEVICE
+    pretrained_approx_module.to(DEVICE)
+    # forward pass through the pretrained approximation
+    output = pretrained_approx_module(
+        **deepcopy(approximator_dictionary["forward_kwargs"])
+    )
 
-        # ASSERTS
+    # ASSERTS
 
-        # checking the output type
-        assert isinstance(output, approximator_dictionary["output_type"])
-        # checking the output values if they are specified
-        if approximator_dictionary["expected_output"][index] is not None:
-            assert torch.all(
-                torch.eq(
-                    output,
-                    approximator_dictionary["expected_output"][index],
-                )
+    # checking the output type
+    assert isinstance(output, approximator_dictionary["output_type"])
+    # checking the output values if they are specified
+    if approximator_dictionary["expected_output"][init_parameters_index] is not None:
+        assert torch.all(
+            torch.eq(
+                output,
+                approximator_dictionary["expected_output"][init_parameters_index],
             )
+        )
