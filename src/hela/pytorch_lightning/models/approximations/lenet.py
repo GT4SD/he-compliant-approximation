@@ -2,7 +2,7 @@
 
 import logging
 from argparse import ArgumentParser
-from typing import Dict, Optional, Union, Tuple
+from typing import Dict, Optional, Tuple, Union, Any
 
 import torch
 import torchmetrics
@@ -130,6 +130,17 @@ class LitApproximatedLeNet(LitApproximatedModel):
         )
 
         return {"val_loss": loss, "val_accuracy": self.val_accuracy}
+    
+    def return_results_metrics(self, **kwargs: Dict[str, Any]) -> Dict[str, float]:
+        """Returns the evaluation metrics.
+
+        Args:
+            **kwargs: additional keyword arguments that might be passed, unused.
+
+        Returns:
+            A dictionary containing the test accuracy.
+        """
+        return {"test_accuracy": self.test_accuracy}
 
     def test_step(self, batch: Dict[str, Tensor], batch_idx: int) -> None:
         """Test step which encompasses the forward pass and the computation of the accuracy and the loss value.
