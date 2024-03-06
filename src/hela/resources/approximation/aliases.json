@@ -41,6 +41,12 @@
             "aliases": ["hela.approximation.approximators.multihead.customizable_multihead._scaled_dot_product"],
             "default_approximation_type": "not_scaled",
             "dependencies": []
+        },
+        {
+            "name": "max_pooling_2d",
+            "aliases": ["torch.nn.modules.pooling.MaxPool2d"],
+            "default_approximation_type": "avg_pooling_2d",
+            "dependencies": []
         }
     ]
 }
