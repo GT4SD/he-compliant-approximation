@@ -38,6 +38,10 @@ from hela.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHead,
     CustomizableMultiHeadApproximator,
 )
+from hela.approximation.approximators.pooling.avg_pooling_2d import (
+    AvgPooling2dApproximation,
+    AvgPooling2dApproximator,
+)
 from hela.approximation.approximators.softmax.mlp_softmax import (
     MLPSoftmaxApproximation,
     MLPSoftmaxApproximator,
@@ -57,6 +61,9 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # defining some testing parameters
 batch_size = 10
 sequence_length = embedding_dim = 256
+
+kernel_size = 32
+img_size = 32
 
 
 # each dictionary entry represent an approximator class and its testing values
@@ -330,6 +337,41 @@ testing_informations = {
             torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
             * 2
             * embedding_dim,
+        ],
+    },
+    "AvgPooling2dApproximator": {
+        "approximator_class": AvgPooling2dApproximator,
+        "init_parameters": [
+            {
+                "kernel_size": kernel_size,
+                "stride": None,
+                "padding": 0,
+                "ceil_mode": False,
+                "count_include_pad": True,
+            }
+        ],
+        "trainable_approximation_class": AvgPooling2dApproximation,
+        "get_trainable_approximation_kwargs": [
+            {
+                "pooling": nn.MaxPool2d(
+                    kernel_size,
+                    stride=None,
+                    padding=0,
+                    dilation=1,
+                    return_indices=False,
+                    ceil_mode=False,
+                ),
+            }
+        ],
+        "pretrained_approximation_class": AvgPooling2dApproximation,
+        "forward_kwargs": {
+            "input": torch.arange(
+                1, img_size * img_size + 1, device=DEVICE, dtype=float
+            ).reshape(1, img_size, img_size),
+        },
+        "output_type": Tensor,
+        "expected_output": [
+            torch.ones((1, 1, 1), device=DEVICE, dtype=float) * 512.5,
         ],
     },
 }
