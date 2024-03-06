@@ -6,8 +6,9 @@ from typing import Dict, Type, Union
 import importlib_resources
 import pytest
 import torch
-from torch import nn
+from torch import Tensor, nn
 
+# importing modules' approximators and approximations
 from hela.approximation.approximators.activation.quadratic import QuadraticApproximation
 from hela.approximation.approximators.activation.trainable_quadratic import (
     PairedReLU,
@@ -29,10 +30,21 @@ from hela.approximation.approximators.layer_normalization.distill_layernorm impo
 from hela.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHead,
 )
+from hela.approximation.approximators.pooling.avg_pooling_2d import (
+    AvgPooling2dApproximation,
+)
 from hela.approximation.approximators.softmax.mlp_softmax import MLPSoftmaxApproximation
 from hela.approximation.approximators.softmax.polynomial import PolynomialSoftmax
 from hela.approximation.approximators.softmax.taylor import TaylorSoftmax
+
+# importing the approximation controller
 from hela.approximation.controller import ModelApproximationController, ToApproximate
+# importing models and configurations classes
+# LeNet
+from hela.models.lenet.configuration import LeNetConfig
+from hela.models.lenet.model import LeNet
+
+# VanillaTransformer
 from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 from hela.models.vanilla_transformer.model import (
     VanillaTransformer,
@@ -45,6 +57,20 @@ ALIASES_FILE = str(
 
 # default device to run the tests
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+###########################################
+###### Model specific check functions #####
+###########################################
+
+#####################
+# Vanilla Transformer
+#####################
+
+# defining some configuration parameters for the vanilla transformer
+num_encoder_layers = num_decoder_layers = 4
+embedding_dim = 256
+ffnn_hidden_dim = 2048
+num_attention_heads = 8
 
 
 def check_relu_approximation_vanilla_transformer(
@@ -216,15 +242,69 @@ def check_attention_query_key_product_approximation_vanilla_transformer(
         ), "Wrong attention query-key dot product approximation for VanillaTransformer model"
 
 
-# defining some configuration parameters for the vanilla transformer
-num_encoder_layers = num_decoder_layers = 4
-embedding_dim = 256
-ffnn_hidden_dim = 2048
-num_attention_heads = 8
+#######
+# LeNet
+#######
+
+# defining some configuration parameters for the lenet
+lenet_type = "LeNet-5"
+num_classes = 10
+greyscale = True
+
+
+def check_relu_approximation_lenet(
+    approx_model: nn.Module,
+    approximation_class: Type[nn.Module],
+):
+    """Checks if the substitution of the ReLU approximation have been performed correctly in a LeNet model.
+
+    Args:
+        approx_model: model with approximated modules.
+        approximation_class: class of the approximation modules.
+    """
+    assert isinstance(approx_model, LeNet)
+
+    assert isinstance(
+        approx_model.layers[2], approximation_class
+    ), "Wrong ReLU approximation for LeNet model"
+    assert isinstance(
+        approx_model.layers[6], approximation_class
+    ), "Wrong ReLU approximation for LeNet model"
+    assert isinstance(
+        approx_model.layers[9], approximation_class
+    ), "Wrong ReLU approximation for LeNet model"
+    assert isinstance(
+        approx_model.layers[11], approximation_class
+    ), "Wrong ReLU approximation for LeNet model"
+
+
+def check_maxpool2d_approximation_lenet(
+    approx_model: nn.Module,
+    approximation_class: Type[nn.Module],
+):
+    """Checks if the substitution of the max pooling 2d approximation have been performed correctly in a LeNet model.
+
+    Args:
+        approx_model: model with approximated modules.
+        approximation_class: class of the approximation modules.
+    """
+    assert isinstance(approx_model, LeNet)
+    assert isinstance(
+        approx_model.layers[3], approximation_class
+    ), "Wrong max pooling 2d approximation for LeNet model"
+    assert isinstance(
+        approx_model.layers[7], approximation_class
+    ), "Wrong max pooling 2d approximation for LeNet model"
+
+
+##############################
+###### Test dictionary #######
+##############################
 
 # defining some testing parameters
 batch_size = 2
 sequence_length = 256
+img_size = 32
 
 # each item of the dictionary contains the information of a certain model on which you may test the approximation controller
 model_testing_informations = {
@@ -248,14 +328,29 @@ model_testing_informations = {
         },
         "output_class": VanillaTransformerOutput,
     },
+    LeNet: {
+        "config_class": LeNetConfig,
+        "config_parameters": {
+            "lenet_type": lenet_type,
+            "num_classes": num_classes,
+            "greyscale": greyscale,
+        },
+        "forward_input": {
+            "x": torch.ones((batch_size, 1, img_size, img_size), device=DEVICE)
+        },
+        "output_class": Tensor,
+    },
 }
 
 # each dictionary entry represent a class of module to be approximated and contains its testing values
 # for each 'to_approx_dict' a corresponding 'trainable_approximation_class' and 'pretrained_approximation_class' must be provided
 approximation_testing_informations = {
     "ReluApproximation": {
-        "model_classes": [VanillaTransformer],
-        "check_substitution": [check_relu_approximation_vanilla_transformer],
+        "model_classes": [VanillaTransformer, LeNet],
+        "check_substitution": [
+            check_relu_approximation_vanilla_transformer,
+            check_relu_approximation_lenet,
+        ],
         "to_approx_dict": [
             {
                 "modules_set": [
@@ -454,6 +549,28 @@ approximation_testing_informations = {
             NotScaledQueryKeyDotProduct,
         ],
         "default_approximation_class": NotScaledQueryKeyDotProduct,
+    },
+    "AvgPooling2dApproximation": {
+        "model_classes": [LeNet],
+        "check_substitution": [check_maxpool2d_approximation_lenet],
+        "to_approx_dict": [
+            {
+                "modules_set": [
+                    {
+                        "module": "max_pooling_2d",
+                        "approximation_type": "avg_pooling_2d",
+                        "parameters": {},
+                    },
+                ]
+            },
+        ],
+        "trainable_approximation_class": [
+            AvgPooling2dApproximation,
+        ],
+        "pretrained_approximation_class": [
+            AvgPooling2dApproximation,
+        ],
+        "default_approximation_class": AvgPooling2dApproximation,
     },
 }
 
