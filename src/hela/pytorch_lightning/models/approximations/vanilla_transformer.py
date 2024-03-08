@@ -9,13 +9,13 @@ from torch import Tensor
 
 from ....approximation.controller import ModelApproximationController
 from ...models.vanilla_transformer.model import VanillaTransformer
-from .core import LitApproximatedModel
+from .core import LitApproximatedTransformer
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class LitApproximatedVanillaTransformer(LitApproximatedModel):
+class LitApproximatedVanillaTransformer(LitApproximatedTransformer):
     """Pytorch lightning model for the approximated VanillaTransformer."""
 
     def __init__(
@@ -32,7 +32,7 @@ class LitApproximatedVanillaTransformer(LitApproximatedModel):
 
         if not isinstance(model, VanillaTransformer):
             raise TypeError(
-                f"The model you are trying to approximate is not of class '{VanillaTransformer}'. Build a specific PyTorch lightning model inhereting from 'LitApproximatedModel'."
+                f"The model you are trying to approximate is not of class '{VanillaTransformer}'. Build a specific PyTorch lightning model inheriting from 'LitApproximatedModel'."
             )
 
         super().__init__(
@@ -46,15 +46,14 @@ class LitApproximatedVanillaTransformer(LitApproximatedModel):
     def validation_step(
         self, batch: Dict[str, Tensor], batch_idx: int
     ) -> Dict[str, Tensor]:
-        """
-        Validation step which encompasses the forward pass and the computation of the accuracy and the loss value.
+        """Validation step which encompasses the forward pass and the computation of the accuracy and the loss value.
 
         Args:
             batch: dictionary containing the input_ids and the attention_type.
             batch_idx: index of the current batch, unused.
 
         Returns:
-            accuracy computed on the batch.
+            accuracy and loss computed on the batch.
         """
 
         loss = self.model(**batch).loss  # type:ignore
@@ -124,7 +123,17 @@ class LitApproximatedVanillaTransformer(LitApproximatedModel):
 
         return {"test_accuracy": accuracy}
 
-    def return_results_metrics(self, support: int) -> Dict[str, float]:
+    def return_results_metrics(self, **kwargs) -> Dict[str, float]:
+        """Returns the evaluation metrics.
+
+        Args:
+            support: number of samples tested.
+            **kwargs: additional keyword arguments that might be passed, unused.
+
+        Returns:
+            A dictionary containing the test accuracy.
+        """
+        support: int = kwargs["support"]
         return {"test_accuracy": self.cumulative_accuracy.item() / support}
 
     @staticmethod
