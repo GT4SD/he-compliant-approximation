@@ -7,7 +7,9 @@ import pytorch_lightning as pl
 from ..approximation.pipeline.training import TrainingPipeline
 from ..models.lenet.configuration import LeNetConfig
 from ..models.lenet.model import LeNet
-from ..pytorch_lightning.datasets.mnist import LitMnistDataset
+from ..pytorch_lightning.datasets.torchvision_image_classification import (
+    LitImageClassificationDataset,
+)
 from ..pytorch_lightning.models.approximations.lenet import LitApproximatedLeNet
 
 
@@ -18,12 +20,12 @@ def main():
     # adding to the parser the arguments needed from each component
     parser = pl.Trainer.add_argparse_args(parser)  # type: ignore
     parser = LitApproximatedLeNet.add_model_specific_args(parser)
-    parser = LitMnistDataset.add_dataset_specific_args(parser)
+    parser = LitImageClassificationDataset.add_dataset_specific_args(parser)
     parser = TrainingPipeline.add_pipeline_specific_args(parser)
     args = parser.parse_args()
 
     # building the lightning dataset
-    mnist_dataset = LitMnistDataset(dataset_args=vars(args))
+    mnist_dataset = LitImageClassificationDataset(dataset_args=vars(args))
 
     mnist_dataset.load()
     train_dataloader = mnist_dataset.train_dataloader()

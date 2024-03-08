@@ -1,4 +1,4 @@
-"""MNIST dataset."""
+"""Torchvision image classification datasets."""
 
 import logging
 import os
@@ -13,8 +13,12 @@ from torchvision import datasets, transforms
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
+aliases = {
+    "mnist": datasets.MNIST,
+}
 
-class LitMnistDataset(pl.LightningDataModule):
+
+class LitImageClassificationDataset(pl.LightningDataModule):
 
     def __init__(self, dataset_args: Dict[str, Any]) -> None:
         """Initializes the data module.
@@ -33,15 +37,17 @@ class LitMnistDataset(pl.LightningDataModule):
             )
 
     def prepare_data(self) -> None:
-        """Downloads and applies the transformations to the MNIST dataset images."""
+        """Downloads and applies the transformations to the dataset images."""
 
         self.dataset_args["data_path"] = os.path.join(
-            self.dataset_args["data_path"], "MNIST_dataset"
+            self.dataset_args["data_path"], "datasets"
         )
         if not os.path.exists(self.dataset_args["data_path"]):
             os.mkdir(self.dataset_args["data_path"])
 
-        datasets.MNIST(root=self.dataset_args["data_path"], download=True)
+        dataset_type = str(self.dataset_args["dataset_type"]).lower()
+        self.dataset = aliases[dataset_type]
+        self.dataset(root=self.dataset_args["data_path"], download=True)
 
         # resizing and normalizing values
         self.resize_transform = transforms.Compose(
@@ -54,18 +60,18 @@ class LitMnistDataset(pl.LightningDataModule):
         )
 
     def load(self) -> None:
-        """Loads train, validation and test datasets of MNIST dataset."""
+        """Loads train, validation and test datasets."""
 
         self.prepare_data()
 
-        train = datasets.MNIST(
+        train = self.dataset(
             root=self.dataset_args["data_path"],
             train=True,
             transform=self.resize_transform,
             download=False,
         )
 
-        test = datasets.MNIST(
+        test = self.dataset(
             root=self.dataset_args["data_path"],
             train=False,
             transform=self.resize_transform,
@@ -137,6 +143,7 @@ class LitMnistDataset(pl.LightningDataModule):
             updated parser.
         """
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        parser.add_argument("--dataset_type", type=str, default="mnist")
         parser.add_argument("--data_path", type=str, default="./")
         parser.add_argument("--num_dataloader_workers", type=int, default=8)
         parser.add_argument("--batch_size", type=int, default=32)
