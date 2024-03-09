@@ -9,7 +9,7 @@ from torch import nn
 
 from .aliases import ALIASES_FILE, load_modules_aliases
 
-# all the approximator classes must be imported to let the controller know their existance
+# all the approximator classes must be imported to let the controller know about their existence
 from .approximators.activation.quadratic import QuadraticApproximator  # noqa
 from .approximators.activation.trainable_quadratic import (  # noqa
     TrainableQuadraticApproximator,
@@ -30,6 +30,7 @@ from .approximators.layer_normalization.distill_layernorm import (  # noqa
 from .approximators.multihead.customizable_multihead import (  # noqa
     CustomizableMultiHeadApproximator,
 )
+from .approximators.pooling.avg_pooling_2d import AvgPooling2dApproximator  # noqa
 from .approximators.softmax.mlp_softmax import MLPSoftmaxApproximator  # noqa
 from .approximators.softmax.polynomial import PolynomialSoftmaxApproximator  # noqa
 from .approximators.softmax.taylor import TaylorSoftmaxApproximator  # noqa
