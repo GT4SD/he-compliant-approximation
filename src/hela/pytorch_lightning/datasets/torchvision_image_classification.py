@@ -15,6 +15,8 @@ logger.addHandler(logging.NullHandler())
 
 aliases = {
     "mnist": datasets.MNIST,
+    "fashion_mnist": datasets.FashionMNIST,
+    "cifar10": datasets.CIFAR10,
 }
 
 
