@@ -39,6 +39,7 @@ from hela.approximation.approximators.softmax.taylor import TaylorSoftmax
 
 # importing the approximation controller
 from hela.approximation.controller import ModelApproximationController, ToApproximate
+
 # importing models and configurations classes
 # LeNet
 from hela.models.lenet.configuration import LeNetConfig

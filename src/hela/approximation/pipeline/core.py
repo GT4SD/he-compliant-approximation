@@ -143,7 +143,7 @@ class ApproximationPipeline:
         """Adds specific arguments for the pipeline to the parser.
 
         Args:
-            parent_parser: argument parser.
+            parent_parser: argument parser to be updated.
 
         Returns:
             updated parser.
@@ -184,7 +184,7 @@ class ApproximationPipeline:
         """Counts the number of steps directories inside the experiment directory.
 
         Args:
-            experiment_path:  experiment directory path.
+            experiment_path: experiment directory path.
 
         Raises:
             RuntimeError: the experiment directory does not exist.

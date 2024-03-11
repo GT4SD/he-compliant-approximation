@@ -119,7 +119,7 @@ class AvgPooling2dApproximation(nn.Module):
         super().__init__()
 
         self.is_trainable = False
-        self.avg_pooling = nn.AvgPool2d(**kwargs)
+        self.avg_pooling = nn.AvgPool2d(**kwargs)  # type: ignore
 
     def forward(self, input: Tensor) -> Tensor:
         """Performs average pooling.

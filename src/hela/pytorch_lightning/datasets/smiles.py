@@ -9,6 +9,7 @@ from pathlib import PosixPath
 from typing import Any, Dict, List, Union
 
 import pytorch_lightning as pl
+from torch import Tensor
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
 from transformers import default_data_collator
 from transformers.tokenization_utils_base import BatchEncoding
@@ -83,7 +84,7 @@ class SmilesDataset(Dataset):
         """
         return self.length
 
-    def __getitem__(self, index) -> Dict:
+    def __getitem__(self, index) -> Dict[str, Tensor]:
         """Get an item of the dataset.
 
         Args:
@@ -119,7 +120,7 @@ class LitSmilesDataset(pl.LightningDataModule):
     def __init__(
         self, dataset_args: Dict[str, Any], tokenizer: SmilesTokenizer
     ) -> None:
-        """Initialize the data module.
+        """Initializes the data module.
 
         Args:
             dataset_args: dictionary containing the arguments for the lightning data module creation.
@@ -143,8 +144,7 @@ class LitSmilesDataset(pl.LightningDataModule):
             )
 
     def build_dataset(self, path: Union[str, PosixPath]) -> Dataset:
-        """
-        Builds the dataset.
+        """Builds the dataset.
 
         Args:
             path: path of the dataset or the directory that contains it.
@@ -173,7 +173,7 @@ class LitSmilesDataset(pl.LightningDataModule):
             raise TypeError(f"{path} type is not supported for dataset.")
 
     def tokenize_function(self, example: str) -> BatchEncoding:
-        """Tokenizes the given examples.
+        """Tokenize the given examples.
 
         Args:
             examples: list of examples.
@@ -210,7 +210,7 @@ class LitSmilesDataset(pl.LightningDataModule):
         )
 
     def train_dataloader(self) -> DataLoader:
-        """Creates the dataloader for the traning step.
+        """Creates the dataloader for the training step.
 
         Returns:
             pytorch dataloader.
@@ -253,7 +253,7 @@ class LitSmilesDataset(pl.LightningDataModule):
         """Adds arguments for the dataset to the parser.
 
         Args:
-            parent_parser: argument parser.
+            parent_parser: argument parser to be updated.
 
         Returns:
             updated parser.

@@ -93,9 +93,9 @@ class DistillLayerNormApproximator(ModuleApproximator):
         approximated_layernorm = deepcopy(module.approximated_layernorm)
         # updating the approximations list
         if module in self.approximations:
-            self.approximations[
-                self.approximations.index(module)
-            ] = approximated_layernorm
+            self.approximations[self.approximations.index(module)] = (
+                approximated_layernorm
+            )
         return approximated_layernorm
 
     def configure_optimizers(self, lightning_model: pl.LightningModule) -> Optimizer:
