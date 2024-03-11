@@ -270,7 +270,7 @@ class LitApproximatedCNN(LitApproximatedModel):
                 - optimizer: the optimizer used to update the parameter.
         """
 
-        optimizer = super().configure_optimizers()["optimizer"]
+        optimizer = self._configure_approximators_optimizers()
 
         if optimizer is None:
             # definition of the default optimizer
