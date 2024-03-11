@@ -207,7 +207,6 @@ class LitApproximatedTransformer(LitApproximatedModel):
         Returns:
             updated parser.
         """
-        parent_parser = LitApproximatedModel.add_model_specific_args(parent_parser)
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # default optimizer configuration arguments
@@ -400,7 +399,6 @@ class LitApproximatedCNN(LitApproximatedModel):
         Returns:
             updated parser.
         """
-        parent_parser = LitApproximatedModel.add_model_specific_args(parent_parser)
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # default optimizer configuration arguments
