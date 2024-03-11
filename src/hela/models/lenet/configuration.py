@@ -10,7 +10,7 @@ class LeNetConfig:
         self,
         lenet_type: str = "LeNet-5",
         num_classes: int = 10,
-        greyscale: bool = True,
+        greyscale: bool = False,
     ) -> None:
         """Initialization of the configuration.
 
@@ -22,6 +22,7 @@ class LeNetConfig:
 
         # model hyperparameters configuration
         self.num_classes = num_classes
+
         if greyscale:
             self.in_channels = 1
         else:
@@ -30,7 +31,7 @@ class LeNetConfig:
         if lenet_type == "LeNet-1":
             self.input_size = [28, 28, self.in_channels]
             self.num_conv = 2
-            self.conv_in_channels = [1, 4]
+            self.conv_in_channels = [self.in_channels, 4]
             self.conv_out_channels = [4, 8]
             self.conv_kernel_size = 5
             self.conv_stride = 1
@@ -43,7 +44,7 @@ class LeNetConfig:
         elif lenet_type == "LeNet-4":
             self.input_size = [32, 32, self.in_channels]
             self.num_conv = 2
-            self.conv_in_channels = [1, 4]
+            self.conv_in_channels = [self.in_channels, 4]
             self.conv_out_channels = [4, 16]
             self.conv_kernel_size = 5
             self.conv_stride = 1
@@ -56,7 +57,7 @@ class LeNetConfig:
         elif lenet_type == "LeNet-5":
             self.input_size = [32, 32, self.in_channels]
             self.num_conv = 2
-            self.conv_in_channels = [1, 6]
+            self.conv_in_channels = [self.in_channels, 6]
             self.conv_out_channels = [6, 16]
             self.conv_kernel_size = 5
             self.conv_stride = 1
