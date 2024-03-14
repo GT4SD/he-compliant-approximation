@@ -517,12 +517,20 @@ class ApproximationPipeline(Pipeline):
             and self.step_ckpt == len(self.pipeline_steps.get_pipeline_step_list())
         ), f"The model must be trained through all the pipeline before being tested. Trained for {self.step_ckpt} steps out of {len(self.pipeline_steps.get_pipeline_step_list())}."
 
-        # loading the model checkpoint from the previous step
-        ckpt_dir_path = os.path.join(
-            self.experiment_ckpt,  # type: ignore
-            f"step_{self.current_step}",
-            "checkpoints",
-        )
+        # loading the model checkpoint
+        if self.experiment_ckpt is None:
+            ckpt_dir_path = os.path.join(
+                self.experiment_dir,  # type: ignore
+                f"step_{len(self.pipeline_steps.get_pipeline_step_list())}",
+                "checkpoints",
+            )
+        else:
+            ckpt_dir_path = os.path.join(
+                self.experiment_ckpt,  # type: ignore
+                f"step_{self.step_ckpt}",
+                "checkpoints",
+            )
+
         if os.path.exists(ckpt_dir_path):
             # attention: right now the loading of the ckpt assumes to have only 1 ckpt saved in the directory
             self.model_ckpt = os.path.join(
@@ -530,6 +538,7 @@ class ApproximationPipeline(Pipeline):
             )
         else:
             self.model_ckpt = None
+
         if self.model_ckpt is None:
             raise ValueError("Attempting to load a checkpoint that does not exists.")
         self.lightning_model = (self.lightning_model.__class__).load_from_checkpoint(
