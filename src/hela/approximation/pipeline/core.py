@@ -23,8 +23,8 @@ from ..pipeline_steps import (
 )
 
 
-class ApproximationPipeline:
-    """ApproximationPipeline core implementation."""
+class Pipeline:
+    """Pipeline core implementation."""
 
     def __init__(
         self,
@@ -36,7 +36,7 @@ class ApproximationPipeline:
         modules_aliases_file: str = ALIASES_FILE,
         **kwargs,
     ) -> None:
-        """Initializes the ApproximationPipeline.
+        """Initializes the Pipeline.
 
         Args:
             model: model to be approximated in the pipeline.
@@ -119,9 +119,7 @@ class ApproximationPipeline:
 
         self.step_ckpt: Optional[int] = None
         if self.experiment_ckpt is not None:
-            self.step_ckpt = ApproximationPipeline.compute_steps_ckpt(
-                self.experiment_ckpt
-            )
+            self.step_ckpt = Pipeline.compute_steps_ckpt(self.experiment_ckpt)
 
         self.tensorboardLogger: TensorBoardLogger
 

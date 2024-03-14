@@ -1,4 +1,4 @@
-"""Routine to train an approximated model using a pipeline."""
+"""Routine to train and test an approximated Molecular Transformer model using a pipeline."""
 
 from argparse import ArgumentParser
 
@@ -6,7 +6,7 @@ import importlib_resources
 import pytorch_lightning as pl
 import torch
 
-from ..approximation.pipeline.testing import TestingPipeline
+from ..approximation.pipeline.approximation_pipeline import ApproximationPipeline
 from ..models.tokenizers.smiles import SmilesTokenizer
 from ..models.vanilla_transformer.configuration import VanillaTransformerConfig
 from ..models.vanilla_transformer.model import VanillaTransformer
@@ -33,7 +33,7 @@ def main():
     parser = LitApproximatedVanillaTransformer.add_model_specific_args(parser)
     parser = LitSmilesDataset.add_dataset_specific_args(parser)
     parser.add_argument("--vocabulary", type=str, default=SMILES_VOCAB_FILE)
-    parser = TestingPipeline.add_pipeline_specific_args(parser)
+    parser = ApproximationPipeline.add_pipeline_specific_args(parser)
     args = parser.parse_args()
 
     # building the lightning dataset
@@ -41,6 +41,8 @@ def main():
     smiles_dataset = LitSmilesDataset(dataset_args=vars(args), tokenizer=tokenizer)
 
     smiles_dataset.load()
+    train_dataloader = smiles_dataset.train_dataloader()
+    val_dataloader = smiles_dataset.val_dataloader()
     test_dataloader = smiles_dataset.test_dataloader()
 
     config_args = {
@@ -52,17 +54,21 @@ def main():
         "num_encoder_layers": vars(args)["num_encoder_layers"],
         "num_decoder_layers": vars(args)["num_decoder_layers"],
         "attention_mask_value": vars(args)["attention_mask_value"],
-        "device": "cpu"
-        if vars(args)["accelerator"] == "cpu"
-        else ("cuda" if torch.cuda.is_available() else "cpu"),
+        "device": (
+            "cpu"
+            if vars(args)["accelerator"] == "cpu"
+            else ("cuda" if torch.cuda.is_available() else "cpu")
+        ),
     }
 
     # building the pytorch model
     model = VanillaTransformer(VanillaTransformerConfig(**config_args))
 
-    pipeline = TestingPipeline(
+    pipeline = ApproximationPipeline(
         model=model,
         lightning_model_class=LitApproximatedVanillaTransformer,
+        train_dataloader=train_dataloader,
+        val_dataloader=val_dataloader,
         test_dataloader=test_dataloader,
         trainer_args=vars(args),
         pipeline_steps_path=vars(args)["pipeline_steps_path"],
@@ -71,4 +77,7 @@ def main():
     )
 
     # training and validating the model through the pipeline
+    pipeline.fit()
+
+    # testing the model obtained through the pipeline
     pipeline.test()

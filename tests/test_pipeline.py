@@ -2,7 +2,7 @@
 
 import tempfile
 
-from hela.approximation.pipeline.core import ApproximationPipeline
+from hela.approximation.pipeline.core import Pipeline
 from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 from hela.models.vanilla_transformer.model import VanillaTransformer
 from hela.pytorch_lightning.models.approximations.vanilla_transformer import (
@@ -21,7 +21,7 @@ def test_init_approximation_pipeline():
 
         model = VanillaTransformer(VanillaTransformerConfig())
 
-        pipeline = ApproximationPipeline(
+        pipeline = Pipeline(
             model=model,
             lightning_model_class=LitApproximatedVanillaTransformer,
             trainer_args=trainer_args,
@@ -30,5 +30,5 @@ def test_init_approximation_pipeline():
 
         # ASSERTS
 
-        assert isinstance(pipeline, ApproximationPipeline)
+        assert isinstance(pipeline, Pipeline)
         assert isinstance(pipeline.lightning_model, LitApproximatedVanillaTransformer)

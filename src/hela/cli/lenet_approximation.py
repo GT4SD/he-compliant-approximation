@@ -1,10 +1,10 @@
-"""Routine to test an approximated LeNet model using a pipeline."""
+"""Routine to train and test an approximated LeNet model using a pipeline."""
 
 from argparse import ArgumentParser
 
 import pytorch_lightning as pl
 
-from ..approximation.pipeline.testing import TestingPipeline
+from ..approximation.pipeline.approximation_pipeline import ApproximationPipeline
 from ..models.lenet.configuration import LeNetConfig
 from ..models.lenet.model import LeNet
 from ..pytorch_lightning.datasets.torchvision_image_classification import (
@@ -21,14 +21,16 @@ def main():
     parser = pl.Trainer.add_argparse_args(parser)  # type: ignore
     parser = LitApproximatedLeNet.add_model_specific_args(parser)
     parser = LitImageClassificationDataset.add_dataset_specific_args(parser)
-    parser = TestingPipeline.add_pipeline_specific_args(parser)
+    parser = ApproximationPipeline.add_pipeline_specific_args(parser)
     args = parser.parse_args()
 
     # building the lightning dataset
-    mnist_dataset = LitImageClassificationDataset(dataset_args=vars(args))
+    dataset = LitImageClassificationDataset(dataset_args=vars(args))
 
-    mnist_dataset.load()
-    test_dataloader = mnist_dataset.test_dataloader()
+    dataset.load()
+    train_dataloader = dataset.train_dataloader()
+    val_dataloader = dataset.val_dataloader()
+    test_dataloader = dataset.test_dataloader()
 
     config_args = {
         "lenet_type": vars(args)["lenet_type"],
@@ -39,9 +41,11 @@ def main():
     # building the pytorch model
     model = LeNet(LeNetConfig(**config_args))
 
-    pipeline = TestingPipeline(
+    pipeline = ApproximationPipeline(
         model=model,
         lightning_model_class=LitApproximatedLeNet,
+        train_dataloader=train_dataloader,
+        val_dataloader=val_dataloader,
         test_dataloader=test_dataloader,
         trainer_args=vars(args),
         pipeline_steps_path=vars(args)["pipeline_steps_path"],
@@ -49,5 +53,8 @@ def main():
         experiment_ckpt=vars(args)["experiment_ckpt"],
     )
 
-    # testing the model through the pipeline
+    # training and validating the model through the pipeline
+    pipeline.fit()
+
+    # testing the model obtained through the pipeline
     pipeline.test()
