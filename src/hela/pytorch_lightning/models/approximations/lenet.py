@@ -56,6 +56,8 @@ class LitApproximatedLeNet(LitApproximatedCNN):
         # model configuration arguments
         parser.add_argument("--lenet_type", type=str, default="LeNet-5")
         parser.add_argument("--num_classes", type=int, default=10)
-        parser.add_argument("--greyscale", dest="greyscale", action="store_true", default=False)
+        parser.add_argument(
+            "--greyscale", dest="greyscale", action="store_true", default=False
+        )
 
         return parser
