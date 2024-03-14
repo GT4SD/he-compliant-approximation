@@ -66,7 +66,9 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         if not os.path.exists(self.dataset_args["data_path"]):
             os.mkdir(self.dataset_args["data_path"])
 
-        self.dataset["dataset_class"](root=self.dataset_args["data_path"], download=True)
+        self.dataset["dataset_class"](
+            root=self.dataset_args["data_path"], download=True
+        )
 
         # resizing and normalizing values
         self.resize_transform = transforms.Compose(
@@ -125,6 +127,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
             drop_last=True,
             shuffle=True,
             num_workers=self.dataset_args["num_dataloader_workers"],
+            pin_memory=self.dataset_args["pin_memory"],
+            persistent_workers=self.dataset_args["persistent_workers"],
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -139,6 +143,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
             drop_last=False,
             shuffle=False,
             num_workers=self.dataset_args["num_dataloader_workers"],
+            pin_memory=self.dataset_args["pin_memory"],
+            persistent_workers=self.dataset_args["persistent_workers"],
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -153,6 +159,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
             drop_last=False,
             shuffle=False,
             num_workers=self.dataset_args["num_dataloader_workers"],
+            pin_memory=self.dataset_args["pin_memory"],
+            persistent_workers=self.dataset_args["persistent_workers"],
         )
 
     @staticmethod
@@ -171,5 +179,14 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         parser.add_argument("--num_dataloader_workers", type=int, default=8)
         parser.add_argument("--batch_size", type=int, default=32)
         parser.add_argument("--image_size", type=int, default=32)
+        parser.add_argument(
+            "--pin_memory", dest="pin_memory", action="store_true", default=False
+        )
+        parser.add_argument(
+            "--persistent_workers",
+            dest="persistent_workers",
+            action="store_true",
+            default=False,
+        )
 
         return parser
