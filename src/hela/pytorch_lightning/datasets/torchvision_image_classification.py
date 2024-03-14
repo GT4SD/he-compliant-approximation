@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from typing import Any, Dict
 
 import pytorch_lightning as pl
+import torch
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
 from torchvision import datasets, transforms
@@ -13,10 +14,22 @@ from torchvision import datasets, transforms
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-aliases = {
-    "mnist": datasets.MNIST,
-    "fashion_mnist": datasets.FashionMNIST,
-    "cifar10": datasets.CIFAR10,
+torchvision_datasets = {
+    "mnist": {
+        "dataset_class": datasets.MNIST,
+        "train_length": 55000,
+        "val_length": 5000,
+    },
+    "fashion_mnist": {
+        "dataset_class": datasets.FashionMNIST,
+        "train_length": 55000,
+        "val_length": 5000,
+    },
+    "cifar10": {
+        "dataset_class": datasets.CIFAR10,
+        "train_length": 45000,
+        "val_length": 5000,
+    },
 }
 
 
@@ -31,6 +44,12 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         super().__init__()
 
         self.dataset_args = dataset_args
+
+        dataset_type = str(self.dataset_args["dataset_type"]).lower()
+        assert torchvision_datasets.get(
+            dataset_type, None
+        ), "The dataset {dataset_type} is not available."
+        self.dataset = torchvision_datasets[dataset_type]
 
         cpus_count = os.cpu_count()
         if cpus_count is not None:
@@ -47,9 +66,7 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         if not os.path.exists(self.dataset_args["data_path"]):
             os.mkdir(self.dataset_args["data_path"])
 
-        dataset_type = str(self.dataset_args["dataset_type"]).lower()
-        self.dataset = aliases[dataset_type]
-        self.dataset(root=self.dataset_args["data_path"], download=True)
+        self.dataset["dataset_class"](root=self.dataset_args["data_path"], download=True)
 
         # resizing and normalizing values
         self.resize_transform = transforms.Compose(
@@ -66,21 +83,25 @@ class LitImageClassificationDataset(pl.LightningDataModule):
 
         self.prepare_data()
 
-        train = self.dataset(
+        train = self.dataset["dataset_class"](
             root=self.dataset_args["data_path"],
             train=True,
             transform=self.resize_transform,
             download=False,
         )
 
-        test = self.dataset(
+        test = self.dataset["dataset_class"](
             root=self.dataset_args["data_path"],
             train=False,
             transform=self.resize_transform,
             download=False,
         )
 
-        train, val = random_split(train, lengths=[55000, 5000])
+        train, val = random_split(
+            train,
+            lengths=[self.dataset["train_length"], self.dataset["val_length"]],
+            generator=torch.Generator().manual_seed(42),
+        )
 
         self.datasets = {
             "train": train,
