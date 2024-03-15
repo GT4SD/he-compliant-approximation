@@ -499,8 +499,11 @@ class ApproximationPipeline(Pipeline):
         # Testing
         ###############
 
+        tmp_args = deepcopy(self.trainer_args)
+        tmp_args["max_epochs"] = 1
+
         trainer = pl.Trainer.from_argparse_args(
-            Namespace(**self.trainer_args),
+            Namespace(**tmp_args),
             logger=self.tensorboard_logger,
         )
 
