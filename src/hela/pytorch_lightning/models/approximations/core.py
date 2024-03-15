@@ -343,7 +343,6 @@ class LitApproximatedCNN(LitApproximatedModel):
         """
         loss, true_labels, predicted_labels = self._compute_loss(batch)
 
-        self.log("valid_loss", loss)
         self.val_accuracy(predicted_labels, true_labels)
         self.log(
             "val_accuracy",
