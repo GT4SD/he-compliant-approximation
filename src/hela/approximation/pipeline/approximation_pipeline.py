@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 from argparse import Namespace
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Type
@@ -154,7 +155,8 @@ class ApproximationPipeline(Pipeline):
         """Loads the model parameters from the current pipeline step checkpoint before the fit method being called.
 
         Raises:
-            ValueError: the checkpoints folder does not exists.
+            FileNotFoundError: the checkpoints directory does not contain any checkpoint.
+            FileNotFoundError: the checkpoints directory does not exist.
         """
         if (
             self.experiment_ckpt is not None
@@ -167,13 +169,26 @@ class ApproximationPipeline(Pipeline):
                 "checkpoints",
             )
             if os.path.exists(ckpt_dir_path):
-                # NOTE: the checkpoint loaded is the first one in a descending order.
-                self.model_ckpt = os.path.join(
-                    ckpt_dir_path, sorted(os.listdir(ckpt_dir_path), reverse=True)[-1]
-                )
+                # loading the saved ckpt from the latest epoch
+                largest_epoch_path = None
+                largest_epoch = -1
+
+                for path in os.listdir(ckpt_dir_path):
+                    match = re.search(r"epoch=(\d+)", path)
+                    if match:
+                        epoch = int(match.group(1))
+                        if epoch > largest_epoch:
+                            largest_epoch = epoch
+                            largest_epoch_path = path
+                if largest_epoch_path is None:
+                    raise FileNotFoundError(
+                        f"Does not exist any checkpoint in {ckpt_dir_path}."
+                    )
+                else:
+                    self.model_ckpt = os.path.join(ckpt_dir_path, largest_epoch_path)
             else:
-                raise ValueError(
-                    f"Attempting to load a checkpoint for step {self.current_step} in experiment {self.experiment_ckpt} but it does not exists. Please check the folder of the experiment to continue the training."
+                raise FileNotFoundError(
+                    f"Attempted to load a checkpoint for step {self.current_step} in experiment {self.experiment_ckpt} but it does not exists. Please check the folder of the experiment to continue the training."
                 )
 
             checkpoint = torch.load(self.model_ckpt)
@@ -509,7 +524,8 @@ class ApproximationPipeline(Pipeline):
         in case self.step_ckpt > self.current_step the model may not be loaded
 
         Raises:
-            ValueError: the checkpoint does not exists.
+            FileNotFoundError: the checkpoints directory does not contain any checkpoint.
+            FileNotFoundError: the checkpoints directory does not exist.
         """
 
         assert not self.not_trained or (
@@ -532,15 +548,32 @@ class ApproximationPipeline(Pipeline):
             )
 
         if os.path.exists(ckpt_dir_path):
-            # attention: right now the loading of the ckpt assumes to have only 1 ckpt saved in the directory
-            self.model_ckpt = os.path.join(
-                ckpt_dir_path, sorted(os.listdir(ckpt_dir_path), reverse=True)[-1]
-            )
+            # loading the saved ckpt from the latest epoch
+            largest_epoch_path = None
+            largest_epoch = -1
+
+            for path in os.listdir(ckpt_dir_path):
+                match = re.search(r"epoch=(\d+)", path)
+                if match:
+                    epoch = int(match.group(1))
+                    if epoch > largest_epoch:
+                        largest_epoch = epoch
+                        largest_epoch_path = path
+
+            if largest_epoch_path is None:
+                raise FileNotFoundError(
+                    f"Does not exist any checkpoint in {ckpt_dir_path}."
+                )
+            else:
+                self.model_ckpt = os.path.join(ckpt_dir_path, largest_epoch_path)
         else:
             self.model_ckpt = None
 
         if self.model_ckpt is None:
-            raise ValueError("Attempting to load a checkpoint that does not exists.")
+            raise FileNotFoundError(
+                f"The checkpoint directory at {ckpt_dir_path} does not exist."
+            )
+
         self.lightning_model = (self.lightning_model.__class__).load_from_checkpoint(
             self.model_ckpt,
             model=self.model,
