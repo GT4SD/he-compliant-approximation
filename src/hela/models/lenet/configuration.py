@@ -28,20 +28,21 @@ class LeNetConfig:
         else:
             self.in_channels = 3
 
-        if lenet_type == "LeNet-1":
+        lenet_type = lenet_type.lower()
+        if lenet_type == "lenet-1":
             self.input_size = [28, 28, self.in_channels]
             self.num_conv = 2
             self.conv_in_channels = [self.in_channels, 4]
-            self.conv_out_channels = [4, 8]
+            self.conv_out_channels = [4, 12]
             self.conv_kernel_size = 5
             self.conv_stride = 1
             self.conv_padding = 0
             self.pool_kernel_size = 2
             self.pool_stride = 2
             self.num_linear = 1
-            self.linear_in_features = [400, 120]
-            self.linear_out_features = [120, num_classes]
-        elif lenet_type == "LeNet-4":
+            self.linear_in_features = [12 * 4 * 4]
+            self.linear_out_features = [num_classes]
+        elif lenet_type == "lenet-4":
             self.input_size = [32, 32, self.in_channels]
             self.num_conv = 2
             self.conv_in_channels = [self.in_channels, 4]
@@ -54,7 +55,7 @@ class LeNetConfig:
             self.num_linear = 2
             self.linear_in_features = [400, 120]
             self.linear_out_features = [120, num_classes]
-        elif lenet_type == "LeNet-5":
+        elif lenet_type == "lenet-5":
             self.input_size = [32, 32, self.in_channels]
             self.num_conv = 2
             self.conv_in_channels = [self.in_channels, 6]
