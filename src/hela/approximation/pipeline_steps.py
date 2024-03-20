@@ -222,7 +222,8 @@ def load_pipeline_steps(file_path: str) -> PipelineSteps:
     Returns:
         pipeline steps data structure.
     """
-    return PipelineSteps.parse_file(file_path)
+    with open(file_path) as pipeline_steps_file:
+        return PipelineSteps.model_validate(json.load(pipeline_steps_file))
 
 
 def save_pipeline_steps(pipeline_steps: PipelineSteps, save_path: str) -> None:
@@ -235,4 +236,4 @@ def save_pipeline_steps(pipeline_steps: PipelineSteps, save_path: str) -> None:
     save_path = os.path.join(save_path, "pipeline_steps.json")
 
     with open(save_path, "w") as outfile:
-        json.dump(json.loads(pipeline_steps.json()), outfile, indent=4)
+        json.dump(json.loads(pipeline_steps.model_dump_json()), outfile, indent=4)

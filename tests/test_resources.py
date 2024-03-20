@@ -1,5 +1,6 @@
 """Testing the loading/saving of internal resources."""
 
+import json
 import os
 import tempfile
 from typing import Set
@@ -91,8 +92,10 @@ def test_load_saved_aliases():
     """Tests the loading of the saved modules' aliases data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         save_modules_aliases(ALIASES_FILE, tmpdirname)
-        saved_aliases = Aliases.parse_file(os.path.join(tmpdirname, "aliases.json"))
-        resource_aliases = Aliases.parse_file(ALIASES_FILE)
+        with open(os.path.join(tmpdirname, "aliases.json")) as saved_aliases_file:
+            saved_aliases = Aliases.model_validate(json.load(saved_aliases_file))
+        with open(ALIASES_FILE) as resource_aliases_file:
+            resource_aliases = Aliases.model_validate(json.load(resource_aliases_file))
 
         # ASSERTS
 
@@ -203,12 +206,18 @@ def test_load_saved_pipeline_steps():
             "./pipeline_steps/without_approximations.json"
         )
         save_pipeline_steps(pipeline_steps, tmpdirname)
-        saved_pipeline_steps = PipelineSteps.parse_file(
+        with open(
             os.path.join(tmpdirname, "pipeline_steps.json")
-        )
-        resource_pipeline_steps = PipelineSteps.parse_file(
+        ) as saved_pipeline_steps_file:
+            saved_pipeline_steps = PipelineSteps.model_validate(
+                json.load(saved_pipeline_steps_file)
+            )
+        with open(
             "./pipeline_steps/without_approximations.json"
-        )
+        ) as resource_pipeline_steps_file:
+            resource_pipeline_steps = PipelineSteps.model_validate(
+                json.load(resource_pipeline_steps_file)
+            )
 
         # ASSERTS
 

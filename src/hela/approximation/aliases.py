@@ -157,7 +157,8 @@ def load_modules_aliases(file_path: str = ALIASES_FILE) -> Aliases:
     Returns:
         modules' aliases data structure.
     """
-    return Aliases.parse_file(file_path)
+    with open(file_path) as aliases_file:
+        return Aliases.model_validate(json.load(aliases_file))
 
 
 def save_modules_aliases(file_path: str, save_path: str) -> None:
@@ -167,8 +168,9 @@ def save_modules_aliases(file_path: str, save_path: str) -> None:
         file_path: modules' aliases file path.
         save_path: path of the saving directory.
     """
-    aliases = Aliases.parse_file(file_path)
+    with open(file_path) as aliases_file:
+        aliases = Aliases.model_validate(json.load(aliases_file))
 
     save_path = os.path.join(save_path, "aliases.json")
     with open(save_path, "w") as outfile:
-        json.dump(json.loads(aliases.json()), outfile, indent=4)
+        json.dump(json.loads(aliases.model_dump_json()), outfile, indent=4)
