@@ -30,14 +30,12 @@ class TrainableQuadraticApproximator(ModuleApproximator):
         """Initializes the TrainableQuadraticApproximator.
 
         Args:
-            parameters: parameters of the TrainableQuadraticApproximation modules. Defaults to {}.
+            parameters: parameters of the TrainableQuadraticActivation modules. Defaults to {}.
         """
         super().__init__(parameters, **kwargs)
 
         self.current_number_of_epochs: int = 0
-        self.approximations: List[
-            Union[TrainableQuadraticApproximation, PairedReLU]
-        ] = []
+        self.approximations: List[Union[TrainableQuadraticActivation, PairedReLU]] = []
 
     def get_trainable_approximation(self, **kwargs: Dict[str, Any]) -> nn.Module:
         """Approximates the module for the training phase.
@@ -60,7 +58,7 @@ class TrainableQuadraticApproximator(ModuleApproximator):
             module: module approximation to be converted.
 
         Raises:
-            ValueError: this method must be called for TrainableQuadraticApproximation modules.
+            ValueError: this method must be called for TrainableQuadraticActivation modules.
 
         Returns:
             approximated module in its pretrained form.
@@ -86,12 +84,12 @@ class TrainableQuadraticApproximator(ModuleApproximator):
         self.current_number_of_epochs = epoch + 1
         for module in self.approximations:
             # the smoothing lambda must be updated only when the smooth substitution is being performed
-            # i.e. not during next steps of the training pipeline in which the activation is the TrainableQuadraticApproximation
+            # i.e. not during next steps of the training pipeline in which the activation is the TrainableQuadraticActivation
             if isinstance(module, PairedReLU):
                 module.update_smoothing_lambda(self.current_number_of_epochs)  # type: ignore
 
 
-class TrainableQuadraticApproximation(nn.Module):
+class TrainableQuadraticActivation(nn.Module):
     """Trainable second order polynomial activation function.
 
     Attributes:
@@ -101,7 +99,7 @@ class TrainableQuadraticApproximation(nn.Module):
     is_approximation_of = nn.ReLU
 
     def __init__(self, input_dimension: int = 1) -> None:
-        """Initializes the TrainableQuadraticApproximation.
+        """Initializes the TrainableQuadraticActivation.
 
         Args:
             input_dimension: dimension of the weight parameters.
@@ -161,7 +159,7 @@ class PairedReLU(nn.Module):
         super().__init__()
 
         self.relu = nn.ReLU()
-        self.approximated_relu = TrainableQuadraticApproximation(
+        self.approximated_relu = TrainableQuadraticActivation(
             input_dimension=input_dimension
         )
         # parameter used during the smooth transition to merge the output of the ReLU and the approximation

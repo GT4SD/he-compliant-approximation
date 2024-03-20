@@ -9,10 +9,10 @@ import torch
 from torch import Tensor, nn
 
 # importing modules' approximators and approximations
-from hela.approximation.approximators.activation.quadratic import QuadraticApproximation
+from hela.approximation.approximators.activation.quadratic import QuadraticActivation
 from hela.approximation.approximators.activation.trainable_quadratic import (
     PairedReLU,
-    TrainableQuadraticApproximation,
+    TrainableQuadraticActivation,
 )
 from hela.approximation.approximators.attention.masking.multiplicative import (
     MultiplicativeAttentionMasking,
@@ -24,16 +24,14 @@ from hela.approximation.approximators.layer_normalization.batch_normalization im
     BatchNorm1dForTransformers,
 )
 from hela.approximation.approximators.layer_normalization.distill_layernorm import (
-    DistillLayerNormApproximation,
+    DistillLayerNorm,
     PairedLayerNorm,
 )
 from hela.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHead,
 )
-from hela.approximation.approximators.pooling.avg_pooling_2d import (
-    AvgPooling2dApproximation,
-)
-from hela.approximation.approximators.softmax.mlp_softmax import MLPSoftmaxApproximation
+from hela.approximation.approximators.pooling.avg_pooling_2d import AvgPooling2d
+from hela.approximation.approximators.softmax.mlp_softmax import MLPSoftmax
 from hela.approximation.approximators.softmax.polynomial import PolynomialSoftmax
 from hela.approximation.approximators.softmax.taylor import TaylorSoftmax
 
@@ -372,12 +370,12 @@ approximation_testing_informations = {
                 ]
             },
         ],
-        "trainable_approximation_class": [QuadraticApproximation, PairedReLU],
+        "trainable_approximation_class": [QuadraticActivation, PairedReLU],
         "pretrained_approximation_class": [
-            QuadraticApproximation,
-            TrainableQuadraticApproximation,
+            QuadraticActivation,
+            TrainableQuadraticActivation,
         ],
-        "default_approximation_class": QuadraticApproximation,
+        "default_approximation_class": QuadraticActivation,
     },
     "LayerNormApproximation": {
         "model_classes": [VanillaTransformer],
@@ -408,7 +406,7 @@ approximation_testing_informations = {
         ],
         "pretrained_approximation_class": [
             BatchNorm1dForTransformers,
-            DistillLayerNormApproximation,
+            DistillLayerNorm,
         ],
         "default_approximation_class": BatchNorm1dForTransformers,
     },
@@ -484,12 +482,12 @@ approximation_testing_informations = {
         "trainable_approximation_class": [
             PolynomialSoftmax,
             TaylorSoftmax,
-            MLPSoftmaxApproximation,
+            MLPSoftmax,
         ],
         "pretrained_approximation_class": [
             PolynomialSoftmax,
             TaylorSoftmax,
-            MLPSoftmaxApproximation,
+            MLPSoftmax,
         ],
         "default_approximation_class": PolynomialSoftmax,
     },
@@ -551,7 +549,7 @@ approximation_testing_informations = {
         ],
         "default_approximation_class": NotScaledQueryKeyDotProduct,
     },
-    "AvgPooling2dApproximation": {
+    "AvgPooling2d": {
         "model_classes": [LeNet],
         "check_substitution": [check_maxpool2d_approximation_lenet],
         "to_approx_dict": [
@@ -566,12 +564,12 @@ approximation_testing_informations = {
             },
         ],
         "trainable_approximation_class": [
-            AvgPooling2dApproximation,
+            AvgPooling2d,
         ],
         "pretrained_approximation_class": [
-            AvgPooling2dApproximation,
+            AvgPooling2d,
         ],
-        "default_approximation_class": AvgPooling2dApproximation,
+        "default_approximation_class": AvgPooling2d,
     },
 }
 

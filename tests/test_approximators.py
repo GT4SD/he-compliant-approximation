@@ -8,12 +8,12 @@ import torch
 from torch import Tensor, nn
 
 from hela.approximation.approximators.activation.quadratic import (
-    QuadraticApproximation,
+    QuadraticActivation,
     QuadraticApproximator,
 )
 from hela.approximation.approximators.activation.trainable_quadratic import (
     PairedReLU,
-    TrainableQuadraticApproximation,
+    TrainableQuadraticActivation,
     TrainableQuadraticApproximator,
 )
 from hela.approximation.approximators.attention.masking.multiplicative import (
@@ -30,7 +30,7 @@ from hela.approximation.approximators.layer_normalization.batch_normalization im
     LayerNormToBatchNormApproximator,
 )
 from hela.approximation.approximators.layer_normalization.distill_layernorm import (
-    DistillLayerNormApproximation,
+    DistillLayerNorm,
     DistillLayerNormApproximator,
     PairedLayerNorm,
 )
@@ -39,11 +39,11 @@ from hela.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHeadApproximator,
 )
 from hela.approximation.approximators.pooling.avg_pooling_2d import (
-    AvgPooling2dApproximation,
+    AvgPooling2d,
     AvgPooling2dApproximator,
 )
 from hela.approximation.approximators.softmax.mlp_softmax import (
-    MLPSoftmaxApproximation,
+    MLPSoftmax,
     MLPSoftmaxApproximator,
 )
 from hela.approximation.approximators.softmax.polynomial import (
@@ -72,9 +72,9 @@ testing_informations = {
     "QuadraticApproximator": {
         "approximator_class": QuadraticApproximator,
         "init_parameters": [{}],
-        "trainable_approximation_class": QuadraticApproximation,
+        "trainable_approximation_class": QuadraticActivation,
         "get_trainable_approximation_kwargs": [{}],
-        "pretrained_approximation_class": QuadraticApproximation,
+        "pretrained_approximation_class": QuadraticActivation,
         "forward_kwargs": {
             "input": torch.ones(
                 (batch_size, sequence_length, sequence_length), device=DEVICE
@@ -92,7 +92,7 @@ testing_informations = {
         "init_parameters": [{"input_dimension": sequence_length}],
         "trainable_approximation_class": PairedReLU,
         "get_trainable_approximation_kwargs": [{}],
-        "pretrained_approximation_class": TrainableQuadraticApproximation,
+        "pretrained_approximation_class": TrainableQuadraticActivation,
         "forward_kwargs": {
             "input": torch.ones(
                 (batch_size, sequence_length, sequence_length), device=DEVICE
@@ -129,7 +129,7 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [
             {"layernorm": nn.LayerNorm(embedding_dim)}
         ],
-        "pretrained_approximation_class": DistillLayerNormApproximation,
+        "pretrained_approximation_class": DistillLayerNorm,
         "forward_kwargs": {
             "input": torch.ones(
                 (batch_size, sequence_length, embedding_dim), device=DEVICE
@@ -278,9 +278,9 @@ testing_informations = {
     "MLPSoftmaxApproximator": {
         "approximator_class": MLPSoftmaxApproximator,
         "init_parameters": [{"dim_size": embedding_dim, "unit_test": True}],
-        "trainable_approximation_class": MLPSoftmaxApproximation,
+        "trainable_approximation_class": MLPSoftmax,
         "get_trainable_approximation_kwargs": [{}],
-        "pretrained_approximation_class": MLPSoftmaxApproximation,
+        "pretrained_approximation_class": MLPSoftmax,
         "forward_kwargs": {
             "input": torch.ones(
                 (batch_size, sequence_length, sequence_length), device=DEVICE
@@ -350,7 +350,7 @@ testing_informations = {
                 "count_include_pad": True,
             }
         ],
-        "trainable_approximation_class": AvgPooling2dApproximation,
+        "trainable_approximation_class": AvgPooling2d,
         "get_trainable_approximation_kwargs": [
             {
                 "pooling": nn.MaxPool2d(
@@ -363,7 +363,7 @@ testing_informations = {
                 ),
             }
         ],
-        "pretrained_approximation_class": AvgPooling2dApproximation,
+        "pretrained_approximation_class": AvgPooling2d,
         "forward_kwargs": {
             "input": torch.arange(
                 1, img_size * img_size + 1, device=DEVICE, dtype=float

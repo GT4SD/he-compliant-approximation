@@ -28,10 +28,10 @@ class AvgPooling2dApproximator(ModuleApproximator):
         """Initializes the AvgPooling2dApproximator.
 
         Args:
-            parameters: parameters of the AvgPooling2dApproximation modules. Defaults to {}.
+            parameters: parameters of the AvgPooling2d modules. Defaults to {}.
         """
         super().__init__(parameters, **kwargs)
-        self.approximations: List[AvgPooling2dApproximation] = []
+        self.approximations: List[AvgPooling2d] = []
 
     def approximate_module(
         self, model: nn.Module, id: str, pretrained: bool, **kwargs: Dict[str, Any]
@@ -77,7 +77,7 @@ class AvgPooling2dApproximator(ModuleApproximator):
         self.parameters["count_include_pad"] = True
         self.parameters["divisor_override"] = None
 
-        new_approximation = AvgPooling2dApproximation(**self.parameters)
+        new_approximation = AvgPooling2d(**self.parameters)
         # adding the module to the approximation list
         self.approximations.append(new_approximation)
         return new_approximation
@@ -91,17 +91,17 @@ class AvgPooling2dApproximator(ModuleApproximator):
             module: module approximation to be converted.
 
         Raises:
-            ValueError: this method must be called for AvgPooling2dApproximation modules.
+            ValueError: this method must be called for AvgPooling2d modules.
 
         Returns:
             approximated module in its pretrained form.
         """
-        if not isinstance(module, AvgPooling2dApproximation):
-            raise ValueError(f"{module.__class__} is not a {AvgPooling2dApproximation}")
+        if not isinstance(module, AvgPooling2d):
+            raise ValueError(f"{module.__class__} is not a {AvgPooling2d}")
         return module
 
 
-class AvgPooling2dApproximation(nn.Module):
+class AvgPooling2d(nn.Module):
     """Average pooling over 2 dimensions.
 
     Attributes:
@@ -111,7 +111,7 @@ class AvgPooling2dApproximation(nn.Module):
     is_approximation_of = nn.MaxPool2d
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
-        """Initializes the AvgPooling2dApproximation.
+        """Initializes the AvgPooling2d.
 
         Args:
             **kwargs: Additional keyword arguments to pass to nn.AvgPool2d constructor.

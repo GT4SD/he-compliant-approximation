@@ -32,12 +32,10 @@ class DistillLayerNormApproximator(ModuleApproximator):
         """Initializes the DistillLayerNormApproximator.
 
         Args:
-            parameters: parameters of the DistillLayerNormApproximation modules. Defaults to {}.
+            parameters: parameters of the DistillLayerNorm modules. Defaults to {}.
         """
         super().__init__(parameters, **kwargs)
-        self.approximations: List[
-            Union[PairedLayerNorm, DistillLayerNormApproximation]
-        ] = []
+        self.approximations: List[Union[PairedLayerNorm, DistillLayerNorm]] = []
 
     def get_trainable_approximation(self, **kwargs: Dict[str, Any]) -> nn.Module:
         """Approximates the module for the training phase.
@@ -149,7 +147,7 @@ class DistillLayerNormApproximator(ModuleApproximator):
         return loss
 
 
-class DistillLayerNormApproximation(nn.Module):
+class DistillLayerNorm(nn.Module):
     """Linear layer approximation of layer normalization.
     Follows the implementation suggested in [THE-X: Privacy-Preserving Transformer Inference with Homomorphic Encryption](https://aclanthology.org/2022.findings-acl.277.pdf)
 
@@ -160,7 +158,7 @@ class DistillLayerNormApproximation(nn.Module):
     is_approximation_of = nn.LayerNorm
 
     def __init__(self, normalized_shape: Union[int, List, torch.Size] = 256) -> None:
-        """Initializes the DistillLayerNormApproximation.
+        """Initializes the DistillLayerNorm.
 
         Args:
             normalized_shape: dimension of the linear layer (should match the embedding dimension). Defaults to 256.
@@ -213,7 +211,7 @@ class PairedLayerNorm(nn.Module):
             kwargs["normalized_shape"] = normalized_shape
 
         self.original_layer_norm = layernorm
-        self.approximated_layernorm = DistillLayerNormApproximation(**kwargs)
+        self.approximated_layernorm = DistillLayerNorm(**kwargs)
 
         # containing another LayerNorm module inside we want to stop the substitution
         self.allow_recursive_search = False

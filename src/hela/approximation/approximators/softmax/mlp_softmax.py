@@ -39,20 +39,20 @@ class MLPSoftmaxApproximator(ModuleApproximator):
         """Initializes the MLPSoftmaxApproximator.
 
         Args:
-            parameters: parameters of the MLPSoftmaxApproximation modules. Defaults to {}.
+            parameters: parameters of the MLPSoftmax modules. Defaults to {}.
         """
         super().__init__(parameters, **kwargs)
 
-        self.approximations: List[MLPSoftmaxApproximation] = []
+        self.approximations: List[MLPSoftmax] = []
 
         # removing the argument passed in the tests to avoid the layer training
         self.is_unit_test = self.parameters.pop("unit_test", None)
 
-        approximation = MLPSoftmaxApproximation(
+        approximation = MLPSoftmax(
             **self.parameters,
         )
 
-        self.approximated_softmax: MLPSoftmaxApproximation = approximation
+        self.approximated_softmax: MLPSoftmax = approximation
         self.is_pretrained = False
         self.save_path: str
 
@@ -67,9 +67,7 @@ class MLPSoftmaxApproximator(ModuleApproximator):
             val_dataloader = softmax_dataset.val_dataloader()
 
             # defining the pytorch lightning model
-            lightning_model = LitMLPSoftmaxApproximation(
-                model=self.approximated_softmax
-            )
+            lightning_model = LitMLPSoftmax(model=self.approximated_softmax)
 
             callbacks: List = []
             callbacks.append(
@@ -172,13 +170,13 @@ class MLPSoftmaxApproximator(ModuleApproximator):
             module: module approximation to be converted.
 
         Raises:
-            ValueError: this method must be called for MLPSoftmaxApproximation modules.
+            ValueError: this method must be called for MLPSoftmax modules.
 
         Returns:
             approximated module in its pretrained form.
         """
-        if not isinstance(module, MLPSoftmaxApproximation):
-            raise ValueError(f"{module.__class__} is not a {MLPSoftmaxApproximation}")
+        if not isinstance(module, MLPSoftmax):
+            raise ValueError(f"{module.__class__} is not a {MLPSoftmax}")
         return module
 
 
@@ -230,7 +228,7 @@ class ReciprocalApproximation(nn.Module):
                 module.bias.data.zero_()
 
 
-class MLPSoftmaxApproximation(nn.Module):
+class MLPSoftmax(nn.Module):
     """Softmax approximation through MLP.
     Follows the implementation suggested in [THE-X: Privacy-Preserving Transformer Inference with Homomorphic Encryption](https://aclanthology.org/2022.findings-acl.277.pdf).
 
@@ -241,7 +239,7 @@ class MLPSoftmaxApproximation(nn.Module):
     is_approximation_of = nn.Softmax
 
     def __init__(self, dim_size=16):
-        """Initializes the MLPSoftmaxApproximation.
+        """Initializes the MLPSoftmax.
 
         Args:
             dim_size: dimension of the ReciprocalApproximation hidden layer. Defaults to 16.
@@ -282,11 +280,11 @@ class MLPSoftmaxApproximation(nn.Module):
         return exp_of_score * normalization_term
 
 
-"""Pytorch Lightning implementation for MLPSoftmaxApproximation."""
+"""Pytorch Lightning implementation for MLPSoftmax."""
 
 
 class MLPSoftmaxDataset(Dataset):
-    """MLPSoftmaxApproximation training dataset."""
+    """MLPSoftmax training dataset."""
 
     def __init__(
         self,
@@ -329,12 +327,12 @@ class MLPSoftmaxDataset(Dataset):
 
 
 class LitMLPSoftmaxDataset(pl.LightningDataModule):
-    """Pytorch-lightning data module for MLPSoftmaxApproximation."""
+    """Pytorch-lightning data module for MLPSoftmax."""
 
     def __init__(
         self,
     ) -> None:
-        """Initializes the lightning data module for MLPSoftmaxApproximation training and validation."""
+        """Initializes the lightning data module for MLPSoftmax training and validation."""
 
         super().__init__()
 
@@ -399,17 +397,17 @@ class LitMLPSoftmaxDataset(pl.LightningDataModule):
         )
 
 
-class LitMLPSoftmaxApproximation(pl.LightningModule):
-    """Pytorch lightning model for MLPSoftmaxApproximation."""
+class LitMLPSoftmax(pl.LightningModule):
+    """Pytorch lightning model for MLPSoftmax."""
 
     def __init__(
         self,
-        model: MLPSoftmaxApproximation,
+        model: MLPSoftmax,
     ) -> None:
-        """Initializes a lightning module for the MLPSoftmaxApproximation.
+        """Initializes a lightning module for the MLPSoftmax.
 
         Args:
-            model: MLPSoftmaxApproximation object to be trained and validated.
+            model: MLPSoftmax object to be trained and validated.
         """
         super().__init__()
         self.model = model
@@ -427,7 +425,7 @@ class LitMLPSoftmaxApproximation(pl.LightningModule):
             NotImplementedError: implement this function for the prediction step.
         """
         raise NotImplementedError(
-            "Implement the forward function for the LitMLPSoftmaxApproximation."
+            "Implement the forward function for the LitMLPSoftmax."
         )
 
     def configure_optimizers(

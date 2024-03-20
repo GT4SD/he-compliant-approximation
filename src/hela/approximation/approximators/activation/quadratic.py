@@ -29,10 +29,10 @@ class QuadraticApproximator(ModuleApproximator):
         """Initializes the QuadraticApproximator.
 
         Args:
-            parameters: parameters of the QuadraticApproximation modules. Defaults to {}.
+            parameters: parameters of the QuadraticActivation modules. Defaults to {}.
         """
         super().__init__(parameters, **kwargs)
-        self.approximations: List[QuadraticApproximation] = []
+        self.approximations: List[QuadraticActivation] = []
 
     def get_trainable_approximation(self, **kwargs: Dict[str, Any]) -> nn.Module:
         """Approximates the module for the training phase.
@@ -40,7 +40,7 @@ class QuadraticApproximator(ModuleApproximator):
         Returns:
             approximated module ready for the training phase.
         """
-        new_approximation = QuadraticApproximation()
+        new_approximation = QuadraticActivation()
         # adding the module to the approximation list
         self.approximations.append(new_approximation)
         return new_approximation
@@ -54,17 +54,17 @@ class QuadraticApproximator(ModuleApproximator):
             module: module approximation to be converted.
 
         Raises:
-            ValueError: this method must be called for QuadraticApproximation modules.
+            ValueError: this method must be called for QuadraticActivation modules.
 
         Returns:
             approximated module in its pretrained form.
         """
-        if not isinstance(module, QuadraticApproximation):
-            raise ValueError(f"{module.__class__} is not a {QuadraticApproximation}")
+        if not isinstance(module, QuadraticActivation):
+            raise ValueError(f"{module.__class__} is not a {QuadraticActivation}")
         return module
 
 
-class QuadraticApproximation(nn.Module):
+class QuadraticActivation(nn.Module):
     """Quadratic activation function.
 
     Attributes:
@@ -74,7 +74,7 @@ class QuadraticApproximation(nn.Module):
     is_approximation_of = nn.ReLU
 
     def __init__(self) -> None:
-        """Initializes the QuadraticApproximation."""
+        """Initializes the QuadraticActivation."""
         super().__init__()
 
         self.is_trainable = False
