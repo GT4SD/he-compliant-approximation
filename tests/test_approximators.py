@@ -412,8 +412,12 @@ def test_approximator_init(
     # ASSERTS
 
     # checking the approximator class
-    assert isinstance(approximator, ModuleApproximator)
-    assert isinstance(approximator, approximator_dictionary["approximator_class"])
+    assert isinstance(
+        approximator, ModuleApproximator
+    ), "The created approximator is not an instance of ModuleApproximator."
+    assert isinstance(
+        approximator, approximator_dictionary["approximator_class"]
+    ), f"The created approximator is not an instance of the expected class {approximator_dictionary['approximator_class'].__name__}."
 
 
 @pytest.mark.parametrize(
@@ -465,7 +469,7 @@ def test_get_trainable_approximation(
     assert isinstance(
         trainable_approx_module,
         approximator_dictionary["trainable_approximation_class"],
-    )
+    ), f"Trainable approximation module should be an instance of {approximator_dictionary['trainable_approximation_class'].__name__}"
 
 
 @pytest.mark.parametrize(
@@ -520,7 +524,10 @@ def test_trainable_approximation_forward(
     # ASSERTS
 
     # checking the output type
-    assert isinstance(output, approximator_dictionary["output_type"])
+    assert isinstance(
+        output, approximator_dictionary["output_type"]
+    ), f"Output type mismatch. Expected type: {approximator_dictionary['output_type']}."
+
     # checking the output values if they are specified
     if approximator_dictionary["expected_output"][init_parameters_index] is not None:
         assert torch.all(
@@ -528,7 +535,7 @@ def test_trainable_approximation_forward(
                 output,
                 approximator_dictionary["expected_output"][init_parameters_index],
             )
-        )
+        ), "Output values do not match the expected values."
 
 
 @pytest.mark.parametrize(
@@ -584,12 +591,12 @@ def test_get_pretrained_approximation(
     assert isinstance(
         trainable_approx_module,
         approximator_dictionary["trainable_approximation_class"],
-    )
+    ), f"Trainable approximation module is not an instance of {approximator_dictionary['trainable_approximation_class'].__name__}"
     # checking the pretrained approximation class
     assert isinstance(
         pretrained_approx_module,
         approximator_dictionary["pretrained_approximation_class"],
-    )
+    ), f"Pretrained approximation module is not an instance of {approximator_dictionary['pretrained_approximation_class'].__name__}"
 
 
 @pytest.mark.parametrize(
@@ -648,7 +655,10 @@ def test_pretrained_approximation_forward(
     # ASSERTS
 
     # checking the output type
-    assert isinstance(output, approximator_dictionary["output_type"])
+    assert isinstance(
+        output, approximator_dictionary["output_type"]
+    ), f"Output type mismatch. Expected type: {approximator_dictionary['output_type']}."
+
     # checking the output values if they are specified
     if approximator_dictionary["expected_output"][init_parameters_index] is not None:
         assert torch.all(
@@ -656,4 +666,4 @@ def test_pretrained_approximation_forward(
                 output,
                 approximator_dictionary["expected_output"][init_parameters_index],
             )
-        )
+        ), "The output values do not match the expected values."

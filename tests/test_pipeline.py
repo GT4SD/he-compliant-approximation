@@ -30,5 +30,9 @@ def test_init_approximation_pipeline():
 
         # ASSERTS
 
-        assert isinstance(pipeline, Pipeline)
-        assert isinstance(pipeline.lightning_model, LitApproximatedVanillaTransformer)
+        assert isinstance(
+            pipeline, Pipeline
+        ), "The pipeline object is not an instance of Pipeline."
+        assert isinstance(
+            pipeline.lightning_model, LitApproximatedVanillaTransformer
+        ), "The pipeline's lightning model is not an instance of LitApproximatedVanillaTransformer."

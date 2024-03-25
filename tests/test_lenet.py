@@ -23,8 +23,15 @@ from hela.models.lenet.model import LeNet
         for greyscale in [True, False]
     ],
 )
-def test_lenet_config(lenet_type, num_classes, greyscale):
-    """Tests the LeNet configuration with parametrized arguments."""
+def test_lenet_config(lenet_type: str, num_classes: int, greyscale: bool):
+    """
+    Tests the LeNet configuration with parametrized arguments.
+
+    Args:
+        lenet_type: type of LeNet model to test.
+        num_classes: number of classes for the model.
+        greyscale: whether the model should use greyscale input.
+    """
 
     # Creating a LeNet configuration with the parametrized arguments
     config = LeNetConfig(
@@ -60,8 +67,15 @@ def test_lenet_config(lenet_type, num_classes, greyscale):
         for greyscale in [True, False]
     ],
 )
-def test_lenet_model_init(lenet_type, num_classes, greyscale):
-    """Tests the initialization of LeNet model with parametrized arguments."""
+def test_lenet_model_init(lenet_type: str, num_classes: int, greyscale: bool):
+    """
+    Tests the initialization of LeNet model with parametrized arguments.
+
+    Args:
+        lenet_type: type of LeNet model to test.
+        num_classes: number of classes for the model.
+        greyscale: whether the model should use greyscale input.
+    """
 
     # creating a LeNet configuration with the parametrized arguments
     config = LeNetConfig(
@@ -97,9 +111,16 @@ def test_lenet_model_init(lenet_type, num_classes, greyscale):
     ],
 )
 def test_model_forward_pass_with_varying_batch_sizes(
-    lenet_type, num_classes, greyscale, batch_size
+    lenet_type: str, num_classes: int, greyscale: bool, batch_size: int
 ):
-    """Tests the forward pass through LeNet model with varying batch sizes."""
+    """Tests the forward pass through LeNet model with varying batch sizes.
+
+    Args:
+        lenet_type: type of LeNet model to test.
+        num_classes: number of classes for the model.
+        greyscale: whether the model should use greyscale input.
+        batch_size: size of the batch for the input.
+    """
 
     # determining the image size based on lenet_type
     image_size = 28 if lenet_type == "lenet-1" else 32

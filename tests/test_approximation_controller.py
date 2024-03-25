@@ -766,12 +766,20 @@ def test_controller_trainable_approximation(
         # ASSERTS
 
         # checking the model class
-        assert isinstance(approx_model, nn.Module)
-        assert isinstance(approx_model, model_class)
+        assert isinstance(
+            approx_model, nn.Module
+        ), "The approximated model is not an instance of nn.Module."
+        assert isinstance(
+            approx_model, model_class
+        ), f"The approximated model is not an instance of the expected model class {model_class.__name__}."
         # checking the number of substitution made to the model
-        assert sum(num_subs_model.values()) > 0
+        assert (
+            sum(num_subs_model.values()) > 0
+        ), "No substitutions were made to the model."
         # checking the number of substitution made to the approximated trainable model
-        assert sum(num_subs_approx_model.values()) == 0
+        assert (
+            sum(num_subs_approx_model.values()) == 0
+        ), "Substitutions were unexpectedly made to the approximated trainable model."
 
         # checking the class of the substituted modules inside the model
         approximation_dictionary["check_substitution"][model_index](
