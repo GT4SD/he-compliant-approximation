@@ -28,13 +28,14 @@ HELA
    * saving training pipeline logs and checkpoints in a single tidy experiment folder.
 
 .. toctree::
-   :maxdepth: 5
    :caption: Contents:
+   :hidden:
 
    installation
    cli
    resources
    approximation_resources
+   pipeline/index
    repository_structure
 
 Indices and tables
