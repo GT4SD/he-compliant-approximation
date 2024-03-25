@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../src/'))
 
 
 # -- Project information -----------------------------------------------------
@@ -58,3 +58,18 @@ html_title = f'HELA {release}'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_theme_options = {
+    "dark_css_variables": {
+        "color-api-name": "#7C4DFF",
+        "color-pre-api-name": "#7C4DFF",
+        "font-stack": "Plex, sans-serif",
+        "font-stack--monospace": "Plex, monospace",
+    },
+    "light_css_variables": {
+        "color-api-name": "#7C4DFF",
+        "color-pre-api-name": "#7C4DFF",
+        "font-stack": "Plex, sans-serif",
+        "font-stack--monospace": "Plex, monospace",
+    },
+}
