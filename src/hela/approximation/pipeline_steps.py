@@ -49,6 +49,20 @@ class TrainingStepTrainerArgs(BaseModel):
     early_stopping_patience: int = 3
     early_stopping_patience_reached: bool = False
 
+    pruning: bool = False
+    pruning_fn: Literal[
+        "ln_structured", "l1_unstructured", "random_structured", "random_unstructured"
+    ] = "random_unstructured"
+    parameters_to_prune: Optional[List[str]] = None
+    pruning_amount: float = 0.5
+    pruning_use_global_unstructured: bool = True
+    pruning_use_lottery_ticket_hypothesis: bool = True
+    pruning_resample_parameters: bool = False
+    pruning_dim: Optional[int] = None
+    pruning_norm: Literal["L1", "L2"] = "L1"
+    pruning_verbose: int = 0
+    prune_on_train_epoch_end: bool = True
+
     @model_validator(mode="before")
     @classmethod
     def check_early_stopping_monitor_omitted(

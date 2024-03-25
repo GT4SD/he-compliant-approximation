@@ -12,6 +12,7 @@ import torch
 from pytorch_lightning.callbacks import Callback
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
+from pytorch_lightning.callbacks.pruning import ModelPruning
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch import nn
 from torch.utils.data import DataLoader
@@ -263,6 +264,31 @@ class ApproximationPipeline(Pipeline):
 
         return callbacks
 
+    def _get_pruning_callback(self) -> List[Callback]:
+        """Defines the callbacks needed for pruning.
+
+        Returns:
+            pruning callback.
+        """
+        callback: List = []
+        callback.append(
+            ModelPruning(
+                pruning_fn=self.current_training_args.pruning_fn,
+                parameters_to_prune=self.current_training_args.parameters_to_prune,
+                use_global_unstructured=self.current_training_args.pruning_use_global_unstructured,
+                amount=self.current_training_args.pruning_amount,
+                apply_pruning=True,
+                make_pruning_permanent=False,  # to avoid the pruning being lost in successive pipeline steps
+                use_lottery_ticket_hypothesis=self.current_training_args.pruning_use_lottery_ticket_hypothesis,
+                resample_parameters=self.current_training_args.pruning_resample_parameters,
+                pruning_dim=self.current_training_args.pruning_dim,
+                pruning_norm=self.current_training_args.pruning_norm,
+                verbose=self.current_training_args.pruning_verbose,
+                prune_on_train_epoch_end=self.current_training_args.prune_on_train_epoch_end,
+            )
+        )
+        return callback
+
     def _get_skip_validation_model_checkpoint_callback(self) -> List[Callback]:
         """Defines the callbacks needed when the model is not validated.
 
@@ -366,6 +392,12 @@ class ApproximationPipeline(Pipeline):
                     # adding the default model checkpoint callback
                     self.trainer_args_for_current_step["callbacks"].extend(
                         self._get_default_model_checkpoint_callback()
+                    )
+
+                # adding pruning callback
+                if self.current_training_args.pruning:
+                    self.trainer_args_for_current_step["callbacks"].extend(
+                        self._get_pruning_callback()
                     )
 
                 # the trainer state must be loaded to continue the training for the current pipeline step
