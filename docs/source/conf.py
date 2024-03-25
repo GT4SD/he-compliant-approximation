@@ -62,13 +62,13 @@ html_static_path = ['_static']
 html_theme_options = {
     "dark_css_variables": {
         "color-api-name": "#7C4DFF",
-        "color-pre-api-name": "#7C4DFF",
+        "color-api-pre-name": "#7C4DFF",
         "font-stack": "Plex, sans-serif",
         "font-stack--monospace": "Plex, monospace",
     },
     "light_css_variables": {
         "color-api-name": "#7C4DFF",
-        "color-pre-api-name": "#7C4DFF",
+        "color-api-pre-name": "#7C4DFF",
         "font-stack": "Plex, sans-serif",
         "font-stack--monospace": "Plex, monospace",
     },
