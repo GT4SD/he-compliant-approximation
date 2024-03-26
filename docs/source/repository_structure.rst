@@ -19,11 +19,11 @@ Repository structure
        ./src/hela
         ├── approximation
         |   ├── <a href="./approximation_resources.html#module-aliases">aliases.py</a>
-        |   ├── approximators
+        |   ├── <a href="./approximators/index.html">approximators</a>
         |   |   └── ...
-        |   ├── controller.py
+        |   ├── <a href="./controller.html">controller.py</a>
         |   ├── <a href="./approximation_resources.html#module-to-approximate">module_to_approximate.py</a>
-        |   ├── pipeline
+        |   ├── <a href="./pipeline/index.html">pipeline</a>
         |   |   └── ...
         |   └── <a href="./approximation_resources.html#approximation-pipeline-steps">pipeline_steps.py</a>
         ├── <a href="./cli.html">cli</a>
