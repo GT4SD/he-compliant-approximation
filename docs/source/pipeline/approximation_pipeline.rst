@@ -1,13 +1,20 @@
 Approximation Pipeline
 ======================
 
-.. automodule:: src.hela.approximation.pipeline.approximation_pipeline
+This module implements the approximation pipeline, which is responsible for managing and executing the steps involved in approximating a neural network model. The pipeline includes functionalities for:
+
+* training
+* validating
+* testing 
+
+the model across different approximation steps, **handling checkpoints**, and **managing callbacks** such as early stopping conditions.
+
+.. autoclass:: src.hela.approximation.pipeline.approximation_pipeline.ApproximationPipeline
    :members:
    :undoc-members:
    :show-inheritance:
    :special-members: __init__
 
-This module implements the approximation pipeline, which is responsible for managing and executing the steps involved in approximating a neural network model. The pipeline includes functionalities for training, validating, and testing the model across different approximation steps, handling checkpoints, and managing early stopping conditions.
 
 Usage
 -----

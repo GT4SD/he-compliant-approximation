@@ -1,4 +1,4 @@
-""""Model approximation controller."""
+"""Model approximation controller."""
 
 import logging
 import os

@@ -36,6 +36,9 @@ HELA
    resources
    approximation_resources
    pipeline/index
+   controller
+   approximators/index
+   models/index
    repository_structure
 
 Indices and tables
