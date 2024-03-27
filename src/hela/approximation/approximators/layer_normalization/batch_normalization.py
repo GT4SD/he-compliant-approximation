@@ -6,7 +6,6 @@ import pytorch_lightning as pl
 import torch
 from torch import Tensor, nn
 
-from ....models.vanilla_transformer.model import ExtendedLayerNorm
 from ..core import ModuleApproximator
 
 
@@ -19,7 +18,7 @@ class LayerNormToBatchNormApproximator(ModuleApproximator):
         is_approximation_trainable: establishes if the approximation contain some trainable parameters.
     """
 
-    supported_layer_types = {nn.LayerNorm, ExtendedLayerNorm}
+    supported_layer_types = {nn.LayerNorm}
     approximation_type = "batchnorm"
     is_approximation_trainable = True
 

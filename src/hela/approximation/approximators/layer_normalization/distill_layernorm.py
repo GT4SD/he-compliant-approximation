@@ -9,7 +9,6 @@ import torch.optim as optim
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
 
-from ....models.vanilla_transformer.model import ExtendedLayerNorm
 from ..core import ModuleApproximator
 
 
@@ -22,7 +21,7 @@ class DistillLayerNormApproximator(ModuleApproximator):
         is_approximation_trainable: establishes if the approximation contain some trainable parameters.
     """
 
-    supported_layer_types = {nn.LayerNorm, ExtendedLayerNorm}
+    supported_layer_types = {nn.LayerNorm}
     approximation_type = "distill_layernorm"
     is_approximation_trainable = True
 

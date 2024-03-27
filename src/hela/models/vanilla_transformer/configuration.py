@@ -28,6 +28,7 @@ class VanillaTransformerConfig(PretrainedConfig):
         is_encoder_decoder: bool = True,
         return_dict_in_generate: bool = False,
         num_beams: int = 1,
+        batch_first: bool = True,
         device: str = "cpu",
         **kwargs
     ) -> None:
@@ -52,6 +53,7 @@ class VanillaTransformerConfig(PretrainedConfig):
             is_encoder_decoder: defines the structure of the model for the generation routine. Defaults to True.
             return_dict_in_generate: whether or not to return a [`ModelOutput`] instead of a plain tuple during generation. Defaults to False.
             num_beams: number of beams for beam search that will be used by default in the `generate` method of the model (1 means no beam search). Default to 1.
+            batch_first: wheter the model expects the batch dimension as the first one. Defaults to True.
             device: device on which the model will be allocated. Defaults to "cpu".
         """
 
@@ -67,6 +69,7 @@ class VanillaTransformerConfig(PretrainedConfig):
         self.attention_mask_value = attention_mask_value
         self.init_std = init_std
         self.max_position_embeddings = max_position_embeddings
+        self.batch_first = batch_first
         self.device = device
 
         super().__init__(

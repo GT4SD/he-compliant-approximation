@@ -2,7 +2,7 @@
 
 import math
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import importlib_metadata  # type: ignore
 import torch
@@ -19,10 +19,6 @@ from torch.nn import (
 from transformers.modeling_utils import PreTrainedModel
 
 from .configuration import VanillaTransformerConfig
-
-# checking torch version
-torch_version = version.parse(importlib_metadata.version("torch"))
-TORCH_LT_1_9 = torch_version < version.parse("1.9")
 
 # checking transformers version
 transformers_version = version.parse(importlib_metadata.version("transformers"))
@@ -86,11 +82,7 @@ class PositionalEncoding(nn.Module):
         position_embedding = torch.zeros(max_len, embedding_dim)
         position_embedding[:, 0::2] = torch.sin(position * div_term)
         position_embedding[:, 1::2] = torch.cos(position * div_term)
-        position_embedding = (
-            position_embedding.unsqueeze(-2)
-            if TORCH_LT_1_9
-            else position_embedding.unsqueeze(0)
-        )
+        position_embedding = position_embedding.unsqueeze(0)
 
         self.register_buffer("position_embedding", position_embedding)
 
@@ -103,117 +95,12 @@ class PositionalEncoding(nn.Module):
         Returns:
             Embedding obtained as the sum of token and positional embeddings.
         """
-        if TORCH_LT_1_9:
-            position_embedding = getattr(self, "position_embedding")[
-                : token_embedding.size(0), :
-            ]
-        else:
-            position_embedding = getattr(self, "position_embedding")[
-                :, : token_embedding.size(1), :
-            ]
+
+        position_embedding = getattr(self, "position_embedding")[
+            :, : token_embedding.size(1), :
+        ]
         token_embedding = token_embedding + position_embedding
         return self.dropout(token_embedding)
-
-
-class ExtendedTransformerEncoderLayer(TransformerEncoderLayer):
-    """TransformerEncoderLayer extension to be compliant with different torch versions."""
-
-    def __init__(
-        self,
-        d_model: int,
-        nhead: int,
-        dim_feedforward: int = 2048,
-        dropout: float = 0.1,
-        activation: str = "relu",
-        **kwargs,
-    ):
-        """Initializes a TrasformerEncoderLayer.
-
-        Args:
-            d_model: the number of expected features in the input.
-            nhead: the number of heads in the multiheadattention models.
-            dim_feedforward: the dimension of the feedforward network model. Defaults to 2048.
-            dropout: the dropout value. Defaults to 0.1.
-            activation: the activation function of the intermediate layer. Defaults to "relu".
-        """
-
-        if TORCH_LT_1_9:
-            super().__init__(d_model, nhead, dim_feedforward, dropout, activation)
-        else:
-            super().__init__(  # type: ignore
-                d_model,
-                nhead,
-                dim_feedforward,
-                dropout,
-                activation,
-                batch_first=kwargs.get("batch_first", False),
-                device=kwargs.get("device", None),
-            )
-
-
-class ExtendedTransformerDecoderLayer(TransformerDecoderLayer):
-    """TransformerEncoderLayer extension to be compliant with different torch versions."""
-
-    def __init__(
-        self,
-        d_model: int,
-        nhead: int,
-        dim_feedforward: int = 2048,
-        dropout: float = 0.1,
-        activation: str = "relu",
-        **kwargs,
-    ):
-        """Initializes a TrasformerDecoderLayer.
-
-        Args:
-            d_model: the number of expected features in the input.
-            nhead: the number of heads in the multiheadattention models.
-            dim_feedforward: the dimension of the feedforward network model. Defaults to 2048.
-            dropout: the dropout value. Defaults to 0.1.
-            activation: the activation function of the intermediate layer. Defaults to "relu".
-        """
-
-        if TORCH_LT_1_9:
-            super().__init__(d_model, nhead, dim_feedforward, dropout, activation)
-        else:
-            super().__init__(  # type: ignore
-                d_model,
-                nhead,
-                dim_feedforward,
-                dropout,
-                activation,
-                batch_first=kwargs.get("batch_first", False),
-                device=kwargs.get("device", None),
-            )
-
-
-class ExtendedLayerNorm(nn.LayerNorm):
-    """LayerNorm extension to be compliant with different torch versions."""
-
-    def __init__(
-        self,
-        normalized_shape: Union[int, List, torch.Size],
-        eps: float = 1e-5,
-        elementwise_affine: bool = True,
-        **kwargs,
-    ):
-        """Initializes a LayerNorm.
-
-        Args:
-            normalized_shape: input shape from an expected input of size.
-            eps: a value added to the denominator for numerical stability. Defaults to 1e-5.
-            elementwise_affine: a boolean value that when set to ``True``, this module has learnable per-element affine parameters initialized to ones (for weights) and zeros (for biases). Defaults to True.
-        """
-
-        if TORCH_LT_1_9:
-            super().__init__(normalized_shape, eps, elementwise_affine)
-        else:
-            super().__init__(  # type: ignore
-                normalized_shape,
-                eps,
-                elementwise_affine,
-                device=kwargs.get("device", None),
-            )
 
 
 class VanillaTransformerPretrainedModel(PreTrainedModel):
@@ -263,18 +150,7 @@ class VanillaTransformerEncoder(VanillaTransformerPretrainedModel):
         """
         super().__init__(config)
 
-        # initialize of the arguments to be passed or not to the extended classes depending on torch version
-        kwargs = (
-            {}
-            if TORCH_LT_1_9
-            else {
-                "batch_first": True,
-                "device": config.device,
-            }
-        )
-
-        # set how the data is expected by torch encoder and decoder modules
-        self.batch_first = kwargs.get("batch_first", False)
+        self.batch_first = config.batch_first
 
         # instanciating the embedding layer for the input tokens
         self.src_token_embedding = TokenEmbedding(
@@ -289,18 +165,19 @@ class VanillaTransformerEncoder(VanillaTransformerPretrainedModel):
             max_len=config.max_position_embeddings,
         )
         # instanciating an encoder layer
-        encoder_layer = ExtendedTransformerEncoderLayer(
+        encoder_layer = TransformerEncoderLayer(
             d_model=config.embedding_dim,
             nhead=config.num_attention_heads,
             dim_feedforward=config.ffnn_hidden_dim,
             dropout=config.dropout,
             activation=config.activation,
-            **kwargs,
+            batch_first=self.batch_first,
+            device=config.device,
         )
         # instanciating the normalization layer of the encoder
-        encoder_norm = ExtendedLayerNorm(
+        encoder_norm = nn.LayerNorm(
             normalized_shape=config.embedding_dim,
-            **kwargs,  # type: ignore
+            device=config.device,
         )
         # instanciating the encoder block using `config.num_encoder_layers` encoder layers
         self.encoder = TransformerEncoder(
@@ -425,18 +302,7 @@ class VanillaTransformerDecoder(VanillaTransformerPretrainedModel):
         """
         super().__init__(config)
 
-        # initialize of the arguments to be passed or not to the extended classes depending on torch version
-        kwargs = (
-            {}
-            if TORCH_LT_1_9
-            else {
-                "batch_first": True,
-                "device": config.device,
-            }
-        )
-
-        # set how the data is expected by torch encoder and decoder modules
-        self.batch_first = kwargs.get("batch_first", False)
+        self.batch_first = config.batch_first
 
         # instanciating the embedding layer for the input tokens
         self.tgt_token_embedding = TokenEmbedding(
@@ -451,19 +317,20 @@ class VanillaTransformerDecoder(VanillaTransformerPretrainedModel):
         )
 
         # instanciating an decoder layer
-        decoder_layer = ExtendedTransformerDecoderLayer(
+        decoder_layer = TransformerDecoderLayer(
             d_model=config.embedding_dim,
             nhead=config.num_attention_heads,
             dim_feedforward=config.ffnn_hidden_dim,
             dropout=config.dropout,
             activation=config.activation,
-            **kwargs,
+            batch_first=self.batch_first,
+            device=config.device,
         )
 
         # instanciating the normalization layer of the decoder
-        decoder_norm = ExtendedLayerNorm(
+        decoder_norm = nn.LayerNorm(
             normalized_shape=config.embedding_dim,
-            **kwargs,  # type: ignore
+            device=config.device,
         )
 
         # instanciating the decoder block using `config.num_encoder_layers` decoder layers
