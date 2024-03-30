@@ -9,11 +9,12 @@ from hela.pytorch_lightning.models.approximations.vanilla_transformer import (
     LitApproximatedVanillaTransformer,
 )
 
+PIPELINE_STEPS_FILE = "./pipeline_steps/vanilla_transformer/without_approximations.json"
 
 def test_init_approximation_pipeline():
     """Tests the initialization of an approximation pipeline."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        steps_path = "./pipeline_steps/without_approximations.json"
+        steps_path = PIPELINE_STEPS_FILE
 
         trainer_args = {}
         trainer_args["experiment_log_dir"] = tmpdirname

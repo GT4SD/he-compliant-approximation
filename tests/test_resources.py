@@ -26,6 +26,8 @@ ALIASES_FILE = str(
     importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
+PIPELINE_STEPS_FILE = "./pipeline_steps/vanilla_transformer/without_approximations.json"
+
 # aliases.json
 
 
@@ -223,7 +225,7 @@ def test_pipeline_steps_init():
 
 def test_load_pipeline_steps():
     """Tests the loading of the pipeline steps data structure from a file."""
-    pipeline_steps = load_pipeline_steps("./pipeline_steps/without_approximations.json")
+    pipeline_steps = load_pipeline_steps(PIPELINE_STEPS_FILE)
 
     # ASSERTS
 
@@ -249,7 +251,7 @@ def test_save_pipeline_steps():
     """Tests the saving of the pipeline steps data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         pipeline_steps = load_pipeline_steps(
-            "./pipeline_steps/without_approximations.json"
+            PIPELINE_STEPS_FILE
         )
         save_pipeline_steps(pipeline_steps, tmpdirname)
 
@@ -267,7 +269,7 @@ def test_load_saved_pipeline_steps():
     """Tests the loading of the saved pipeline steps data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         pipeline_steps = load_pipeline_steps(
-            "./pipeline_steps/without_approximations.json"
+            PIPELINE_STEPS_FILE
         )
         save_pipeline_steps(pipeline_steps, tmpdirname)
         with open(
@@ -277,7 +279,7 @@ def test_load_saved_pipeline_steps():
                 json.load(saved_pipeline_steps_file)
             )
         with open(
-            "./pipeline_steps/without_approximations.json"
+            PIPELINE_STEPS_FILE
         ) as resource_pipeline_steps_file:
             resource_pipeline_steps = PipelineSteps.model_validate(
                 json.load(resource_pipeline_steps_file)
