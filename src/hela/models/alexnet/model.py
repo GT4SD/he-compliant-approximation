@@ -10,8 +10,12 @@ class AlexNet(nn.Module):
     def __init__(self, config: AlexNetConfig) -> None:
         """"""
         super().__init__()
-        self.model = torchvision.models.AlexNet(**config)
+        self.config = config
+        self.model = torchvision.models.AlexNet(
+            num_classes=config.num_classes, dropout=config.dropout
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         """"""
-        return self.model(x)
+        x = self.model(x)
+        return nn.functional.softmax(x, dim=1)
