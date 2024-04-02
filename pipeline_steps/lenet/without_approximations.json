@@ -11,7 +11,7 @@
                 "early_stopping_mode": "max",
                 "early_stopping_patience": 5,
                 "early_stopping_patience_reached": false,
-                "max_epochs": 50
+                "max_epochs": 100
             }
         }
     ]
