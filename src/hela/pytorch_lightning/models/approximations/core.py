@@ -40,7 +40,8 @@ class LitApproximatedModel(pl.LightningModule):
         self.model_args = model_args
 
     def forward(self, *args, **kwargs) -> Any:
-        raise NotImplementedError("Implement forward method.")
+        """Forwards the input through the model."""
+        raise NotImplementedError(f"Implement forward method for {self.__class__}.")
 
     def update_model(
         self,
@@ -50,8 +51,8 @@ class LitApproximatedModel(pl.LightningModule):
         """Updates the model and the controller used for the approximation.
 
         Args:
-            new_model:
-            new_controller:
+            new_model: new model to be used for the approximation.
+            new_controller: new controller to be used for the approximation.
         """
         self.model = new_model
         self.controller = new_controller
@@ -247,7 +248,7 @@ class LitApproximatedCNN(LitApproximatedModel):
         self.train_accuracy = torchmetrics.Accuracy()
         self.val_accuracy = torchmetrics.Accuracy()
         self.test_accuracy = torchmetrics.Accuracy()
-        self.loss = torch.nn.functional.cross_entropy
+        self.loss = nn.CrossEntropyLoss()
 
     def forward(self, input: Tensor) -> Tensor:
         """Forwards the input through the model.
@@ -291,7 +292,7 @@ class LitApproximatedCNN(LitApproximatedModel):
             A tuple containing the loss value, true labels, and predicted labels.
         """
         features, true_labels = batch
-        logits = self(features)
+        logits = self.model(features)
         loss = self.loss(logits, true_labels)
         predicted_labels = torch.argmax(logits, dim=1)
 

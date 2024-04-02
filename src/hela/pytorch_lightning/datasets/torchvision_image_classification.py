@@ -14,21 +14,76 @@ from torchvision import datasets, transforms
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-torchvision_datasets = {
+TORCHVISION_DATASETS = {
     "mnist": {
         "dataset_class": datasets.MNIST,
         "train_length": 55000,
         "val_length": 5000,
+        "transform": transforms.Compose([transforms.ToTensor()]),
+        "image_size": 32,
+        "grayscale": True,
+        "num_classes": 10,
     },
     "fashion_mnist": {
         "dataset_class": datasets.FashionMNIST,
         "train_length": 55000,
         "val_length": 5000,
+        "transform": transforms.Compose([transforms.ToTensor()]),
+        "image_size": 32,
+        "grayscale": True,
+        "num_classes": 10,
     },
     "cifar10": {
         "dataset_class": datasets.CIFAR10,
         "train_length": 45000,
         "val_length": 5000,
+        "transform": transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+            ]
+        ),
+        "image_size": 32,
+        "grayscale": False,
+        "num_classes": 10,
+    },
+}
+
+DATASET_ARGS = {
+    "dataset_type": {
+        "type": str,
+        "required": False,
+        "default": "mnist",
+    },
+    "dataset_path": {
+        "type": str,
+        "required": False,
+        "default": "./",
+    },
+    "num_dataloader_workers": {
+        "type": int,
+        "required": False,
+        "default": 8,
+    },
+    "batch_size": {
+        "type": int,
+        "required": False,
+        "default": 32,
+    },
+    "image_size": {
+        "type": int,
+        "required": False,
+        "default": None,
+    },
+    "pin_memory": {
+        "type": bool,
+        "required": False,
+        "default": False,
+    },
+    "persistent_workers": {
+        "type": bool,
+        "required": False,
+        "default": False,
     },
 }
 
@@ -46,10 +101,11 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         self.dataset_args = dataset_args
 
         dataset_type = str(self.dataset_args["dataset_type"]).lower()
-        assert torchvision_datasets.get(
+        assert TORCHVISION_DATASETS.get(
             dataset_type, None
         ), "The dataset {dataset_type} is not available."
-        self.dataset = torchvision_datasets[dataset_type]
+
+        self.dataset = TORCHVISION_DATASETS[dataset_type]
 
         cpus_count = os.cpu_count()
         if cpus_count is not None:
@@ -57,26 +113,28 @@ class LitImageClassificationDataset(pl.LightningDataModule):
                 self.dataset_args["num_dataloader_workers"], cpus_count
             )
 
+        self.image_size = self.dataset_args.get("image_size")
+        if self.image_size is None:
+            self.image_size = self.dataset["image_size"]
+
     def prepare_data(self) -> None:
         """Downloads and applies the transformations to the dataset images."""
 
-        self.dataset_args["data_path"] = os.path.join(
-            self.dataset_args["data_path"], "datasets"
+        self.dataset_args["dataset_path"] = os.path.join(
+            self.dataset_args["dataset_path"], "datasets"
         )
-        if not os.path.exists(self.dataset_args["data_path"]):
-            os.mkdir(self.dataset_args["data_path"])
+        if not os.path.exists(self.dataset_args["dataset_path"]):
+            os.mkdir(self.dataset_args["dataset_path"])
 
         self.dataset["dataset_class"](
-            root=self.dataset_args["data_path"], download=True
+            root=self.dataset_args["dataset_path"], download=True
         )
 
-        # resizing and normalizing values
-        self.resize_transform = transforms.Compose(
+        # generating the values transformation
+        self.transform = transforms.Compose(
             [
-                transforms.Resize(
-                    (self.dataset_args["image_size"], self.dataset_args["image_size"])
-                ),
-                transforms.ToTensor(),
+                transforms.Resize((self.image_size, self.image_size)),
+                self.dataset["transform"],
             ]
         )
 
@@ -86,16 +144,16 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         self.prepare_data()
 
         train = self.dataset["dataset_class"](
-            root=self.dataset_args["data_path"],
+            root=self.dataset_args["dataset_path"],
             train=True,
-            transform=self.resize_transform,
+            transform=self.transform,
             download=False,
         )
 
         test = self.dataset["dataset_class"](
-            root=self.dataset_args["data_path"],
+            root=self.dataset_args["dataset_path"],
             train=False,
-            transform=self.resize_transform,
+            transform=self.transform,
             download=False,
         )
 
@@ -163,6 +221,12 @@ class LitImageClassificationDataset(pl.LightningDataModule):
             persistent_workers=self.dataset_args["persistent_workers"],
         )
 
+    def get_num_classes(self) -> int:
+        return self.dataset["num_classes"]
+
+    def is_grayscale(self) -> bool:
+        return self.dataset["grayscale"]
+
     @staticmethod
     def add_dataset_specific_args(parent_parser: ArgumentParser) -> ArgumentParser:
         """Adds arguments for the dataset to the parser.
@@ -174,19 +238,21 @@ class LitImageClassificationDataset(pl.LightningDataModule):
             updated parser.
         """
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument("--dataset_type", type=str, default="mnist")
-        parser.add_argument("--data_path", type=str, default="./")
-        parser.add_argument("--num_dataloader_workers", type=int, default=8)
-        parser.add_argument("--batch_size", type=int, default=32)
-        parser.add_argument("--image_size", type=int, default=32)
-        parser.add_argument(
-            "--pin_memory", dest="pin_memory", action="store_true", default=False
-        )
-        parser.add_argument(
-            "--persistent_workers",
-            dest="persistent_workers",
-            action="store_true",
-            default=False,
-        )
+        for arg in DATASET_ARGS:
+            arg_params = DATASET_ARGS[arg]
+            if arg_params["type"] == bool:
+                parser.add_argument(
+                    f"--{arg}",
+                    dest=arg,
+                    action="store_true",
+                    default=arg_params["default"],
+                )
+            else:
+                parser.add_argument(
+                    f"--{arg}",
+                    type=arg_params["type"],
+                    required=arg_params["required"],
+                    default=arg_params["default"],
+                )
 
         return parser

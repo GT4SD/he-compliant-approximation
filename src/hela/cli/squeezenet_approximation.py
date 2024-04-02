@@ -35,7 +35,8 @@ def main():
     test_dataloader = dataset.test_dataloader()
 
     config_args = {
-        "num_classes": vars(args)["num_classes"],
+        "version": vars(args)["model_version"],
+        "num_classes": dataset.get_num_classes(),
         "dropout": vars(args)["dropout"],
     }
 

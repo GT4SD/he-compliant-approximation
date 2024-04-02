@@ -24,6 +24,9 @@ def main():
     parser = ApproximationPipeline.add_pipeline_specific_args(parser)
     args = parser.parse_args()
 
+    if args.lenet_type == "lenet-1":
+        args.image_size = 28
+
     # building the lightning dataset
     dataset = LitImageClassificationDataset(dataset_args=vars(args))
 
@@ -34,8 +37,8 @@ def main():
 
     config_args = {
         "lenet_type": vars(args)["lenet_type"],
-        "num_classes": vars(args)["num_classes"],
-        "greyscale": vars(args)["greyscale"],
+        "num_classes": dataset.get_num_classes(),
+        "greyscale": dataset.is_grayscale(),
     }
 
     # building the pytorch model

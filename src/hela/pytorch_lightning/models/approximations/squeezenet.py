@@ -54,8 +54,7 @@ class LitApproximatedSqueezeNet(LitApproximatedCNN):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 
         # model configuration arguments
-        parser.add_argument("--version", type=str, default="1_0")
-        parser.add_argument("--num_classes", type=int, default=10)
+        parser.add_argument("--model_version", type=str, default="1_0")
         parser.add_argument("--dropout", type=float, default=0.5)
 
         return parser
