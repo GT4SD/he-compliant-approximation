@@ -11,6 +11,7 @@ from hela.pytorch_lightning.models.approximations.vanilla_transformer import (
 
 PIPELINE_STEPS_FILE = "./pipeline_steps/vanilla_transformer/without_approximations.json"
 
+
 def test_init_approximation_pipeline():
     """Tests the initialization of an approximation pipeline."""
     with tempfile.TemporaryDirectory() as tmpdirname:

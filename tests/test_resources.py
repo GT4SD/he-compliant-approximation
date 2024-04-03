@@ -250,9 +250,7 @@ def test_load_pipeline_steps():
 def test_save_pipeline_steps():
     """Tests the saving of the pipeline steps data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        pipeline_steps = load_pipeline_steps(
-            PIPELINE_STEPS_FILE
-        )
+        pipeline_steps = load_pipeline_steps(PIPELINE_STEPS_FILE)
         save_pipeline_steps(pipeline_steps, tmpdirname)
 
         # ASSERTS
@@ -268,9 +266,7 @@ def test_save_pipeline_steps():
 def test_load_saved_pipeline_steps():
     """Tests the loading of the saved pipeline steps data structure."""
     with tempfile.TemporaryDirectory() as tmpdirname:
-        pipeline_steps = load_pipeline_steps(
-            PIPELINE_STEPS_FILE
-        )
+        pipeline_steps = load_pipeline_steps(PIPELINE_STEPS_FILE)
         save_pipeline_steps(pipeline_steps, tmpdirname)
         with open(
             os.path.join(tmpdirname, "pipeline_steps.json")
@@ -278,9 +274,7 @@ def test_load_saved_pipeline_steps():
             saved_pipeline_steps = PipelineSteps.model_validate(
                 json.load(saved_pipeline_steps_file)
             )
-        with open(
-            PIPELINE_STEPS_FILE
-        ) as resource_pipeline_steps_file:
+        with open(PIPELINE_STEPS_FILE) as resource_pipeline_steps_file:
             resource_pipeline_steps = PipelineSteps.model_validate(
                 json.load(resource_pipeline_steps_file)
             )
