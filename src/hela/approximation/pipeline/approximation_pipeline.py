@@ -134,19 +134,7 @@ class ApproximationPipeline(Pipeline):
             ckpt_dir_path, sorted(os.listdir(ckpt_dir_path), reverse=True)[-1]
         )
 
-        checkpoint = torch.load(self.model_ckpt)
-        model_weights = checkpoint["state_dict"]
-
-        # updating the keys by dropping `model.`
-        for key in list(model_weights):
-            model_weights[key.replace("model.", "")] = model_weights.pop(key)
-
-        # self.model.load_state_dict(model_weights)
-        for key in list(model_weights):
-            value = self.model
-            for attr in key.split(".")[:-1]:
-                value = getattr(value, attr)
-            value.data = model_weights.pop(key)
+        self._load_model_state_dict_from_ckpt()
 
         print(
             f"Restoring weights states from the BEST model checkpoint at {self.model_ckpt}"
@@ -192,19 +180,8 @@ class ApproximationPipeline(Pipeline):
                     f"Attempted to load a checkpoint for step {self.current_step} in experiment {self.experiment_ckpt} but it does not exists. Please check the folder of the experiment to continue the training."
                 )
 
-            checkpoint = torch.load(self.model_ckpt)
-            model_weights = checkpoint["state_dict"]
+            self._load_model_state_dict_from_ckpt()
 
-            # updating the state_dict keys by dropping `model.`
-            for key in list(model_weights):
-                model_weights[key.replace("model.", "")] = model_weights.pop(key)
-
-            # self.model.load_state_dict(model_weights)
-            for key in list(model_weights):
-                value = self.model
-                for attr in key.split(".")[:-1]:
-                    value = getattr(value, attr)
-                value.data = model_weights.pop(key)
             print(f"Restoring weights states from the checkpoint at {self.model_ckpt}")
 
     def _get_default_model_checkpoint_callback(self) -> List[Callback]:
@@ -609,12 +586,24 @@ class ApproximationPipeline(Pipeline):
                 f"The checkpoint directory at {ckpt_dir_path} does not exist."
             )
 
-        self.lightning_model = (self.lightning_model.__class__).load_from_checkpoint(
-            self.model_ckpt,
-            model=self.model,
-            controller=self.controller,
-            model_args=self.trainer_args,
-        )
+        self._load_model_state_dict_from_ckpt()
+
         print(
             f"Restoring weights and hyperparameters states from the checkpoint path at {self.model_ckpt}"
         )
+
+    def _load_model_state_dict_from_ckpt(self) -> None:
+        """Loads the model parameters from a checkpoint."""
+        checkpoint = torch.load(self.model_ckpt)
+        model_weights = checkpoint["state_dict"]
+
+        # updating the keys by dropping `model.`
+        for key in list(model_weights):
+            model_weights[key.replace("model.", "")] = model_weights.pop(key)
+
+        # self.model.load_state_dict(model_weights)
+        for key in list(model_weights):
+            value = self.model
+            for attr in key.split("."):
+                value = getattr(value, attr)
+            value.data = model_weights.pop(key)
