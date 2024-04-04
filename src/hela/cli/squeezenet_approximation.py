@@ -27,7 +27,15 @@ def main():
     args = parser.parse_args()
 
     # building the lightning dataset
-    dataset = LitImageClassificationDataset(dataset_args=vars(args))
+    dataset = LitImageClassificationDataset(
+        dataset_name=args.dataset_name,
+        dataset_name=args.dataset_name,
+        batch_size=args.batch_size,
+        image_size=args.image_size,
+        num_dataloader_workers=args.num_dataloader_workers,
+        pin_memory=args.pin_memory,
+        persistent_workers=args.persistent_workers,
+    )
 
     dataset.load()
     train_dataloader = dataset.train_dataloader()

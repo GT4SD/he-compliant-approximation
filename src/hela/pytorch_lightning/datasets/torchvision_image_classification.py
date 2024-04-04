@@ -3,7 +3,6 @@
 import logging
 import os
 from argparse import ArgumentParser
-from typing import Any, Dict
 
 import pytorch_lightning as pl
 import torch
@@ -50,7 +49,7 @@ TORCHVISION_DATASETS = {
 }
 
 DATASET_ARGS = {
-    "dataset_type": {
+    "dataset_name": {
         "type": str,
         "required": False,
         "default": "mnist",
@@ -60,20 +59,20 @@ DATASET_ARGS = {
         "required": False,
         "default": "./",
     },
-    "num_dataloader_workers": {
+    "image_size": {
         "type": int,
         "required": False,
-        "default": 8,
+        "default": None,
     },
     "batch_size": {
         "type": int,
         "required": False,
         "default": 32,
     },
-    "image_size": {
+    "num_dataloader_workers": {
         "type": int,
         "required": False,
-        "default": None,
+        "default": 8,
     },
     "pin_memory": {
         "type": bool,
@@ -90,45 +89,58 @@ DATASET_ARGS = {
 
 class LitImageClassificationDataset(pl.LightningDataModule):
 
-    def __init__(self, dataset_args: Dict[str, Any]) -> None:
+    def __init__(
+        self,
+        dataset_name: str = "mnist",
+        dataset_path: str = "./",
+        image_size: int = None,
+        batch_size: int = 32,
+        num_dataloader_workers: int = 8,
+        pin_memory: bool = False,
+        persistent_workers: bool = False,
+    ) -> None:
         """Initializes the data module.
 
         Args:
-            dataset_args: dictionary containing the arguments for the lightning data module creation.
+            dataset_name: dataset type to be used from TORCHVISION_DATASETS. Defaults to "mnist".
+            dataset_path: path to the dataset. Defaults to "./".
+            image_size: size of the images. Defaults to None.
+            batch_size: batch size. Defaults to 32.
+            num_dataloader_workers: number of workers for the dataloader. Defaults to 8.
+            pin_memory: whether to pin memory or not. Defaults to False.
+            persistent_workers: whether to keep the workers alive or not. Defaults to False.
         """
         super().__init__()
 
-        self.dataset_args = dataset_args
-
-        dataset_type = str(self.dataset_args["dataset_type"]).lower()
+        dataset_name = str(dataset_name).lower()
         assert TORCHVISION_DATASETS.get(
-            dataset_type, None
-        ), "The dataset {dataset_type} is not available."
+            dataset_name, None
+        ), "The dataset {dataset_name} is not available."
 
-        self.dataset = TORCHVISION_DATASETS[dataset_type]
+        self.dataset = TORCHVISION_DATASETS[dataset_name]
+        self.dataset_path = dataset_path
+        self.batch_size = batch_size
+        self.pin_memory = pin_memory
+        self.persistent_workers = persistent_workers
 
         cpus_count = os.cpu_count()
         if cpus_count is not None:
-            self.dataset_args["num_dataloader_workers"] = min(
-                self.dataset_args["num_dataloader_workers"], cpus_count
-            )
+            self.num_dataloader_workers = min(num_dataloader_workers, cpus_count)
+        else:
+            self.num_dataloader_workers = num_dataloader_workers
 
-        self.image_size = self.dataset_args.get("image_size")
+        self.image_size = image_size
         if self.image_size is None:
             self.image_size = self.dataset["image_size"]
 
     def prepare_data(self) -> None:
         """Downloads and applies the transformations to the dataset images."""
 
-        self.dataset_args["dataset_path"] = os.path.join(
-            self.dataset_args["dataset_path"], "datasets"
-        )
-        if not os.path.exists(self.dataset_args["dataset_path"]):
-            os.mkdir(self.dataset_args["dataset_path"])
+        self.dataset_path = os.path.join(self.dataset_path, "datasets")
+        if not os.path.exists(self.dataset_path):
+            os.mkdir(self.dataset_path)
 
-        self.dataset["dataset_class"](
-            root=self.dataset_args["dataset_path"], download=True
-        )
+        self.dataset["dataset_class"](root=self.dataset_path, download=True)
 
         # generating the values transformation
         self.transform = transforms.Compose(
@@ -144,14 +156,14 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         self.prepare_data()
 
         train = self.dataset["dataset_class"](
-            root=self.dataset_args["dataset_path"],
+            root=self.dataset_path,
             train=True,
             transform=self.transform,
             download=False,
         )
 
         test = self.dataset["dataset_class"](
-            root=self.dataset_args["dataset_path"],
+            root=self.dataset_path,
             train=False,
             transform=self.transform,
             download=False,
@@ -181,12 +193,12 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         """
         return DataLoader(
             dataset=self.datasets["train"],
-            batch_size=self.dataset_args["batch_size"],
+            batch_size=self.batch_size,
             drop_last=True,
             shuffle=True,
-            num_workers=self.dataset_args["num_dataloader_workers"],
-            pin_memory=self.dataset_args["pin_memory"],
-            persistent_workers=self.dataset_args["persistent_workers"],
+            num_workers=self.num_dataloader_workers,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -197,12 +209,12 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         """
         return DataLoader(
             dataset=self.datasets["validation"],
-            batch_size=self.dataset_args["batch_size"],
+            batch_size=self.batch_size,
             drop_last=False,
             shuffle=False,
-            num_workers=self.dataset_args["num_dataloader_workers"],
-            pin_memory=self.dataset_args["pin_memory"],
-            persistent_workers=self.dataset_args["persistent_workers"],
+            num_workers=self.num_dataloader_workers,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers,
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -213,12 +225,12 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         """
         return DataLoader(
             dataset=self.datasets["test"],
-            batch_size=self.dataset_args["batch_size"],
+            batch_size=self.batch_size,
             drop_last=False,
             shuffle=False,
-            num_workers=self.dataset_args["num_dataloader_workers"],
-            pin_memory=self.dataset_args["pin_memory"],
-            persistent_workers=self.dataset_args["persistent_workers"],
+            num_workers=self.num_dataloader_workers,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.persistent_workers,
         )
 
     def get_num_classes(self) -> int:
