@@ -18,7 +18,12 @@ TORCHVISION_DATASETS = {
         "dataset_class": datasets.MNIST,
         "train_length": 55000,
         "val_length": 5000,
-        "transform": transforms.Compose([transforms.ToTensor()]),
+        "transform_train": transforms.Compose(
+            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+        ),
+        "transform_test": transforms.Compose(
+            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+        ),
         "image_size": 32,
         "grayscale": True,
         "num_classes": 10,
@@ -27,7 +32,12 @@ TORCHVISION_DATASETS = {
         "dataset_class": datasets.FashionMNIST,
         "train_length": 55000,
         "val_length": 5000,
-        "transform": transforms.Compose([transforms.ToTensor()]),
+        "transform_train": transforms.Compose(
+            [transforms.ToTensor(), transforms.Normalize((0.2860,), (0.3530,))]
+        ),
+        "transform_test": transforms.Compose(
+            [transforms.ToTensor(), transforms.Normalize((0.2860,), (0.3530,))]
+        ),
         "image_size": 32,
         "grayscale": True,
         "num_classes": 10,
@@ -36,10 +46,21 @@ TORCHVISION_DATASETS = {
         "dataset_class": datasets.CIFAR10,
         "train_length": 45000,
         "val_length": 5000,
-        "transform": transforms.Compose(
+        "transform_train": transforms.Compose(
+            [
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    (0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)
+                ),
+            ]
+        ),
+        "transform_test": transforms.Compose(
             [
                 transforms.ToTensor(),
-                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+                transforms.Normalize(
+                    (0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)
+                ),
             ]
         ),
         "image_size": 32,
@@ -98,6 +119,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         num_dataloader_workers: int = 8,
         pin_memory: bool = False,
         persistent_workers: bool = False,
+        transform_train: transforms.Compose = None,
+        transform_test: transforms.Compose = None,
     ) -> None:
         """Initializes the data module.
 
@@ -109,6 +132,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
             num_dataloader_workers: number of workers for the dataloader. Defaults to 8.
             pin_memory: whether to pin memory or not. Defaults to False.
             persistent_workers: whether to keep the workers alive or not. Defaults to False.
+            transform_train: transformations to be applied to the training dataset. Defaults to None.
+            transform_test: transformations to be applied to the test dataset. Defaults to None.
         """
         super().__init__()
 
@@ -122,6 +147,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         self.batch_size = batch_size
         self.pin_memory = pin_memory
         self.persistent_workers = persistent_workers
+        self.transform_train = transform_train
+        self.transform_test = transform_test
 
         cpus_count = os.cpu_count()
         if cpus_count is not None:
@@ -142,13 +169,22 @@ class LitImageClassificationDataset(pl.LightningDataModule):
 
         self.dataset["dataset_class"](root=self.dataset_path, download=True)
 
-        # generating the values transformation
-        self.transform = transforms.Compose(
-            [
-                transforms.Resize((self.image_size, self.image_size)),
-                self.dataset["transform"],
-            ]
-        )
+        # generating the values transformation if not provided
+        if self.transform_train is None:
+            self.transform_train = transforms.Compose(
+                [
+                    transforms.Resize((self.image_size, self.image_size)),
+                    self.dataset["transform_train"],
+                ]
+            )
+
+        if self.transform_test is None:
+            self.transform_test = transforms.Compose(
+                [
+                    transforms.Resize((self.image_size, self.image_size)),
+                    self.dataset["transform_test"],
+                ]
+            )
 
     def load(self) -> None:
         """Loads train, validation and test datasets."""
@@ -158,14 +194,14 @@ class LitImageClassificationDataset(pl.LightningDataModule):
         train = self.dataset["dataset_class"](
             root=self.dataset_path,
             train=True,
-            transform=self.transform,
+            transform=self.transform_train,
             download=False,
         )
 
         test = self.dataset["dataset_class"](
             root=self.dataset_path,
             train=False,
-            transform=self.transform,
+            transform=self.transform_test,
             download=False,
         )
 
