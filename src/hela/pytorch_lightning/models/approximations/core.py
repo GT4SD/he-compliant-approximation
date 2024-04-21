@@ -81,19 +81,28 @@ class LitApproximatedModel(pl.LightningModule):
         """
         raise NotImplementedError("Implement configure_optimizers method.")
 
-    def _perform_approximators_on_train_epoch_start(self) -> None:
+    def _approximators_on_train_epoch_start(self) -> None:
         if not self.controller.to_approximate.modules_set == set():
             for approximator in set(self.controller.approximators.values()):
                 if approximator.is_approximation_trainable:
                     approximator.on_train_epoch_start(epoch=self.current_epoch)
 
     def on_train_epoch_start(self) -> None:
-        self._perform_approximators_on_train_epoch_start()
+        self._approximators_on_train_epoch_start()
 
     def training_step(self, *args, **kwargs) -> Union[Tensor, Dict[str, Any]]:
         raise NotImplementedError("Implement training_step method.")
+    
+    def _trainable_approximations_training_step_loss_computation(self, loss: Tensor) -> Tensor:
+        if not self.controller.to_approximate.modules_set == set():
+            for approximator in set(self.controller.approximators.values()):
+                if approximator.is_approximation_trainable:
+                    loss = approximator.training_step_loss(
+                        loss=loss, lightning_model=self
+                    )
+        return loss
 
-    def _perform_approximators_on_train_epoch_end(self) -> None:
+    def _approximators_on_train_epoch_end(self) -> None:
         if not self.controller.to_approximate.modules_set == set():
             for approximator in set(self.controller.approximators.values()):
                 if approximator.is_approximation_trainable:
@@ -102,7 +111,7 @@ class LitApproximatedModel(pl.LightningModule):
                     )
 
     def on_train_epoch_end(self) -> None:
-        self._perform_approximators_on_train_epoch_end()
+        self._approximators_on_train_epoch_end()
 
     def validation_step(
         self, *args, **kwargs
@@ -172,12 +181,7 @@ class LitApproximatedTransformer(LitApproximatedModel):
         """
         loss = self.model(**batch).loss  # type:ignore
 
-        if not self.controller.to_approximate.modules_set == set():
-            for approximator in set(self.controller.approximators.values()):
-                if approximator.is_approximation_trainable:
-                    loss = approximator.training_step_loss(
-                        loss=loss, lightning_model=self
-                    )
+        loss = self._trainable_approximations_training_step_loss_computation(loss=loss)
 
         self.log("train_loss", loss)
         return loss
@@ -194,6 +198,10 @@ class LitApproximatedTransformer(LitApproximatedModel):
             loss computed on the batch.
         """
         loss = self.model(**batch).loss  # type:ignore
+
+        # TODO: should I add the loss value of the approximations to the validation step?
+        # maybe the approximation should have a flag that tells if shoud do something with the loss value during the validation step
+
         self.log("val_loss", loss, prog_bar=True)
 
         return {"val_loss": loss}
@@ -319,13 +327,8 @@ class LitApproximatedCNN(LitApproximatedModel):
         self.log("train_accuracy", self.train_accuracy, on_epoch=True, on_step=False)
         self.model.train()
 
-        if not self.controller.to_approximate.modules_set == set():
-            for approximator in set(self.controller.approximators.values()):
-                if approximator.is_approximation_trainable:
-                    loss = approximator.training_step_loss(
-                        loss=loss, lightning_model=self
-                    )
-
+        
+        loss = self._trainable_approximations_training_step_loss_computation(loss=loss)
         self.log("train_loss", loss)
 
         return loss
