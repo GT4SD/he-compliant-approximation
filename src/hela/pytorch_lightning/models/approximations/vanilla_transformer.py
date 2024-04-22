@@ -8,14 +8,14 @@ import torch
 from torch import Tensor
 
 from ....approximation.controller import ModelApproximationController
-from ...models.vanilla_transformer.model import VanillaTransformer
-from .core import LitApproximatedTransformer
+from ....models.vanilla_transformer.model import VanillaTransformer
+from .language_model_for_generation import LitApproximatedLanguageModelForGeneration
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class LitApproximatedVanillaTransformer(LitApproximatedTransformer):
+class LitApproximatedVanillaTransformer(LitApproximatedLanguageModelForGeneration):
     """Pytorch lightning model for the approximated VanillaTransformer."""
 
     def __init__(

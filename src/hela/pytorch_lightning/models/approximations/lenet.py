@@ -9,7 +9,7 @@ from torchmetrics.classification import MulticlassAccuracy
 
 from ....approximation.controller import ModelApproximationController
 from ....models.lenet.model import LeNet
-from .core import LitApproximatedVisionModelForClassification
+from .vision_model_for_classification import LitApproximatedVisionModelForClassification
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())

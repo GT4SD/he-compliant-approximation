@@ -6,7 +6,7 @@ from typing import Dict, Union
 
 from ....approximation.controller import ModelApproximationController
 from ....models.squeezenet.model import SqueezeNet
-from .core import LitApproximatedVisionModelForClassification
+from .vision_model_for_classification import LitApproximatedVisionModelForClassification
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
