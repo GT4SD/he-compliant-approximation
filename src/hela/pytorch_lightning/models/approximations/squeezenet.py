@@ -6,13 +6,13 @@ from typing import Dict, Union
 
 from ....approximation.controller import ModelApproximationController
 from ....models.squeezenet.model import SqueezeNet
-from .core import LitApproximatedCNN
+from .core import LitApproximatedVisionModelForClassification
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class LitApproximatedSqueezeNet(LitApproximatedCNN):
+class LitApproximatedSqueezeNet(LitApproximatedVisionModelForClassification):
     """Pytorch lightning model for the approximated SqueezeNet."""
 
     def __init__(
@@ -48,8 +48,10 @@ class LitApproximatedSqueezeNet(LitApproximatedCNN):
         Returns:
             updated parser.
         """
-        parent_parser = LitApproximatedCNN.add_model_specific_args(
-            parent_parser=parent_parser
+        parent_parser = (
+            LitApproximatedVisionModelForClassification.add_model_specific_args(
+                parent_parser=parent_parser
+            )
         )
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 

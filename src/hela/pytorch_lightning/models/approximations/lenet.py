@@ -4,15 +4,18 @@ import logging
 from argparse import ArgumentParser
 from typing import Dict, Union
 
+from torchmetrics import MetricCollection
+from torchmetrics.classification import MulticlassAccuracy
+
 from ....approximation.controller import ModelApproximationController
 from ....models.lenet.model import LeNet
-from .core import LitApproximatedCNN
+from .core import LitApproximatedVisionModelForClassification
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class LitApproximatedLeNet(LitApproximatedCNN):
+class LitApproximatedLeNet(LitApproximatedVisionModelForClassification):
     """Pytorch lightning model for the approximated LeNet."""
 
     def __init__(
@@ -20,6 +23,8 @@ class LitApproximatedLeNet(LitApproximatedCNN):
         model: LeNet,
         controller: ModelApproximationController,
         model_args: Dict[str, Union[float, int, str]],
+        metrics=MetricCollection([MulticlassAccuracy(num_classes=10)]),
+        **kwargs,
     ) -> None:
         """Construct a LeNet lightning module.
 
@@ -36,6 +41,8 @@ class LitApproximatedLeNet(LitApproximatedCNN):
             model=model,
             controller=controller,
             model_args=model_args,
+            metrics=metrics,
+            **kwargs,
         )
 
     @staticmethod
@@ -48,8 +55,10 @@ class LitApproximatedLeNet(LitApproximatedCNN):
         Returns:
             updated parser.
         """
-        parent_parser = LitApproximatedCNN.add_model_specific_args(
-            parent_parser=parent_parser
+        parent_parser = (
+            LitApproximatedVisionModelForClassification.add_model_specific_args(
+                parent_parser=parent_parser
+            )
         )
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
 

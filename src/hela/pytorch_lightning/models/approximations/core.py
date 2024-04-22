@@ -7,9 +7,10 @@ from typing import Any, Dict, Optional, Tuple, Union
 import pytorch_lightning as pl
 import torch
 import torch.optim as optim
-import torchmetrics
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
+from torchmetrics import MetricCollection
+from torchmetrics.classification import MulticlassAccuracy
 
 from ....approximation.controller import ModelApproximationController
 
@@ -25,6 +26,7 @@ class LitApproximatedModel(pl.LightningModule):
         model: nn.Module,
         controller: ModelApproximationController,
         model_args: Dict[str, Union[float, int, str]],
+        **kwargs,
     ) -> None:
         """Constructs the lightning module for approximated models.
 
@@ -33,7 +35,7 @@ class LitApproximatedModel(pl.LightningModule):
             controller:
             model_args:
         """
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.model = model
         self.controller = controller
@@ -92,7 +94,7 @@ class LitApproximatedModel(pl.LightningModule):
 
     def training_step(self, *args, **kwargs) -> Union[Tensor, Dict[str, Any]]:
         raise NotImplementedError("Implement training_step method.")
-    
+
     def _trainable_approximations_training_step_loss_computation(self, loss: Tensor) -> Tensor:
         if not self.controller.to_approximate.modules_set == set():
             for approximator in set(self.controller.approximators.values()):
@@ -231,7 +233,7 @@ class LitApproximatedTransformer(LitApproximatedModel):
         return parser
 
 
-class LitApproximatedCNN(LitApproximatedModel):
+class LitApproximatedVisionModelForClassification(LitApproximatedModel):
     """Pytorch lightning model for the approximated CNN."""
 
     def __init__(
@@ -239,6 +241,10 @@ class LitApproximatedCNN(LitApproximatedModel):
         model: nn.Module,
         controller: ModelApproximationController,
         model_args: Dict[str, Union[float, int, str]],
+        metrics: MetricCollection = MetricCollection(
+            [MulticlassAccuracy(num_classes=10)]
+        ),
+        **kwargs,
     ) -> None:
         """Construct a CNN lightning module.
 
@@ -252,11 +258,12 @@ class LitApproximatedCNN(LitApproximatedModel):
             model=model,
             controller=controller,
             model_args=model_args,
+            **kwargs,
         )
-        self.train_accuracy = torchmetrics.Accuracy()
-        self.val_accuracy = torchmetrics.Accuracy()
-        self.test_accuracy = torchmetrics.Accuracy()
         self.loss = nn.CrossEntropyLoss()
+        self.train_metrics = metrics.clone(prefix="train_")
+        self.valid_metrics = metrics.clone(prefix="valid_")
+        self.test_metrics = metrics.clone(prefix="test_")
 
     def forward(self, input: Tensor) -> Tensor:
         """Forwards the input through the model.
@@ -302,9 +309,8 @@ class LitApproximatedCNN(LitApproximatedModel):
         features, true_labels = batch
         logits = self.model(features)
         loss = self.loss(logits, true_labels)
-        predicted_labels = torch.argmax(logits, dim=1)
 
-        return loss, true_labels, predicted_labels
+        return loss, true_labels, logits
 
     def training_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> Tensor:
         """Training step which encompasses the forward pass and the computation of the loss value.
@@ -317,17 +323,18 @@ class LitApproximatedCNN(LitApproximatedModel):
             loss computed on the batch.
         """
 
-        loss, true_labels, predicted_labels = self._compute_loss(batch)
+        loss, true_labels, logits = self._compute_loss(batch)
 
         # to account for Dropout behavior during evaluation
         self.model.eval()
         with torch.no_grad():
-            _, true_labels, predicted_labels = self._compute_loss(batch)
-        self.train_accuracy.update(predicted_labels, true_labels)
-        self.log("train_accuracy", self.train_accuracy, on_epoch=True, on_step=False)
+            features, true_labels = batch
+            logits = self.model(features)
         self.model.train()
 
-        
+        output = self.train_metrics(logits, true_labels)
+        self.log_dict(output, on_epoch=True, on_step=True)
+
         loss = self._trainable_approximations_training_step_loss_computation(loss=loss)
         self.log("train_loss", loss)
 
@@ -335,7 +342,7 @@ class LitApproximatedCNN(LitApproximatedModel):
 
     def validation_step(
         self, batch: Tuple[Tensor, Tensor], batch_idx: int
-    ) -> Dict[str, Union[Tensor, torchmetrics.Accuracy]]:
+    ) -> Dict[str, Tensor]:
         """Validation step which encompasses the forward pass and the computation of the accuracy and the loss value.
 
         Args:
@@ -345,18 +352,12 @@ class LitApproximatedCNN(LitApproximatedModel):
         Returns:
             accuracy and loss computed on the batch.
         """
-        loss, true_labels, predicted_labels = self._compute_loss(batch)
+        loss, true_labels, logits = self._compute_loss(batch)
 
-        self.val_accuracy(predicted_labels, true_labels)
-        self.log(
-            "val_accuracy",
-            self.val_accuracy,
-            on_epoch=True,
-            on_step=False,
-            prog_bar=True,
-        )
+        output = self.valid_metrics(logits, true_labels)
+        self.log_dict(output, on_epoch=True, on_step=False)
 
-        return {"val_loss": loss, "val_accuracy": self.val_accuracy}
+        return {"val_loss": loss}
 
     def test_step(self, batch: Tuple[Tensor, Tensor], batch_idx: int) -> None:
         """Test step which encompasses the forward pass and the computation of the accuracy and the loss value.
@@ -368,18 +369,10 @@ class LitApproximatedCNN(LitApproximatedModel):
         Returns:
             accuracy computed on the batch.
         """
-        loss, true_labels, predicted_labels = self._compute_loss(batch)
+        _, true_labels, logits = self._compute_loss(batch)
 
-        self.test_accuracy(predicted_labels, true_labels)
-        self.log("test_accuracy", self.test_accuracy, on_epoch=True, on_step=False)
-
-    def on_test_epoch_end(self) -> None:
-        # definition of the test accuracy value for the creation of result.json
-        # NOTE: this is needed otherwise the self.test_accuracy.compute() performed in
-        #       return_results_metrics would raise an error having the update history
-        #       clear.
-        self.test_accuracy_value = float(self.test_accuracy.compute().cpu().numpy())
-        return super().on_test_epoch_end()
+        output = self.test_metrics(logits, true_labels)
+        self.log_dict(output, on_epoch=True, on_step=False)
 
     def return_results_metrics(self, **kwargs: Dict[str, Any]) -> Dict[str, float]:
         """Returns the evaluation metrics.
@@ -390,7 +383,10 @@ class LitApproximatedCNN(LitApproximatedModel):
         Returns:
             A dictionary containing the test accuracy.
         """
-        return {"test_accuracy": self.test_accuracy_value}
+        results = self.test_metrics.compute()
+        for key, metric in results.items():
+            results[key] = float(metric.cpu().numpy())
+        return results
 
     @staticmethod
     def add_model_specific_args(parent_parser: ArgumentParser) -> ArgumentParser:
