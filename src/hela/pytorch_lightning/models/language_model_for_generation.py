@@ -15,7 +15,7 @@ logger.addHandler(logging.NullHandler())
 
 
 class LitApproximatedLanguageModelForGeneration(LitApproximatedModel):
-    """Pytorch lightning module for the approximation of a transformer model."""
+    """Approximated language model for generation tasks."""
 
     def configure_optimizers(
         self,

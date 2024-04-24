@@ -10,7 +10,7 @@ from torch.optim.optimizer import Optimizer
 from torchmetrics import MetricCollection
 from torchmetrics.classification import MulticlassAccuracy
 
-from ....approximation.controller import ModelApproximationController
+from ...approximation.controller import ModelApproximationController
 from .core import LitApproximatedModel
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger.addHandler(logging.NullHandler())
 
 
 class LitApproximatedVisionModelForClassification(LitApproximatedModel):
-    """Pytorch lightning model for the approximated CNN."""
+    """Approximated vision model for classification tasks."""
 
     def __init__(
         self,
@@ -183,11 +183,9 @@ class LitApproximatedVisionModelForClassification(LitApproximatedModel):
             updated parser.
         """
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        group = parser.add_argument_group("vision_model_for_classification")
 
         # default optimizer configuration arguments
-        parser.add_argument("--learning_rate", type=float, default=0.0001)
-        # pretrained model loading arguments
-        parser.add_argument("--model_name_or_path", type=str, default=None)
-        parser.add_argument("--model_config_name", type=str, default=None)
+        group.add_argument("--learning_rate", type=float, default=0.0001)
 
         return parser

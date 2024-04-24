@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
 
-from ....approximation.controller import ModelApproximationController
+from ...approximation.controller import ModelApproximationController
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())

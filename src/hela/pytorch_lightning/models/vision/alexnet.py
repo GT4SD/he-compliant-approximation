@@ -1,4 +1,4 @@
-"""Pytorch Lightning implementation for approximated LeNet."""
+"""Pytorch Lightning implementation for approximated AlexNet."""
 
 import logging
 from argparse import ArgumentParser
@@ -8,33 +8,35 @@ from torchmetrics import MetricCollection
 from torchmetrics.classification import MulticlassAccuracy
 
 from ....approximation.controller import ModelApproximationController
-from ....models.lenet.model import LeNet
-from .vision_model_for_classification import LitApproximatedVisionModelForClassification
+from ....models.alexnet.model import AlexNet
+from ..vision_model_for_classification import (
+    LitApproximatedVisionModelForClassification,
+)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class LitApproximatedLeNet(LitApproximatedVisionModelForClassification):
-    """Pytorch lightning model for the approximated LeNet."""
+class LitApproximatedAlexNet(LitApproximatedVisionModelForClassification):
+    """Pytorch lightning model for the approximated AlexNet."""
 
     def __init__(
         self,
-        model: LeNet,
+        model: AlexNet,
         controller: ModelApproximationController,
         model_args: Dict[str, Union[float, int, str]],
         metrics=MetricCollection([MulticlassAccuracy(num_classes=10)]),
         **kwargs,
     ) -> None:
-        """Construct a LeNet lightning module.
+        """Construct a AlexNet lightning module.
 
         Args:
             model_args: model's arguments.
         """
 
-        if not isinstance(model, LeNet):
+        if not isinstance(model, AlexNet):
             raise TypeError(
-                f"The model you are trying to approximate is not of class '{LeNet}'. Build a specific PyTorch lightning model inheriting from 'LitApproximatedModel'."
+                f"The model you are trying to approximate is not of class '{AlexNet}'. Build a specific PyTorch lightning model inheriting from 'LitApproximatedModel'."
             )
 
         super().__init__(
@@ -64,6 +66,6 @@ class LitApproximatedLeNet(LitApproximatedVisionModelForClassification):
         group = parser.add_argument_group("model_config_args")
 
         # model configuration arguments
-        group.add_argument("--lenet_type", type=str, default="lenet-5")
+        group.add_argument("--dropout", type=float, default=0.5)
 
         return parser

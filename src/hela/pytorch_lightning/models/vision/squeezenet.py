@@ -1,48 +1,43 @@
-"""Pytorch Lightning implementation for approximated AlexNet."""
+"""Pytorch Lightning implementation for approximated SqueezeNet."""
 
 import logging
 from argparse import ArgumentParser
 from typing import Dict, Union
 
-from torchmetrics import MetricCollection
-from torchmetrics.classification import MulticlassAccuracy
-
 from ....approximation.controller import ModelApproximationController
-from ....models.alexnet.model import AlexNet
-from .vision_model_for_classification import LitApproximatedVisionModelForClassification
+from ....models.squeezenet.model import SqueezeNet
+from ..vision_model_for_classification import (
+    LitApproximatedVisionModelForClassification,
+)
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-class LitApproximatedAlexNet(LitApproximatedVisionModelForClassification):
-    """Pytorch lightning model for the approximated AlexNet."""
+class LitApproximatedSqueezeNet(LitApproximatedVisionModelForClassification):
+    """Pytorch lightning model for the approximated SqueezeNet."""
 
     def __init__(
         self,
-        model: AlexNet,
+        model: SqueezeNet,
         controller: ModelApproximationController,
         model_args: Dict[str, Union[float, int, str]],
-        metrics=MetricCollection([MulticlassAccuracy(num_classes=10)]),
-        **kwargs,
     ) -> None:
-        """Construct a AlexNet lightning module.
+        """Construct a SqueezeNet lightning module.
 
         Args:
             model_args: model's arguments.
         """
 
-        if not isinstance(model, AlexNet):
+        if not isinstance(model, SqueezeNet):
             raise TypeError(
-                f"The model you are trying to approximate is not of class '{AlexNet}'. Build a specific PyTorch lightning model inheriting from 'LitApproximatedModel'."
+                f"The model you are trying to approximate is not of class '{SqueezeNet}'. Build a specific PyTorch lightning model inheriting from 'LitApproximatedModel'."
             )
 
         super().__init__(
             model=model,
             controller=controller,
             model_args=model_args,
-            metrics=metrics,
-            **kwargs,
         )
 
     @staticmethod
@@ -64,6 +59,7 @@ class LitApproximatedAlexNet(LitApproximatedVisionModelForClassification):
         group = parser.add_argument_group("model_config_args")
 
         # model configuration arguments
+        group.add_argument("--model_version", type=str, default="1_0")
         group.add_argument("--dropout", type=float, default=0.5)
 
         return parser

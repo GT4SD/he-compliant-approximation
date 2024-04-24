@@ -11,7 +11,7 @@ import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch import nn
 
-from ...pytorch_lightning.models.approximations.core import LitApproximatedModel
+from ...pytorch_lightning.models.core import LitApproximatedModel
 from ..aliases import ALIASES_FILE, save_modules_aliases
 from ..controller import ModelApproximationController
 from ..module_to_approximate import ModuleToApproximate

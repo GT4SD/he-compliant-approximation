@@ -11,7 +11,7 @@ from ..models.tokenizers.smiles import SmilesTokenizer
 from ..models.vanilla_transformer.configuration import VanillaTransformerConfig
 from ..models.vanilla_transformer.model import VanillaTransformer
 from ..pytorch_lightning.datasets.smiles import LitSmilesDataset
-from ..pytorch_lightning.models.approximations.vanilla_transformer import (
+from ..pytorch_lightning.models.language.vanilla_transformer import (
     LitApproximatedVanillaTransformer,
 )
 

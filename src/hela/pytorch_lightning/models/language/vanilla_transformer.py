@@ -9,7 +9,7 @@ from torch import Tensor
 
 from ....approximation.controller import ModelApproximationController
 from ....models.vanilla_transformer.model import VanillaTransformer
-from .language_model_for_generation import LitApproximatedLanguageModelForGeneration
+from ..language_model_for_generation import LitApproximatedLanguageModelForGeneration
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -83,6 +83,10 @@ class LitApproximatedVanillaTransformer(LitApproximatedLanguageModelForGeneratio
         self.log("val_accuracy", accuracy)
 
         return {"val_loss": loss, "val_accuracy": accuracy}
+
+    def on_test_epoch_start(self) -> None:
+        self.cumulative_accuracy = torch.tensor(0.0)
+        return super().on_test_epoch_start()
 
     def test_step(self, batch: Dict[str, Tensor], batch_idx: int) -> Dict[str, Tensor]:  # type: ignore
         """

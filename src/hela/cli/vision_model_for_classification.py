@@ -16,9 +16,9 @@ from ..models.squeezenet.model import SqueezeNet
 from ..pytorch_lightning.datasets.torchvision_image_classification import (
     LitImageClassificationDataset,
 )
-from ..pytorch_lightning.models.approximations.alexnet import LitApproximatedAlexNet
-from ..pytorch_lightning.models.approximations.lenet import LitApproximatedLeNet
-from ..pytorch_lightning.models.approximations.squeezenet import (
+from ..pytorch_lightning.models.vision.alexnet import LitApproximatedAlexNet
+from ..pytorch_lightning.models.vision.lenet import LitApproximatedLeNet
+from ..pytorch_lightning.models.vision.squeezenet import (
     LitApproximatedSqueezeNet,
 )
 
