@@ -30,6 +30,7 @@ class Pipeline:
         self,
         model: nn.Module,
         lightning_model_class: Type[pl.LightningModule],
+        lightning_model_args: Dict[str, Any],
         trainer_args: Dict[str, Any],
         pipeline_steps_path: str,
         experiment_ckpt: Optional[str] = None,
@@ -103,7 +104,7 @@ class Pipeline:
             modules_aliases_file=modules_aliases_file,
         )
         self.lightning_model = lightning_model_class(
-            model=model, controller=self.controller, model_args=trainer_args
+            model=model, controller=self.controller, model_args=lightning_model_args
         )
         if not isinstance(self.lightning_model, LitApproximatedModel):
             raise TypeError(

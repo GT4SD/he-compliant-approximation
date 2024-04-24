@@ -11,6 +11,7 @@ class SqueezeNetConfig:
         version: str = "1_0",
         num_classes: int = 10,
         dropout: float = 0.5,
+        **kwargs,
     ) -> None:
         """Initialization of the configuration.
 

@@ -7,11 +7,11 @@
                 "skip_validation": false,
                 "check_val_every_n_epoch": 1,
                 "early_stopping": true,
-                "early_stopping_monitor": "val_accuracy",
+                "early_stopping_monitor": "valid_MulticlassAccuracy",
                 "early_stopping_mode": "max",
                 "early_stopping_patience": 5,
                 "early_stopping_patience_reached": false,
-                "max_epochs": 100
+                "max_epochs": 1
             }
         }
     ]

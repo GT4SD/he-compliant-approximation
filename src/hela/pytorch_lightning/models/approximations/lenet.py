@@ -61,8 +61,9 @@ class LitApproximatedLeNet(LitApproximatedVisionModelForClassification):
             )
         )
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        group = parser.add_argument_group("model_config_args")
 
         # model configuration arguments
-        parser.add_argument("--lenet_type", type=str, default="LeNet-5")
+        group.add_argument("--lenet_type", type=str, default="lenet-5")
 
         return parser

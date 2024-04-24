@@ -11,6 +11,7 @@ class LeNetConfig:
         lenet_type: str = "LeNet-5",
         num_classes: int = 10,
         greyscale: bool = False,
+        **kwargs,
     ) -> None:
         """Initialization of the configuration.
 

@@ -30,6 +30,7 @@ class ApproximationPipeline(Pipeline):
         self,
         model: nn.Module,
         lightning_model_class: Type[pl.LightningModule],
+        lightning_model_args: Dict[str, Any],
         trainer_args: Dict[str, Any],
         pipeline_steps_path: str,
         train_dataloader: DataLoader,
@@ -57,6 +58,7 @@ class ApproximationPipeline(Pipeline):
         super().__init__(
             model,
             lightning_model_class,
+            lightning_model_args,
             trainer_args,
             pipeline_steps_path,
             experiment_ckpt,

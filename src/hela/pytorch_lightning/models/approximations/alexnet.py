@@ -61,8 +61,9 @@ class LitApproximatedAlexNet(LitApproximatedVisionModelForClassification):
             )
         )
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
+        group = parser.add_argument_group("model_config_args")
 
         # model configuration arguments
-        parser.add_argument("--dropout", type=float, default=0.5)
+        group.add_argument("--dropout", type=float, default=0.5)
 
         return parser
