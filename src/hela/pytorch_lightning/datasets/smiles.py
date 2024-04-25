@@ -37,12 +37,13 @@ class SmilesDataset(Dataset):
         """
 
         self.filepath = filepath
+        if not self.filepath.endswith(".jsonl") and not self.filepath.endswith(".json"):
+            raise ValueError(f"{filepath} is not a .jsonl or a json.")
         self.tokenizer = tokenizer
         self.length = SmilesDataset.count_examples(filepath)
         self.padding_idx = padding_idx
 
-        if not self.filepath.endswith(".jsonl") and not self.filepath.endswith(".json"):
-            raise ValueError(f"{filepath} is not a .jsonl or a json.")
+        self.examples = self.examples_reader()
 
     @lru_cache()
     def examples_reader(self) -> List[Dict[str, str]]:
@@ -94,22 +95,16 @@ class SmilesDataset(Dataset):
             tokenized item.
         """
 
-        examples = self.examples_reader()
-        example = examples[index]
+        example = self.examples[index]
 
         item = {}
         source_item = self.tokenizer(example["source"])
         target_item = self.tokenizer(example["target"])
 
         item["encoder_input_ids"] = source_item["input_ids"]
-        item["encoder_padding_mask"] = source_item["attention_mask"].eq(
-            self.padding_idx
-        )
-
+        item["encoder_padding_mask"] = (1 - source_item["attention_mask"]).bool()
         item["decoder_input_ids"] = target_item["input_ids"]
-        item["decoder_padding_mask"] = target_item["attention_mask"].eq(
-            self.padding_idx
-        )
+        item["decoder_padding_mask"] = (1 - target_item["attention_mask"]).bool()
 
         return item
 
@@ -220,6 +215,7 @@ class LitSmilesDataset(pl.LightningDataModule):
             batch_size=self.dataset_args["batch_size"],
             num_workers=self.dataset_args["num_dataloader_workers"],
             collate_fn=self.data_collator,
+            pin_memory=True,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -233,6 +229,7 @@ class LitSmilesDataset(pl.LightningDataModule):
             batch_size=1,
             num_workers=self.dataset_args["num_dataloader_workers"],
             collate_fn=self.data_collator,
+            pin_memory=True,
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -246,6 +243,7 @@ class LitSmilesDataset(pl.LightningDataModule):
             batch_size=1,
             num_workers=self.dataset_args["num_dataloader_workers"],
             collate_fn=self.data_collator,
+            pin_memory=True,
         )
 
     @staticmethod
