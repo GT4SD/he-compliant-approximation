@@ -55,15 +55,15 @@ from hela.approximation.approximators.softmax.taylor import (
     TaylorSoftmaxApproximator,
 )
 
-# default device to run the tests
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# defining the devices to run the tests on
+DEVICE_LIST = ["cpu", "cuda"]
 
 # defining some testing parameters
-batch_size = 10
-sequence_length = embedding_dim = 256
+BATCH_SIZE = 10
+SEQUENCE_LENGTH = EMBEDDING_DIM = 256
 
-kernel_size = 32
-img_size = 32
+KERNEL_SIZE = 32
+IMAGE_SIZE = 32
 
 
 # each dictionary entry represent an approximator class and its testing values
@@ -76,46 +76,35 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": QuadraticActivation,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, sequence_length), device=DEVICE
-            )
-            * 2
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
-            * 4,
+            torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 4,
         ],
     },
     "TrainableQuadraticApproximator": {
         "approximator_class": TrainableQuadraticApproximator,
-        "init_parameters": [{"input_dimension": sequence_length}],
+        "init_parameters": [{"input_dimension": SEQUENCE_LENGTH}],
         "trainable_approximation_class": PairedReLU,
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": TrainableQuadraticActivation,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, sequence_length), device=DEVICE
-            )
-            * 2
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
-            * 2,
+            torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2,
         ],
     },
     "LayerNormToBatchNormApproximator": {
         "approximator_class": LayerNormToBatchNormApproximator,
-        "init_parameters": [{"num_features": embedding_dim}],
+        "init_parameters": [{"num_features": EMBEDDING_DIM}],
         "trainable_approximation_class": BatchNorm1dForTransformers,
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": BatchNorm1dForTransformers,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, embedding_dim), device=DEVICE
-            )
-            * 2
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, EMBEDDING_DIM)) * 2
         },
         "output_type": Tensor,
         "expected_output": [
@@ -124,17 +113,14 @@ testing_informations = {
     },
     "DistillLayernormApproximator": {
         "approximator_class": DistillLayerNormApproximator,
-        "init_parameters": [{"normalized_shape": embedding_dim}],
+        "init_parameters": [{"normalized_shape": EMBEDDING_DIM}],
         "trainable_approximation_class": PairedLayerNorm,
         "get_trainable_approximation_kwargs": [
-            {"layernorm": nn.LayerNorm(embedding_dim)}
+            {"layernorm": nn.LayerNorm(EMBEDDING_DIM)}
         ],
         "pretrained_approximation_class": DistillLayerNorm,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, embedding_dim), device=DEVICE
-            )
-            * 2
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, EMBEDDING_DIM)) * 2
         },
         "output_type": Tensor,
         "expected_output": [
@@ -146,8 +132,8 @@ testing_informations = {
         "init_parameters": [
             {},
             {
-                "embed_dim": embedding_dim,
-                "num_heads": int(embedding_dim / 2),
+                "embed_dim": EMBEDDING_DIM,
+                "num_heads": int(EMBEDDING_DIM / 2),
                 "dropout": 0.5,
             },
         ],
@@ -155,20 +141,20 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [
             {
                 "multihead": nn.MultiheadAttention(
-                    embed_dim=embedding_dim, num_heads=1
+                    embed_dim=EMBEDDING_DIM, num_heads=1
                 ),
             },
             {
                 "multihead": nn.MultiheadAttention(
-                    embed_dim=embedding_dim, num_heads=1
+                    embed_dim=EMBEDDING_DIM, num_heads=1
                 ),
             },
         ],
         "pretrained_approximation_class": CustomizableMultiHead,
         "forward_kwargs": {
-            "query": torch.ones((batch_size, embedding_dim), device=DEVICE),
-            "key": torch.ones((batch_size, embedding_dim), device=DEVICE),
-            "value": torch.ones((batch_size, embedding_dim), device=DEVICE),
+            "query": torch.ones((BATCH_SIZE, EMBEDDING_DIM)),
+            "key": torch.ones((BATCH_SIZE, EMBEDDING_DIM)),
+            "value": torch.ones((BATCH_SIZE, EMBEDDING_DIM)),
         },
         "output_type": Tuple,
         "expected_output": [
@@ -226,34 +212,22 @@ testing_informations = {
         ],
         "pretrained_approximation_class": PolynomialSoftmax,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, sequence_length), device=DEVICE
-            )
-            * 2,
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2,
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
-            / sequence_length,
+            torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH))
+            / SEQUENCE_LENGTH,
             torch.pow(
-                torch.ones(
-                    (batch_size, sequence_length, sequence_length), device=DEVICE
-                )
-                * 2,
+                torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2,
                 2,
             ),
             torch.pow(
-                torch.ones(
-                    (batch_size, sequence_length, sequence_length), device=DEVICE
-                )
-                * 2,
+                torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2,
                 4,
             ),
             torch.pow(
-                torch.ones(
-                    (batch_size, sequence_length, sequence_length), device=DEVICE
-                )
-                * 2,
+                torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * 2,
                 2,
             ),
         ],
@@ -265,26 +239,22 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": TaylorSoftmax,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, sequence_length), device=DEVICE
-            ),
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)),
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
-            / sequence_length,
+            torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH))
+            / SEQUENCE_LENGTH,
         ],
     },
     "MLPSoftmaxApproximator": {
         "approximator_class": MLPSoftmaxApproximator,
-        "init_parameters": [{"dim_size": embedding_dim, "unit_test": True}],
+        "init_parameters": [{"dim_size": EMBEDDING_DIM, "unit_test": True}],
         "trainable_approximation_class": MLPSoftmax,
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": MLPSoftmax,
         "forward_kwargs": {
-            "input": torch.ones(
-                (batch_size, sequence_length, sequence_length), device=DEVICE
-            ),
+            "input": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH)),
         },
         "output_type": Tensor,
         "expected_output": [
@@ -301,20 +271,19 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}, {}],
         "pretrained_approximation_class": MultiplicativeAttentionMasking,
         "forward_kwargs": {
-            "attn": torch.ones((sequence_length, sequence_length), device=DEVICE),
+            "attn": torch.ones((SEQUENCE_LENGTH, SEQUENCE_LENGTH)),
             "attn_mask": torch.triu(
-                torch.ones((sequence_length, sequence_length), device=DEVICE)
-                * float("-inf"),
+                torch.ones((SEQUENCE_LENGTH, SEQUENCE_LENGTH)) * float("-inf"),
                 diagonal=1,
             ),
         },
         "output_type": Tensor,
         "expected_output": [
             torch.tril(
-                torch.ones((sequence_length, sequence_length), device=DEVICE),
+                torch.ones((SEQUENCE_LENGTH, SEQUENCE_LENGTH)),
                 diagonal=0,
             ),
-            torch.ones((sequence_length, sequence_length), device=DEVICE),
+            torch.ones((SEQUENCE_LENGTH, SEQUENCE_LENGTH)),
         ],
     },
     "NotScaledQueryKeyProductApproximator": {
@@ -324,26 +293,21 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [{}],
         "pretrained_approximation_class": NotScaledQueryKeyDotProduct,
         "forward_kwargs": {
-            "query": torch.ones(
-                (batch_size, sequence_length, embedding_dim), device=DEVICE
-            ),
-            "key": torch.ones(
-                (batch_size, sequence_length, embedding_dim), device=DEVICE
-            )
-            * 2,
+            "query": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, EMBEDDING_DIM)),
+            "key": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, EMBEDDING_DIM)) * 2,
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((batch_size, sequence_length, sequence_length), device=DEVICE)
+            torch.ones((BATCH_SIZE, SEQUENCE_LENGTH, SEQUENCE_LENGTH))
             * 2
-            * embedding_dim,
+            * EMBEDDING_DIM,
         ],
     },
     "AvgPooling2dApproximator": {
         "approximator_class": AvgPooling2dApproximator,
         "init_parameters": [
             {
-                "kernel_size": kernel_size,
+                "kernel_size": KERNEL_SIZE,
                 "stride": None,
                 "padding": 0,
                 "ceil_mode": False,
@@ -354,7 +318,7 @@ testing_informations = {
         "get_trainable_approximation_kwargs": [
             {
                 "pooling": nn.MaxPool2d(
-                    kernel_size,
+                    KERNEL_SIZE,
                     stride=None,
                     padding=0,
                     dilation=1,
@@ -365,13 +329,13 @@ testing_informations = {
         ],
         "pretrained_approximation_class": AvgPooling2d,
         "forward_kwargs": {
-            "input": torch.arange(
-                1, img_size * img_size + 1, device=DEVICE, dtype=float
-            ).reshape(1, img_size, img_size),
+            "input": torch.arange(1, IMAGE_SIZE * IMAGE_SIZE + 1, dtype=float).reshape(
+                1, IMAGE_SIZE, IMAGE_SIZE
+            ),
         },
         "output_type": Tensor,
         "expected_output": [
-            torch.ones((1, 1, 1), device=DEVICE, dtype=float) * 512.5,
+            torch.ones((1, 1, 1), dtype=float) * 512.5,
         ],
     },
 }
@@ -385,7 +349,7 @@ testing_informations = {
         for init_params in testing_informations[approx]["init_parameters"]
     ],
     ids=[
-        f"{approx} - init_params {init_params_index} "
+        f" {approx} - init_params {init_params_index} "
         for approx in list(testing_informations.keys())
         for init_params_index, _ in enumerate(
             testing_informations[approx]["init_parameters"]
@@ -430,7 +394,7 @@ def test_approximator_init(
         )
     ],
     ids=[
-        f"{approx} - init_params {init_params_index} "
+        f" {approx} - init_params {init_params_index} "
         for approx in list(testing_informations.keys())
         for init_params_index, _ in enumerate(
             testing_informations[approx]["init_parameters"]
@@ -473,26 +437,29 @@ def test_get_trainable_approximation(
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier,init_parameters,init_parameters_index",
+    "approximator_identifier,init_parameters,init_parameters_index,device",
     [
-        (approx, init_params, init_params_index)
+        (approx, init_params, init_params_index, device)
         for approx in list(testing_informations.keys())
         for init_params_index, init_params in enumerate(
             testing_informations[approx]["init_parameters"]
         )
+        for device in DEVICE_LIST
     ],
     ids=[
-        f"{approx} - init_params {init_params_index} "
+        f" {approx} - init_params {init_params_index} - device: {device} "
         for approx in list(testing_informations.keys())
         for init_params_index, _ in enumerate(
             testing_informations[approx]["init_parameters"]
         )
+        for device in DEVICE_LIST
     ],
 )
 def test_trainable_approximation_forward(
     approximator_identifier: str,
     init_parameters: Dict[str, Any],
     init_parameters_index: int,
+    device: str,
 ):
     """Tests the forward pass of the approximator trainable approximation.
 
@@ -500,6 +467,7 @@ def test_trainable_approximation_forward(
         approximator_identifier: identifier of the approximator to be tested.
         init_parameters: initialization parameters of the approximation.
         init_parameters_index: index to select the testing information corresponding to the initialization parameters.
+        device: device to be used for the forward pass.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
@@ -514,12 +482,16 @@ def test_trainable_approximation_forward(
             init_parameters_index
         ]
     )
-    # moving the approximated module to the default DEVICE
-    trainable_approx_module.to(DEVICE)
+    # moving the approximated module to the device
+    trainable_approx_module.to(device)
+    # initializing the forward input
+    forward_kwargs = deepcopy(approximator_dictionary["forward_kwargs"])
+    for key, value in forward_kwargs.items():
+        print(type(value))
+        if isinstance(value, Tensor):
+            forward_kwargs[key] = value.to(device)
     # forward pass through the trainable approximation
-    output = trainable_approx_module(
-        **deepcopy(approximator_dictionary["forward_kwargs"])
-    )
+    output = trainable_approx_module(**forward_kwargs)
 
     # ASSERTS
 
@@ -529,13 +501,23 @@ def test_trainable_approximation_forward(
     ), f"Output type mismatch. Expected type: {approximator_dictionary['output_type']}."
 
     # checking the output values if they are specified
-    if approximator_dictionary["expected_output"][init_parameters_index] is not None:
+    if approximator_dictionary["expected_output"][
+        init_parameters_index
+    ] is not None and isinstance(
+        approximator_dictionary["expected_output"][init_parameters_index], Tensor
+    ):
         assert torch.all(
             torch.eq(
                 output,
-                approximator_dictionary["expected_output"][init_parameters_index],
+                approximator_dictionary["expected_output"][init_parameters_index].to(
+                    device
+                ),
             )
         ), "Output values do not match the expected values."
+
+    # releasing GPU memory, if needed
+    if device == "cuda":
+        torch.cuda.empty_cache()
 
 
 @pytest.mark.parametrize(
@@ -548,7 +530,7 @@ def test_trainable_approximation_forward(
         )
     ],
     ids=[
-        f"{approx} - init_params {init_params_index} "
+        f" {approx} - init_params {init_params_index} "
         for approx in list(testing_informations.keys())
         for init_params_index, _ in enumerate(
             testing_informations[approx]["init_parameters"]
@@ -600,26 +582,29 @@ def test_get_pretrained_approximation(
 
 
 @pytest.mark.parametrize(
-    "approximator_identifier,init_parameters,init_parameters_index",
+    "approximator_identifier,init_parameters,init_parameters_index,device",
     [
-        (approx, init_params, init_params_index)
+        (approx, init_params, init_params_index, device)
         for approx in list(testing_informations.keys())
         for init_params_index, init_params in enumerate(
             testing_informations[approx]["init_parameters"]
         )
+        for device in DEVICE_LIST
     ],
     ids=[
-        f"{approx} - init_params {init_params_index} "
+        f" {approx} - init_params {init_params_index} - device: {device} "
         for approx in list(testing_informations.keys())
         for init_params_index, _ in enumerate(
             testing_informations[approx]["init_parameters"]
         )
+        for device in DEVICE_LIST
     ],
 )
 def test_pretrained_approximation_forward(
     approximator_identifier: str,
     init_parameters: Dict[str, Any],
     init_parameters_index: int,
+    device: str,
 ):
     """Tests the forward pass of the approximator pretrained approximation.
 
@@ -627,6 +612,7 @@ def test_pretrained_approximation_forward(
         approximator_identifier: identifier of the approximator to be tested.
         init_parameters: initialization parameters of the approximation.
         init_parameters_index: index to select the testing information corresponding to the initialization parameters.
+        device: device to be used for the forward pass.
     """
     # retrieving the testing values for the approximator
     approximator_dictionary = testing_informations[approximator_identifier]
@@ -645,12 +631,15 @@ def test_pretrained_approximation_forward(
     pretrained_approx_module = approximator.get_pretrained_approximation(
         trainable_approx_module
     )
-    # moving the approximated module to the default DEVICE
-    pretrained_approx_module.to(DEVICE)
-    # forward pass through the pretrained approximation
-    output = pretrained_approx_module(
-        **deepcopy(approximator_dictionary["forward_kwargs"])
-    )
+    # moving the approximated module to the device
+    pretrained_approx_module.to(device)
+    # initializing the forward input
+    forward_kwargs = deepcopy(approximator_dictionary["forward_kwargs"])
+    for key, value in forward_kwargs.items():
+        if isinstance(value, torch.Tensor):
+            forward_kwargs[key] = value.to(device)
+    # forward pass through the trainable approximation
+    output = pretrained_approx_module(**forward_kwargs)
 
     # ASSERTS
 
@@ -660,10 +649,20 @@ def test_pretrained_approximation_forward(
     ), f"Output type mismatch. Expected type: {approximator_dictionary['output_type']}."
 
     # checking the output values if they are specified
-    if approximator_dictionary["expected_output"][init_parameters_index] is not None:
+    if approximator_dictionary["expected_output"][
+        init_parameters_index
+    ] is not None and isinstance(
+        approximator_dictionary["expected_output"][init_parameters_index], Tensor
+    ):
         assert torch.all(
             torch.eq(
                 output,
-                approximator_dictionary["expected_output"][init_parameters_index],
+                approximator_dictionary["expected_output"][init_parameters_index].to(
+                    device
+                ),
             )
-        ), "The output values do not match the expected values."
+        ), "Output values do not match the expected values."
+
+    # releasing GPU memory, if needed
+    if device == "cuda":
+        torch.cuda.empty_cache()

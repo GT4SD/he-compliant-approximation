@@ -4,18 +4,33 @@ import os
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+import pytest
+import torch
+
 from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 
+# defining the devices to run the tests on
+DEVICE_LIST = ["cpu", "cuda"]
 
-def test_configuration_init():
+
+@pytest.mark.parametrize(
+    "device",
+    DEVICE_LIST,
+    ids=[f"device: {device}" for device in DEVICE_LIST],
+)
+def test_configuration_init(device: str):
     """Tests the initialization of the configuation of a vanilla transformer."""
 
     # initializing (the default) configuration
-    default_configuration = VanillaTransformerConfig()
+    default_configuration = VanillaTransformerConfig(device=device)
 
     # ASSERTS
 
     assert isinstance(default_configuration, VanillaTransformerConfig)
+
+    # releasing GPU memory, if needed
+    if device == "cuda":
+        torch.cuda.empty_cache()
 
 
 def test_configuration_save():

@@ -28,7 +28,9 @@ ALIASES_FILE = str(
 
 PIPELINE_STEPS_FILE = "./pipeline_steps/vanilla_transformer/without_approximations.json"
 
-# aliases.json
+################
+# aliases.json #
+################
 
 
 def test_alias_mapping_init():
@@ -143,7 +145,9 @@ def test_load_saved_aliases():
             ), "The default approximation type of saved aliases should match the default approximation type in the loaded resource."
 
 
-# pipeline_steps.json
+#######################
+# pipeline_steps.json #
+#######################
 
 
 def test_approximation_step_init():

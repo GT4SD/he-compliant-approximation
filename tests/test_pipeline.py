@@ -5,7 +5,7 @@ import tempfile
 from hela.approximation.pipeline.core import Pipeline
 from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
 from hela.models.vanilla_transformer.model import VanillaTransformer
-from hela.pytorch_lightning.models.approximations.vanilla_transformer import (
+from hela.pytorch_lightning.models.language.vanilla_transformer import (
     LitApproximatedVanillaTransformer,
 )
 
@@ -26,6 +26,7 @@ def test_init_approximation_pipeline():
         pipeline = Pipeline(
             model=model,
             lightning_model_class=LitApproximatedVanillaTransformer,
+            lightning_model_args={},
             trainer_args=trainer_args,
             pipeline_steps_path=steps_path,
         )

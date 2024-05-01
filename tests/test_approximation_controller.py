@@ -39,9 +39,18 @@ from hela.approximation.approximators.softmax.taylor import TaylorSoftmax
 from hela.approximation.controller import ModelApproximationController, ToApproximate
 
 # importing models and configurations classes
+#############################################
+# AlexNet
+from hela.models.alexnet.configuration import AlexNetConfig
+from hela.models.alexnet.model import AlexNet
+
 # LeNet
 from hela.models.lenet.configuration import LeNetConfig
 from hela.models.lenet.model import LeNet
+
+# SqueezeNet
+from hela.models.squeezenet.configuration import SqueezeNetConfig
+from hela.models.squeezenet.model import SqueezeNet
 
 # VanillaTransformer
 from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
@@ -50,20 +59,22 @@ from hela.models.vanilla_transformer.model import (
     VanillaTransformerOutput,
 )
 
+#############################################
+
 ALIASES_FILE = str(
     importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
 )
 
-# default device to run the tests
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# defining the devices to run the tests on
+DEVICE_LIST = ["cpu", "cuda"]
 
-###########################################
-###### Model specific check functions #####
-###########################################
+#########################################################
+###### Model specific modules' approximation checks #####
+#########################################################
 
-#####################
-# Vanilla Transformer
-#####################
+#######################
+# Vanilla Transformer #
+#######################
 
 # defining some configuration parameters for the vanilla transformer
 num_encoder_layers = num_decoder_layers = 4
@@ -82,7 +93,9 @@ def check_relu_approximation_vanilla_transformer(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, VanillaTransformer)
+    assert isinstance(
+        approx_model, VanillaTransformer
+    ), f"Wrong model type: {type(approx_model)}."
     for idx in range(num_encoder_layers):
         assert isinstance(
             approx_model.encoder.encoder.layers[idx].activation,
@@ -105,7 +118,9 @@ def check_layernorm_approximation_vanilla_transformer(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, VanillaTransformer)
+    assert isinstance(
+        approx_model, VanillaTransformer
+    ), f"Wrong model type: {type(approx_model)}."
     for idx in range(num_encoder_layers):
         assert isinstance(
             approx_model.encoder.encoder.layers[idx].norm1, approximation_class
@@ -135,7 +150,9 @@ def check_multihead_approximation_vanilla_transformer(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, VanillaTransformer)
+    assert isinstance(
+        approx_model, VanillaTransformer
+    ), f"Wrong model type: {type(approx_model)}."
     for idx in range(num_encoder_layers):
         assert isinstance(
             approx_model.encoder.encoder.layers[idx].self_attn,
@@ -158,7 +175,9 @@ def check_softmax_approximation_vanilla_transformer(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, VanillaTransformer)
+    assert isinstance(
+        approx_model, VanillaTransformer
+    ), f"Wrong model type: {type(approx_model)}."
     for idx in range(num_encoder_layers):
         assert isinstance(
             approx_model.encoder.encoder.layers[idx].self_attn,
@@ -189,7 +208,9 @@ def check_attention_masking_approximation_vanilla_transformer(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, VanillaTransformer)
+    assert isinstance(
+        approx_model, VanillaTransformer
+    ), f"Wrong model type: {type(approx_model)}."
     for idx in range(num_encoder_layers):
         assert isinstance(
             approx_model.encoder.encoder.layers[idx].self_attn,
@@ -220,7 +241,9 @@ def check_attention_query_key_product_approximation_vanilla_transformer(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, VanillaTransformer)
+    assert isinstance(
+        approx_model, VanillaTransformer
+    ), f"Wrong model type: {type(approx_model)}."
     for idx in range(num_encoder_layers):
         assert isinstance(
             approx_model.encoder.encoder.layers[idx].self_attn,
@@ -241,12 +264,12 @@ def check_attention_query_key_product_approximation_vanilla_transformer(
         ), "Wrong attention query-key dot product approximation for VanillaTransformer model"
 
 
-#######
-# LeNet
-#######
+#########
+# LeNet #
+#########
 
 # defining some configuration parameters for the lenet
-lenet_type = "LeNet-5"
+lenet_type = "lenet-5"
 num_classes = 10
 greyscale = True
 
@@ -261,20 +284,14 @@ def check_relu_approximation_lenet(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, LeNet)
+    assert isinstance(approx_model, LeNet), f"Wrong model type: {type(approx_model)}."
 
-    assert isinstance(
-        approx_model.layers[2], approximation_class
-    ), "Wrong ReLU approximation for LeNet model"
-    assert isinstance(
-        approx_model.layers[6], approximation_class
-    ), "Wrong ReLU approximation for LeNet model"
-    assert isinstance(
-        approx_model.layers[9], approximation_class
-    ), "Wrong ReLU approximation for LeNet model"
-    assert isinstance(
-        approx_model.layers[11], approximation_class
-    ), "Wrong ReLU approximation for LeNet model"
+    relu_indexes = [2, 6, 9, 11]
+
+    for idx in relu_indexes:
+        assert isinstance(
+            approx_model.layers[idx], approximation_class
+        ), f"Wrong ReLU approximation for LeNet model at index {idx}."
 
 
 def check_maxpool2d_approximation_lenet(
@@ -287,23 +304,155 @@ def check_maxpool2d_approximation_lenet(
         approx_model: model with approximated modules.
         approximation_class: class of the approximation modules.
     """
-    assert isinstance(approx_model, LeNet)
-    assert isinstance(
-        approx_model.layers[3], approximation_class
-    ), "Wrong max pooling 2d approximation for LeNet model"
-    assert isinstance(
-        approx_model.layers[7], approximation_class
-    ), "Wrong max pooling 2d approximation for LeNet model"
+    assert isinstance(approx_model, LeNet), f"Wrong model type: {type(approx_model)}."
+
+    maxpool2d_indexes = [3, 7]
+
+    for idx in maxpool2d_indexes:
+        assert isinstance(
+            approx_model.layers[idx], approximation_class
+        ), f"Wrong max pooling 2d approximation for LeNet model at index {idx}."
 
 
-##############################
-###### Test dictionary #######
-##############################
+###########
+# AlexNet #
+###########
+
+# defining some configuration parameters for the AlexNet
+num_classes = 10
+dropout = 0.5
+
+
+def check_relu_approximation_alexnet(
+    approx_model: nn.Module,
+    approximation_class: Type[nn.Module],
+):
+    """Checks if the substitution of the ReLU approximation have been performed correctly in a AlexNet model.
+
+    Args:
+        approx_model: model with approximated modules.
+        approximation_class: class of the approximation modules.
+    """
+    assert isinstance(
+        approx_model, AlexNet
+    ), f"Wrong model type: {type(approx_model)} ."
+
+    features_relu_indexes = [1, 4, 7, 9, 11]
+    classifier_relu_indexes = [2, 5]
+
+    for idx in features_relu_indexes:
+        assert isinstance(
+            approx_model.model.features[idx], approximation_class
+        ), f"Wrong ReLU approximation for AlexNet model inside the features section at index {idx}."
+
+    for idx in classifier_relu_indexes:
+        assert isinstance(
+            approx_model.model.classifier[idx], approximation_class
+        ), f"Wrong ReLU approximation for AlexNet model inside the classifier section at index {idx}."
+
+
+def check_maxpool2d_approximation_alexnet(
+    approx_model: nn.Module,
+    approximation_class: Type[nn.Module],
+):
+    """Checks if the substitution of the max pooling 2d approximation have been performed correctly in a AlexNet model.
+
+    Args:
+        approx_model: model with approximated modules.
+        approximation_class: class of the approximation modules.
+    """
+    assert isinstance(
+        approx_model, AlexNet
+    ), f"Wrong model type: {type(approx_model)} ."
+
+    maxpool2d_indexes = [2, 5, 12]
+
+    for idx in maxpool2d_indexes:
+        assert isinstance(
+            approx_model.model.features[idx], approximation_class
+        ), f"Wrong max pooling 2d approximation for AlexNet model inside the features section at index {idx}."
+
+
+##############
+# SqueezeNet #
+##############
+
+# defining some configuration parameters for the Squeezenet
+squeezenet_version = "1_0"
+num_classes = 10
+dropout = 0.5
+
+
+def check_relu_approximation_squeezenet(
+    approx_model: nn.Module,
+    approximation_class: Type[nn.Module],
+):
+    """Checks if the substitution of the ReLU approximation have been performed correctly in a SqueezeNet model.
+
+    Args:
+        approx_model: model with approximated modules.
+        approximation_class: class of the approximation modules.
+    """
+    assert isinstance(
+        approx_model, SqueezeNet
+    ), f"Wrong model type: {type(approx_model)} ."
+
+    features_relu_indexes = [1]
+    fire_blocks_indexes = [3, 4, 5, 7, 8, 9, 10, 12]
+    fire_relu_keys = [
+        "squeeze_activation",
+        "expand1x1_activation",
+        "expand3x3_activation",
+    ]
+    classifier_relu_indexes = [2]
+
+    for idx in features_relu_indexes:
+        assert isinstance(
+            approx_model.model.features[idx], approximation_class
+        ), f"Wrong ReLU approximation for SqueezeNet model inside the features section at index {idx}."
+
+    for idx in fire_blocks_indexes:
+        for key in fire_relu_keys:
+            assert isinstance(
+                getattr(approx_model.model.features[idx], key), approximation_class
+            ), f"Wrong ReLU approximation for SqueezeNet model inside the fire block ({key}) at index {idx} in the features section."
+
+    for idx in classifier_relu_indexes:
+        assert isinstance(
+            approx_model.model.classifier[idx], approximation_class
+        ), f"Wrong ReLU approximation for SqueezeNet model inside the classifier section at index {idx}."
+
+
+def check_maxpool2d_approximation_squeezenet(
+    approx_model: nn.Module,
+    approximation_class: Type[nn.Module],
+):
+    """Checks if the substitution of the max pooling 2d approximation have been performed correctly in a SqueezeNet model.
+
+    Args:
+        approx_model: model with approximated modules.
+        approximation_class: class of the approximation modules.
+    """
+    assert isinstance(
+        approx_model, SqueezeNet
+    ), f"Wrong model type: {type(approx_model)} ."
+
+    maxpool2d_indexes = [2, 6, 11]
+
+    for idx in maxpool2d_indexes:
+        assert isinstance(
+            approx_model.model.features[idx], approximation_class
+        ), f"Wrong max pooling 2d approximation for SqueezeNet model inside the features section at index {idx}."
+
+
+############################################
+###### Tests' information dictionary #######
+############################################
 
 # defining some testing parameters
-batch_size = 2
-sequence_length = 256
-img_size = 32
+BATCH_SIZE = 2
+SEQUENCE_LENGTH = 256
+IMG_SIZE = 32
 
 # each item of the dictionary contains the information of a certain model on which you may test the approximation controller
 model_testing_informations = {
@@ -315,15 +464,10 @@ model_testing_informations = {
             "num_attention_heads": num_attention_heads,
             "ffn_hidden_dim": ffnn_hidden_dim,
             "embedding_dim": embedding_dim,
-            "device": DEVICE,
         },
         "forward_input": {
-            "encoder_input_ids": torch.ones(
-                (batch_size, sequence_length), device=DEVICE
-            ).long(),
-            "decoder_input_ids": torch.ones(
-                (batch_size, sequence_length), device=DEVICE
-            ).long(),
+            "encoder_input_ids": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH)).long(),
+            "decoder_input_ids": torch.ones((BATCH_SIZE, SEQUENCE_LENGTH)).long(),
         },
         "output_class": VanillaTransformerOutput,
     },
@@ -334,9 +478,26 @@ model_testing_informations = {
             "num_classes": num_classes,
             "greyscale": greyscale,
         },
-        "forward_input": {
-            "x": torch.ones((batch_size, 1, img_size, img_size), device=DEVICE)
+        "forward_input": {"x": torch.ones((BATCH_SIZE, 1, IMG_SIZE, IMG_SIZE))},
+        "output_class": Tensor,
+    },
+    AlexNet: {
+        "config_class": AlexNetConfig,
+        "config_parameters": {
+            "num_classes": num_classes,
+            "dropout": dropout,
         },
+        "forward_input": {"x": torch.ones((BATCH_SIZE, 3, 224, 224))},
+        "output_class": Tensor,
+    },
+    SqueezeNet: {
+        "config_class": SqueezeNetConfig,
+        "config_parameters": {
+            "version": squeezenet_version,
+            "num_classes": num_classes,
+            "dropout": dropout,
+        },
+        "forward_input": {"x": torch.ones((BATCH_SIZE, 3, 224, 224))},
         "output_class": Tensor,
     },
 }
@@ -345,10 +506,12 @@ model_testing_informations = {
 # for each 'to_approx_dict' a corresponding 'trainable_approximation_class' and 'pretrained_approximation_class' must be provided
 approximation_testing_informations = {
     "ReluApproximation": {
-        "model_classes": [VanillaTransformer, LeNet],
+        "model_classes": [VanillaTransformer, LeNet, AlexNet, SqueezeNet],
         "check_substitution": [
             check_relu_approximation_vanilla_transformer,
             check_relu_approximation_lenet,
+            check_relu_approximation_alexnet,
+            check_relu_approximation_squeezenet,
         ],
         "to_approx_dict": [
             {
@@ -550,8 +713,12 @@ approximation_testing_informations = {
         "default_approximation_class": NotScaledQueryKeyDotProduct,
     },
     "AvgPooling2d": {
-        "model_classes": [LeNet],
-        "check_substitution": [check_maxpool2d_approximation_lenet],
+        "model_classes": [LeNet, AlexNet, SqueezeNet],
+        "check_substitution": [
+            check_maxpool2d_approximation_lenet,
+            check_maxpool2d_approximation_alexnet,
+            check_maxpool2d_approximation_squeezenet,
+        ],
         "to_approx_dict": [
             {
                 "modules_set": [
@@ -582,7 +749,7 @@ approximation_testing_informations = {
         for init_params in approximation_testing_informations[approx]["to_approx_dict"]
     ],
     ids=[
-        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        f" {approx} - to_approx_dict {to_approx_dict_index} "
         for approx in list(approximation_testing_informations.keys())
         for to_approx_dict_index, _ in enumerate(
             approximation_testing_informations[approx]["to_approx_dict"]
@@ -631,7 +798,7 @@ def test_controller_init(
         for init_params in approximation_testing_informations[approx]["to_approx_dict"]
     ],
     ids=[
-        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        f" {approx} - to_approx_dict {to_approx_dict_index} "
         for approx in list(approximation_testing_informations.keys())
         for to_approx_dict_index, _ in enumerate(
             approximation_testing_informations[approx]["to_approx_dict"]
@@ -713,7 +880,7 @@ def test_controller_default_approximation_type_recover(
         )
     ],
     ids=[
-        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        f" {approx} - to_approx_dict {to_approx_dict_index} "
         for approx in list(approximation_testing_informations.keys())
         for to_approx_dict_index, _ in enumerate(
             approximation_testing_informations[approx]["to_approx_dict"]
@@ -791,29 +958,33 @@ def test_controller_trainable_approximation(
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier,to_approx_dict",
+    "approximation_identifier,to_approx_dict,device",
     [
-        (approx, init_params)
+        (approx, init_params, device)
         for approx in list(approximation_testing_informations.keys())
         for init_params in approximation_testing_informations[approx]["to_approx_dict"]
+        for device in DEVICE_LIST
     ],
     ids=[
-        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        f" {approx} - to_approx_dict {to_approx_dict_index} - device: {device} "
         for approx in list(approximation_testing_informations.keys())
         for to_approx_dict_index, _ in enumerate(
             approximation_testing_informations[approx]["to_approx_dict"]
         )
+        for device in DEVICE_LIST
     ],
 )
 def test_controller_trainable_approximation_forward(
     approximation_identifier: str,
     to_approx_dict: Dict[str, Union[str, Dict]],
+    device: str,
 ):
     """Tests the forward pass of the trainable approximation of the model.
 
     Args:
         approximation_identifier: identifier of the approximation to be tested.
         to_approx_dict: specification of the approximations to be performed.
+        device: device on which the model will be tested.
     """
     # retrieving the testing values for the module to be approximated
     approximation_dictionary = approximation_testing_informations[
@@ -825,10 +996,12 @@ def test_controller_trainable_approximation_forward(
     ):
         model_dictionary = model_testing_informations[model_class]
 
+        config_parameters = model_dictionary["config_parameters"]
+        if model_class == VanillaTransformer:
+            config_parameters["device"] = device
+
         # initializing the model to approximate
-        model = model_class(
-            model_dictionary["config_class"](**model_dictionary["config_parameters"])
-        )
+        model = model_class(model_dictionary["config_class"](**config_parameters))
         # initializing the object containing the approximation to be handled by the controller
         to_approximate = ToApproximate(**to_approx_dict)
         # initializing the approximation controller
@@ -839,11 +1012,15 @@ def test_controller_trainable_approximation_forward(
         )
         # getting the trainable approximation of the model
         approx_model = controller.get_approximated_model(pretrained=False)
-        # moving the approximated model to the default DEVICE
-        approx_model.to(DEVICE)
-
+        # moving the approximated model to the specified device
+        approx_model.to(device)
+        # initializing the forward input
+        forward_input = deepcopy(model_dictionary["forward_input"])
+        for key, value in forward_input.items():
+            if isinstance(value, Tensor):
+                forward_input[key] = value.to(device)
         # forward pass
-        output = approx_model(**model_dictionary["forward_input"])
+        output = approx_model(**forward_input)
 
         # ASSERTS
 
@@ -852,6 +1029,10 @@ def test_controller_trainable_approximation_forward(
         assert isinstance(approx_model, model_class)
         # checking the output class
         assert isinstance(output, model_dictionary["output_class"])
+
+        # releasing GPU memory, if needed
+        if device == "cuda":
+            torch.cuda.empty_cache()
 
 
 @pytest.mark.parametrize(
@@ -864,7 +1045,7 @@ def test_controller_trainable_approximation_forward(
         )
     ],
     ids=[
-        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        f" {approx} - to_approx_dict {to_approx_dict_index} "
         for approx in list(approximation_testing_informations.keys())
         for to_approx_dict_index, _ in enumerate(
             approximation_testing_informations[approx]["to_approx_dict"]
@@ -938,22 +1119,26 @@ def test_controller_pretrained_approximation(
 
 
 @pytest.mark.parametrize(
-    "approximation_identifier,to_approx_dict",
+    "approximation_identifier,to_approx_dict,device",
     [
-        (approx, init_params)
+        (approx, init_params, device)
         for approx in list(approximation_testing_informations.keys())
         for init_params in approximation_testing_informations[approx]["to_approx_dict"]
+        for device in DEVICE_LIST
     ],
     ids=[
-        f"{approx} - to_approx_dict {to_approx_dict_index} "
+        f" {approx} - to_approx_dict {to_approx_dict_index} - device: {device}"
         for approx in list(approximation_testing_informations.keys())
         for to_approx_dict_index, _ in enumerate(
             approximation_testing_informations[approx]["to_approx_dict"]
         )
+        for device in DEVICE_LIST
     ],
 )
 def test_controller_pretrained_approximation_forward(
-    approximation_identifier: str, to_approx_dict: Dict[str, Union[str, Dict]]
+    approximation_identifier: str,
+    to_approx_dict: Dict[str, Union[str, Dict]],
+    device: str,
 ):
     """Tests the forward pass of the pretrained approximation of the model.
 
@@ -971,10 +1156,12 @@ def test_controller_pretrained_approximation_forward(
     ):
         model_dictionary = model_testing_informations[model_class]
 
+        config_parameters = model_dictionary["config_parameters"]
+        if model_class == VanillaTransformer:
+            config_parameters["device"] = device
+
         # initializing the model to approximate
-        model = model_class(
-            model_dictionary["config_class"](**model_dictionary["config_parameters"])
-        )
+        model = model_class(model_dictionary["config_class"](**config_parameters))
         # initializing the object containing the approximation to be handled by the controller
         to_approximate = ToApproximate(**to_approx_dict)
         # initializing the approximation controller
@@ -988,10 +1175,14 @@ def test_controller_pretrained_approximation_forward(
         # getting the pretrained approximation of the model
         approx_model = controller.get_approximated_model(pretrained=True)
         # moving the approximated model to the default DEVICE
-        approx_model.to(DEVICE)
-
+        approx_model.to(device)
+        # initializing the forward input
+        forward_input = deepcopy(model_dictionary["forward_input"])
+        for key, value in forward_input.items():
+            if isinstance(value, Tensor):
+                forward_input[key] = value.to(device)
         # forward pass
-        output = approx_model(**model_dictionary["forward_input"])
+        output = approx_model(**forward_input)
 
         # ASSERTS
 
@@ -1000,3 +1191,7 @@ def test_controller_pretrained_approximation_forward(
         assert isinstance(approx_model, model_class)
         # checking the output class
         assert isinstance(output, model_dictionary["output_class"])
+
+        # releasing GPU memory, if needed
+        if device == "cuda":
+            torch.cuda.empty_cache()
