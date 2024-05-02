@@ -8,7 +8,7 @@ from hela.models.lenet.configuration import LeNetConfig
 from hela.models.lenet.model import LeNet
 
 # defining the devices to run the tests on
-DEVICE_LIST = ["cpu", "cuda"]
+DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]
 # defining the types of LeNet to run the tests on
 LENET_TYPE_LIST = ["lenet-1", "lenet-4", "lenet-5"]
 # defining the values for the number of classes parameter

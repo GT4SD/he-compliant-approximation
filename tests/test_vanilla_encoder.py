@@ -13,7 +13,7 @@ from hela.models.vanilla_transformer.model import (
 )
 
 # defining the devices to run the tests on
-DEVICE_LIST = ["cpu", "cuda"]
+DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]
 
 
 @pytest.mark.parametrize(

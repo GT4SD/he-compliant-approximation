@@ -8,7 +8,7 @@ from hela.models.squeezenet.configuration import SqueezeNetConfig
 from hela.models.squeezenet.model import SqueezeNet
 
 # defining the devices to run the tests on
-DEVICE_LIST = ["cpu", "cuda"]
+DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]
 # defining the values for the number of classes parameter
 NUM_CLASSES_LIST = [10, 100]
 # defining the values for the dropout rate parameter

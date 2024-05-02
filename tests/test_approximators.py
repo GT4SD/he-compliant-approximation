@@ -56,7 +56,7 @@ from hela.approximation.approximators.softmax.taylor import (
 )
 
 # defining the devices to run the tests on
-DEVICE_LIST = ["cpu", "cuda"]
+DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]
 
 # defining some testing parameters
 BATCH_SIZE = 10
