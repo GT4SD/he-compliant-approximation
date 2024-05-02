@@ -186,10 +186,8 @@ class LitImageClassificationDataset(pl.LightningDataModule):
                 ]
             )
 
-    def load(self) -> None:
+    def setup(self) -> None:
         """Loads train, validation and test datasets."""
-
-        self.prepare_data()
 
         train = self.dataset["dataset_class"](
             root=self.dataset_path,
