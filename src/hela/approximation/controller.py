@@ -67,6 +67,7 @@ class ModelApproximationController:
             raise ValueError("The model to be approximated must exist.")
 
         self.model = model
+        self.is_approximated = False
         # loading the modules' aliases mapping
         self.modules_aliases = load_modules_aliases(file_path=modules_aliases_file)
 
