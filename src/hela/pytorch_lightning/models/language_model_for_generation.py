@@ -2,12 +2,15 @@
 
 import logging
 from argparse import ArgumentParser
-from typing import Dict, Optional
+from typing import Any, Dict, Union
 
 import torch.optim as optim
-from torch import Tensor
+from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
+from torchmetrics import MetricCollection
 
+from ...approximation.controller import ModelApproximationController
+from ...metrics.text_sequence_matching import SequenceMatchingMetric
 from .core import LitApproximatedModel
 
 logger = logging.getLogger(__name__)
@@ -16,6 +19,24 @@ logger.addHandler(logging.NullHandler())
 
 class LitApproximatedLanguageModelForGeneration(LitApproximatedModel):
     """Approximated language model for generation tasks."""
+
+    def __init__(
+        self,
+        model: nn.Module,
+        controller: ModelApproximationController,
+        model_args: Dict[str, Union[float, int, str]],
+        metrics: MetricCollection = MetricCollection([SequenceMatchingMetric()]),
+        **kwargs,
+    ) -> None:
+
+        super().__init__(
+            model=model,
+            controller=controller,
+            model_args=model_args,
+            **kwargs,
+        )
+        self.valid_metrics = metrics.clone(prefix="valid_")
+        self.test_metrics = metrics.clone(prefix="test_")
 
     def configure_optimizers(
         self,
@@ -59,25 +80,88 @@ class LitApproximatedLanguageModelForGeneration(LitApproximatedModel):
         self.log("train_loss", loss)
         return loss
 
-    def validation_step(self, batch: Dict[str, Tensor], batch_idx: int) -> Optional[Dict[str, Tensor]]:  # type: ignore
-        """
-        Validation step which encompasses the forward pass and the computation of the loss value.
+    def validation_step(
+        self, batch: Dict[str, Tensor], batch_idx: int
+    ) -> Dict[str, Tensor]:
+        """Validation step which encompasses the forward pass and the computation of the validation metrics and the loss value.
 
         Args:
             batch: dictionary containing the input_ids and the attention_type.
             batch_idx: index of the current batch, unused.
 
         Returns:
-            loss computed on the batch.
+            validation metrics and loss computed on the batch.
         """
+
         loss = self.model(**batch).loss  # type:ignore
-
-        # TODO: should I add the loss value of the approximations to the validation step?
-        # maybe the approximation should have a flag that tells if shoud do something with the loss value during the validation step
-
         self.log("val_loss", loss, prog_bar=True)
 
+        # NOTE: validation is done with a batch size of 1
+
+        input_ids = batch["encoder_input_ids"]
+        labels = batch["decoder_input_ids"]
+
+        # generating the predicted sequence
+        predictions = self.model.generate(  # type: ignore
+            input_ids,
+            do_sample=False,
+            max_length=self.model.config.max_length,
+            num_beams=self.model.config.num_beams,
+        )
+
+        ground_truth = labels[~batch["decoder_padding_mask"]]
+
+        # check if the prediction perfectly matches the labels
+        valid_result = self.valid_metrics(
+            preds=predictions.view(-1), target=ground_truth.view(-1)
+        )
+        self.log_dict(valid_result, on_epoch=True, on_step=False, prog_bar=True)
+
         return {"val_loss": loss}
+
+    def test_step(self, batch: Dict[str, Tensor], batch_idx: int) -> None:  # type: ignore
+        """
+        Test step which encompasses the forward pass and the computation of the test metrics.
+
+        Args:
+            batch: dictionary containing the input_ids and the attention_type.
+            batch_idx: index of the current batch, unused.
+        """
+
+        # NOTE: testing is done with a batch size of 1
+
+        input_ids = batch["encoder_input_ids"]
+        labels = batch["decoder_input_ids"]
+
+        # generating the predicted sequence
+        predictions = self.model.generate(  # type: ignore
+            input_ids,
+            do_sample=False,
+            max_length=self.model.config.max_length,
+            num_beams=self.model.config.num_beams,
+        )
+
+        ground_truth = labels[~batch["decoder_padding_mask"]]
+
+        # check if the prediction perfectly matches the labels
+        test_result = self.test_metrics(
+            preds=predictions.view(-1), target=ground_truth.view(-1)
+        )
+        self.log_dict(test_result, on_epoch=True, on_step=False)
+
+    def return_results_metrics(self, **kwargs: Dict[str, Any]) -> Dict[str, float]:
+        """Returns the evaluation metrics.
+
+        Args:
+            **kwargs: additional keyword arguments that might be passed, unused.
+
+        Returns:
+            A dictionary containing the test metrics.
+        """
+        results = self.test_metrics.compute()
+        for key, metric in results.items():
+            results[key] = float(metric.cpu().numpy())
+        return results
 
     @staticmethod
     def add_model_specific_args(parent_parser: ArgumentParser) -> ArgumentParser:

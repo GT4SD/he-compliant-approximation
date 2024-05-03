@@ -28,6 +28,7 @@ class VanillaTransformerConfig(PretrainedConfig):
         is_encoder_decoder: bool = True,
         return_dict_in_generate: bool = False,
         num_beams: int = 1,
+        max_length: int = 278,
         device: str = "cpu",
         **kwargs
     ) -> None:
@@ -52,6 +53,7 @@ class VanillaTransformerConfig(PretrainedConfig):
             is_encoder_decoder: defines the structure of the model for the generation routine. Defaults to True.
             return_dict_in_generate: whether or not to return a [`ModelOutput`] instead of a plain tuple during generation. Defaults to False.
             num_beams: number of beams for beam search that will be used by default in the `generate` method of the model (1 means no beam search). Default to 1.
+            max_length: maximum length of the sequence to be generated. Defaults to 278.
             device: device on which the model will be allocated. Defaults to "cpu".
         """
 
@@ -76,6 +78,7 @@ class VanillaTransformerConfig(PretrainedConfig):
             is_encoder_decoder=is_encoder_decoder,
             return_dict_in_generate=return_dict_in_generate,
             decoder_start_token_id=decoder_start_token_id,
+            max_length=max_length,
             num_beams=num_beams,
             **kwargs,
         )
