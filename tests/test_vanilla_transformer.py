@@ -20,7 +20,7 @@ from hela.models.vanilla_transformer.model import (
 # defining the sequence length of the input used in some tests
 SEQUENCE_LENGTH = 10
 # defining the devices to run the tests on
-DEVICE_LIST = ["cpu", "cuda"]
+DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]
 # defining the values for the batch size parameter
 BATCH_SIZE_LIST = [1, 2]
 
