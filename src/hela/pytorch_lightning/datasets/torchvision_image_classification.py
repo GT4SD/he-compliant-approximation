@@ -1,6 +1,5 @@
 """Torchvision image classification datasets."""
 
-import logging
 import os
 from argparse import ArgumentParser
 
@@ -10,8 +9,9 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
 from torchvision import datasets, transforms
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+from ...utils.logging import setup_logger
+
+logger = setup_logger(__name__, logging_level="info")
 
 TORCHVISION_DATASETS = {
     "mnist": {

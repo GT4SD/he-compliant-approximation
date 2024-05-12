@@ -1,6 +1,5 @@
 """Pytorch Lightning modules implementation for approximated language models for text generation tasks."""
 
-import logging
 from argparse import ArgumentParser
 from typing import Any, Dict, Union
 
@@ -11,10 +10,10 @@ from torchmetrics import MetricCollection
 
 from ...approximation.controller import ModelApproximationController
 from ...metrics.text_sequence_matching import SequenceMatchingMetric
+from ...utils.logging import setup_logger
 from .core import LitApproximatedModel
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class LitApproximatedLanguageModelForGeneration(LitApproximatedModel):

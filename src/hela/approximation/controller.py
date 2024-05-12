@@ -1,12 +1,12 @@
 """"Model approximation controller."""
 
-import logging
 import os
 import re
 from typing import Callable, Dict, Optional, Tuple, Union
 
 from torch import nn
 
+from ..utils.logging import setup_logger
 from .aliases import ALIASES_FILE, load_modules_aliases
 
 # all the approximator classes must be imported to let the controller know about their existence
@@ -36,8 +36,7 @@ from .approximators.softmax.polynomial import PolynomialSoftmaxApproximator  # n
 from .approximators.softmax.taylor import TaylorSoftmaxApproximator  # noqa
 from .module_to_approximate import ToApproximate
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class ModelApproximationController:

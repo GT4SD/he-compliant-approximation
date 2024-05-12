@@ -3,7 +3,6 @@ Based on: https://github.com/huggingface/transformers/blob/main/src/transformers
 """
 
 import collections
-import logging
 import os
 import re
 from typing import Dict, List, Optional, Tuple
@@ -11,8 +10,9 @@ from typing import Dict, List, Optional, Tuple
 from rxn.chemutils.tokenization import SMILES_TOKENIZER_PATTERN
 from transformers.models.bert import BertTokenizer
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+from ...utils.logging import setup_logger
+
+logger = setup_logger(__name__, logging_level="info")
 
 
 class SmilesTokenizer(BertTokenizer):

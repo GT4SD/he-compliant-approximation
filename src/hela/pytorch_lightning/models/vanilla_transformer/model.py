@@ -1,6 +1,5 @@
 """Pytorch Lightning implementation for VanillaTransformer."""
 
-import logging
 from argparse import ArgumentParser
 from typing import Dict, Union
 
@@ -13,9 +12,9 @@ from torch import Tensor
 from ....models.tokenizers.smiles import SmilesTokenizer
 from ....models.vanilla_transformer.configuration import VanillaTransformerConfig
 from ....models.vanilla_transformer.model import VanillaTransformer
+from ....utils.logging import setup_logger
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class LitVanillaTransformer(pl.LightningModule):

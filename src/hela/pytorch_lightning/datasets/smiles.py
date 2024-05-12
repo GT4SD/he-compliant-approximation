@@ -1,7 +1,6 @@
 """MIT Smiles dataset routines-filtering, dataset building."""
 
 import json
-import logging
 import os
 from argparse import ArgumentParser
 from functools import lru_cache
@@ -15,9 +14,9 @@ from transformers import default_data_collator
 from transformers.tokenization_utils_base import BatchEncoding
 
 from ...models.tokenizers.smiles import SmilesTokenizer
+from ...utils.logging import setup_logger
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class SmilesDataset(Dataset):

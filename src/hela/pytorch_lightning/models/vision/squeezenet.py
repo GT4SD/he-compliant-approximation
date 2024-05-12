@@ -1,17 +1,16 @@
 """Pytorch Lightning implementation for approximated SqueezeNet."""
 
-import logging
 from argparse import ArgumentParser
 from typing import Dict, Union
 
 from ....approximation.controller import ModelApproximationController
 from ....models.squeezenet.model import SqueezeNet
+from ....utils.logging import setup_logger
 from ..vision_model_for_classification import (
     LitApproximatedVisionModelForClassification,
 )
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class LitApproximatedSqueezeNet(LitApproximatedVisionModelForClassification):

@@ -1,6 +1,5 @@
 """Pytorch Lightning implementation for approximated VanillaTransformer."""
 
-import logging
 from argparse import ArgumentParser
 from typing import Dict, Union
 
@@ -9,10 +8,10 @@ from torchmetrics import MetricCollection
 from ....approximation.controller import ModelApproximationController
 from ....metrics.text_sequence_matching import SequenceMatchingMetric
 from ....models.vanilla_transformer.model import VanillaTransformer
+from ....utils.logging import setup_logger
 from ..language_model_for_generation import LitApproximatedLanguageModelForGeneration
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class LitApproximatedVanillaTransformer(LitApproximatedLanguageModelForGeneration):

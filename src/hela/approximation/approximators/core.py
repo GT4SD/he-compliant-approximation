@@ -1,6 +1,5 @@
 """ModuleApproximator abstract class."""
 
-import logging
 import os
 from typing import Any, Callable, Dict, Optional, Set, Type, Union
 
@@ -8,8 +7,9 @@ import pytorch_lightning as pl
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+from ...utils.logging import setup_logger
+
+logger = setup_logger(__name__, logging_level="info")
 
 
 class ModuleApproximator:

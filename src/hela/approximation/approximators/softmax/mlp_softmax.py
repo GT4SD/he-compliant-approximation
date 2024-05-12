@@ -1,6 +1,5 @@
 """Module approximator for MLP approximation of softmax function."""
 
-import logging
 import os
 from copy import deepcopy
 from typing import Any, Dict, List
@@ -14,10 +13,10 @@ from torch import Tensor, nn
 from torch.utils.data import DataLoader, Dataset
 from transformers import default_data_collator
 
+from ....utils.logging import setup_logger
 from ..core import ModuleApproximator
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+logger = setup_logger(__name__, logging_level="info")
 
 
 class MLPSoftmaxApproximator(ModuleApproximator):
