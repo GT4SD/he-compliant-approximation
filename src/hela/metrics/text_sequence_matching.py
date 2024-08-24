@@ -14,7 +14,7 @@ class SequenceMatchingMetric(Metric):
         self.add_state("total", default=torch.tensor(0), dist_reduce_fx="sum")
 
     def update(self, preds: Tensor, target: Tensor) -> None:
-        self.correct += torch.equal(preds, target)
+        self.correct += sum(torch.all(preds == target, dim=1))
         self.total += preds.shape[0]
 
     def compute(self) -> None:
