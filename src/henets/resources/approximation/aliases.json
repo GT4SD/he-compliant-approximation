@@ -8,7 +8,7 @@
         },
         {
             "name": "layernorm",
-            "aliases": ["torch.nn.modules.normalization.LayerNorm", "hela.models.vanilla_transformer.model.ExtendedLayerNorm"],
+            "aliases": ["torch.nn.modules.normalization.LayerNorm", "henets.models.vanilla_transformer.model.ExtendedLayerNorm"],
             "default_approximation_type": "batchnorm",
             "dependencies": []
         },
@@ -20,7 +20,7 @@
         },
         {
             "name": "polynomial_softmax",
-            "aliases": ["hela.approximation.approximators.softmax.polynomial.PolynomialSoftmax", "torch.nn.modules.activation.Softmax"],
+            "aliases": ["henets.approximation.approximators.softmax.polynomial.PolynomialSoftmax", "torch.nn.modules.activation.Softmax"],
             "default_approximation_type": "polynomial",
             "dependencies": []
         },
@@ -32,13 +32,13 @@
         },
         {
             "name": "attn_masking",
-            "aliases": ["hela.approximation.approximators.multihead.customizable_multihead._attn_masking"],
+            "aliases": ["henets.approximation.approximators.multihead.customizable_multihead._attn_masking"],
             "default_approximation_type": "multiplicative",
             "dependencies": []
         },
         {
             "name": "query_key_product",
-            "aliases": ["hela.approximation.approximators.multihead.customizable_multihead._scaled_dot_product"],
+            "aliases": ["henets.approximation.approximators.multihead.customizable_multihead._scaled_dot_product"],
             "default_approximation_type": "not_scaled",
             "dependencies": []
         },

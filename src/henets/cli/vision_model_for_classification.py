@@ -86,7 +86,8 @@ def main():
         persistent_workers=dataset_args.persistent_workers,
     )
 
-    dataset.load()
+    dataset.prepare_data()
+    dataset.setup()
     train_dataloader = dataset.train_dataloader()
     val_dataloader = dataset.val_dataloader()
     test_dataloader = dataset.test_dataloader()

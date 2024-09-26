@@ -7,50 +7,50 @@ import pytest
 import torch
 from torch import Tensor, nn
 
-from hela.approximation.approximators.activation.quadratic import (
+from henets.approximation.approximators.activation.quadratic import (
     QuadraticActivation,
     QuadraticApproximator,
 )
-from hela.approximation.approximators.activation.trainable_quadratic import (
+from henets.approximation.approximators.activation.trainable_quadratic import (
     PairedReLU,
     TrainableQuadraticActivation,
     TrainableQuadraticApproximator,
 )
-from hela.approximation.approximators.attention.masking.multiplicative import (
+from henets.approximation.approximators.attention.masking.multiplicative import (
     MultiplicativeAttentionMasking,
     MultiplicativeAttentionMaskingApproximator,
 )
-from hela.approximation.approximators.attention.query_key_product.not_scaled import (
+from henets.approximation.approximators.attention.query_key_product.not_scaled import (
     NotScaledQueryKeyDotProduct,
     NotScaledQueryKeyDotProductApproximator,
 )
-from hela.approximation.approximators.core import ModuleApproximator
-from hela.approximation.approximators.layer_normalization.batch_normalization import (
+from henets.approximation.approximators.core import ModuleApproximator
+from henets.approximation.approximators.layer_normalization.batch_normalization import (
     BatchNorm1dForTransformers,
     LayerNormToBatchNormApproximator,
 )
-from hela.approximation.approximators.layer_normalization.distill_layernorm import (
+from henets.approximation.approximators.layer_normalization.distill_layernorm import (
     DistillLayerNorm,
     DistillLayerNormApproximator,
     PairedLayerNorm,
 )
-from hela.approximation.approximators.multihead.customizable_multihead import (
+from henets.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHead,
     CustomizableMultiHeadApproximator,
 )
-from hela.approximation.approximators.pooling.avg_pooling_2d import (
+from henets.approximation.approximators.pooling.avg_pooling_2d import (
     AvgPooling2d,
     AvgPooling2dApproximator,
 )
-from hela.approximation.approximators.softmax.mlp_softmax import (
+from henets.approximation.approximators.softmax.mlp_softmax import (
     MLPSoftmax,
     MLPSoftmaxApproximator,
 )
-from hela.approximation.approximators.softmax.polynomial import (
+from henets.approximation.approximators.softmax.polynomial import (
     PolynomialSoftmax,
     PolynomialSoftmaxApproximator,
 )
-from hela.approximation.approximators.softmax.taylor import (
+from henets.approximation.approximators.softmax.taylor import (
     TaylorSoftmax,
     TaylorSoftmaxApproximator,
 )

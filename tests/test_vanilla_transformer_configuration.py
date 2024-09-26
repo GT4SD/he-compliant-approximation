@@ -7,7 +7,7 @@ from unittest import TestCase
 import pytest
 import torch
 
-from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
+from henets.models.vanilla_transformer.configuration import VanillaTransformerConfig
 
 # defining the devices to run the tests on
 DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]

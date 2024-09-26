@@ -16,7 +16,7 @@ from ..pytorch_lightning.models.language.vanilla_transformer import (
 )
 
 SMILES_VOCAB_FILE = str(
-    importlib_resources.files("hela")
+    importlib_resources.files("henets")
     / "resources"
     / "models"
     / "tokenizers"

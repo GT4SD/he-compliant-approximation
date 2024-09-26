@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from .module_to_approximate import ModuleToApproximate
 
 ALIASES_FILE = str(
-    importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
+    importlib_resources.files("henets") / "resources" / "approximation" / "aliases.json"
 )
 
 

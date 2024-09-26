@@ -10,7 +10,7 @@ from ..pytorch_lightning.datasets.smiles import LitSmilesDataset
 from ..pytorch_lightning.models.vanilla_transformer.model import LitVanillaTransformer
 
 SMILES_VOCAB_FILE = str(
-    importlib_resources.files("hela")
+    importlib_resources.files("henets")
     / "resources"
     / "models"
     / "tokenizers"

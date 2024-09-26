@@ -4,8 +4,8 @@ import pytest
 import torch
 from torch import Tensor
 
-from hela.models.alexnet.configuration import AlexNetConfig
-from hela.models.alexnet.model import AlexNet
+from henets.models.alexnet.configuration import AlexNetConfig
+from henets.models.alexnet.model import AlexNet
 
 # defining the devices to run the tests on
 DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]

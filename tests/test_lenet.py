@@ -4,8 +4,8 @@ import pytest
 import torch
 from torch import Tensor
 
-from hela.models.lenet.configuration import LeNetConfig
-from hela.models.lenet.model import LeNet
+from henets.models.lenet.configuration import LeNetConfig
+from henets.models.lenet.model import LeNet
 
 # defining the devices to run the tests on
 DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]

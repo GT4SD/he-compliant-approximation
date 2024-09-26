@@ -9,52 +9,52 @@ import torch
 from torch import Tensor, nn
 
 # importing modules' approximators and approximations
-from hela.approximation.approximators.activation.quadratic import QuadraticActivation
-from hela.approximation.approximators.activation.trainable_quadratic import (
+from henets.approximation.approximators.activation.quadratic import QuadraticActivation
+from henets.approximation.approximators.activation.trainable_quadratic import (
     PairedReLU,
     TrainableQuadraticActivation,
 )
-from hela.approximation.approximators.attention.masking.multiplicative import (
+from henets.approximation.approximators.attention.masking.multiplicative import (
     MultiplicativeAttentionMasking,
 )
-from hela.approximation.approximators.attention.query_key_product.not_scaled import (
+from henets.approximation.approximators.attention.query_key_product.not_scaled import (
     NotScaledQueryKeyDotProduct,
 )
-from hela.approximation.approximators.layer_normalization.batch_normalization import (
+from henets.approximation.approximators.layer_normalization.batch_normalization import (
     BatchNorm1dForTransformers,
 )
-from hela.approximation.approximators.layer_normalization.distill_layernorm import (
+from henets.approximation.approximators.layer_normalization.distill_layernorm import (
     DistillLayerNorm,
     PairedLayerNorm,
 )
-from hela.approximation.approximators.multihead.customizable_multihead import (
+from henets.approximation.approximators.multihead.customizable_multihead import (
     CustomizableMultiHead,
 )
-from hela.approximation.approximators.pooling.avg_pooling_2d import AvgPooling2d
-from hela.approximation.approximators.softmax.mlp_softmax import MLPSoftmax
-from hela.approximation.approximators.softmax.polynomial import PolynomialSoftmax
-from hela.approximation.approximators.softmax.taylor import TaylorSoftmax
+from henets.approximation.approximators.pooling.avg_pooling_2d import AvgPooling2d
+from henets.approximation.approximators.softmax.mlp_softmax import MLPSoftmax
+from henets.approximation.approximators.softmax.polynomial import PolynomialSoftmax
+from henets.approximation.approximators.softmax.taylor import TaylorSoftmax
 
 # importing the approximation controller
-from hela.approximation.controller import ModelApproximationController, ToApproximate
+from henets.approximation.controller import ModelApproximationController, ToApproximate
 
 # importing models and configurations classes
 #############################################
 # AlexNet
-from hela.models.alexnet.configuration import AlexNetConfig
-from hela.models.alexnet.model import AlexNet
+from henets.models.alexnet.configuration import AlexNetConfig
+from henets.models.alexnet.model import AlexNet
 
 # LeNet
-from hela.models.lenet.configuration import LeNetConfig
-from hela.models.lenet.model import LeNet
+from henets.models.lenet.configuration import LeNetConfig
+from henets.models.lenet.model import LeNet
 
 # SqueezeNet
-from hela.models.squeezenet.configuration import SqueezeNetConfig
-from hela.models.squeezenet.model import SqueezeNet
+from henets.models.squeezenet.configuration import SqueezeNetConfig
+from henets.models.squeezenet.model import SqueezeNet
 
 # VanillaTransformer
-from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
-from hela.models.vanilla_transformer.model import (
+from henets.models.vanilla_transformer.configuration import VanillaTransformerConfig
+from henets.models.vanilla_transformer.model import (
     VanillaTransformer,
     VanillaTransformerOutput,
 )
@@ -62,7 +62,7 @@ from hela.models.vanilla_transformer.model import (
 #############################################
 
 ALIASES_FILE = str(
-    importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
+    importlib_resources.files("henets") / "resources" / "approximation" / "aliases.json"
 )
 
 # defining the devices to run the tests on

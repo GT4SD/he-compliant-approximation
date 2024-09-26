@@ -38,7 +38,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
-hela/.coverage
+henets/.coverage
 .coverage.*
 .coverage
 .cache
@@ -112,3 +112,5 @@ venv.bak/
 **/.DS_Store
 
 pipeline_logs
+
+examples/datasets

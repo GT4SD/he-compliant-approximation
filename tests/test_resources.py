@@ -7,14 +7,14 @@ from typing import Set
 
 import importlib_resources
 
-from hela.approximation.aliases import (
+from henets.approximation.aliases import (
     Aliases,
     ModuleAliases,
     load_modules_aliases,
     save_modules_aliases,
 )
-from hela.approximation.module_to_approximate import ModuleToApproximate
-from hela.approximation.pipeline_steps import (
+from henets.approximation.module_to_approximate import ModuleToApproximate
+from henets.approximation.pipeline_steps import (
     ApproximationStep,
     PipelineSteps,
     TrainingStepTrainerArgs,
@@ -23,7 +23,7 @@ from hela.approximation.pipeline_steps import (
 )
 
 ALIASES_FILE = str(
-    importlib_resources.files("hela") / "resources" / "approximation" / "aliases.json"
+    importlib_resources.files("henets") / "resources" / "approximation" / "aliases.json"
 )
 
 PIPELINE_STEPS_FILE = "./pipeline_steps/vanilla_transformer/without_approximations.json"

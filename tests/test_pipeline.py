@@ -2,10 +2,10 @@
 
 import tempfile
 
-from hela.approximation.pipeline.core import Pipeline
-from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
-from hela.models.vanilla_transformer.model import VanillaTransformer
-from hela.pytorch_lightning.models.language.vanilla_transformer import (
+from henets.approximation.pipeline.core import Pipeline
+from henets.models.vanilla_transformer.configuration import VanillaTransformerConfig
+from henets.models.vanilla_transformer.model import VanillaTransformer
+from henets.pytorch_lightning.models.language.vanilla_transformer import (
     LitApproximatedVanillaTransformer,
 )
 

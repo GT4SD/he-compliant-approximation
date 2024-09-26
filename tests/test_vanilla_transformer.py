@@ -7,8 +7,8 @@ import pytest
 import torch
 import transformers
 
-from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
-from hela.models.vanilla_transformer.model import (
+from henets.models.vanilla_transformer.configuration import VanillaTransformerConfig
+from henets.models.vanilla_transformer.model import (
     VanillaDecoderOutput,
     VanillaEncoderOutput,
     VanillaTransformer,

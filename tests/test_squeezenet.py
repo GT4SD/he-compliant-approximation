@@ -4,8 +4,8 @@ import pytest
 import torch
 from torch import Tensor
 
-from hela.models.squeezenet.configuration import SqueezeNetConfig
-from hela.models.squeezenet.model import SqueezeNet
+from henets.models.squeezenet.configuration import SqueezeNetConfig
+from henets.models.squeezenet.model import SqueezeNet
 
 # defining the devices to run the tests on
 DEVICE_LIST = ["cpu", "cuda"] if torch.cuda.is_available() else ["cpu"]

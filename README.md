@@ -1,4 +1,4 @@
-# HELA: Homomorphic Encryption Learnable Approximations
+# HEnets: a Framework for Homomorphic Encryption Compliant Neural Networks
 
 <p align="center">
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-yellow"></a>
@@ -12,7 +12,7 @@
 <a href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings"><img alt="Doctrings: google" src="https://img.shields.io/badge/doctrings-google-blue"></a>
 </p>
 
-The **HELA** (Homomorphic Encryption Learnable Approximations) is an open-source library to **accelerate the design of homomorphic encryption compliant neural networks**. This is possible by:
+The **HEnets** is an open-source library to **accelerate the design of homomorphic encryption compliant neural networks**. This is possible by:
 
 * substituting the neural network's modules.
 * customizing the behaviour of approximated modules.

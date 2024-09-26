@@ -6,8 +6,8 @@ from tempfile import TemporaryDirectory
 import pytest
 import torch
 
-from hela.models.vanilla_transformer.configuration import VanillaTransformerConfig
-from hela.models.vanilla_transformer.model import (
+from henets.models.vanilla_transformer.configuration import VanillaTransformerConfig
+from henets.models.vanilla_transformer.model import (
     VanillaEncoderOutput,
     VanillaTransformerEncoder,
 )
